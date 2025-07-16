@@ -4,7 +4,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
+// import { supabase } from '@/lib/supabase'
 import { Mail, Lock, AlertCircle } from 'lucide-react'
 
 export default function LoginPage() {
@@ -20,16 +20,11 @@ export default function LoginPage() {
     setError(null)
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
+      // Simulace přihlášení pro demo účely
+      await new Promise(resolve => setTimeout(resolve, 1000))
 
-      if (error) {
-        setError(error.message)
-      } else {
-        router.push('/')
-      }
+      // Pro demo - přesměruj na hlavní stránku
+      router.push('/')
     } catch (err) {
       setError('Došlo k neočekávané chybě')
     } finally {

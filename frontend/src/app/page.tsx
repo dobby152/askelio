@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import { useAuth } from '@/components/AuthProvider'
 import { FileUpload } from '@/components/FileUpload'
-import { CheckCircle, AlertCircle, FileText, Zap, Shield, Clock } from 'lucide-react'
+import { LandingPage } from '@/components/LandingPage'
+import { CheckCircle, AlertCircle, FileText, Zap } from 'lucide-react'
 
 export default function Home() {
   const { user } = useAuth()
@@ -21,59 +22,7 @@ export default function Home() {
   }
 
   if (!user) {
-    return (
-      <div className="max-w-6xl mx-auto">
-        {/* Hero Section */}
-        <div className="text-center py-20">
-          <h1 className="text-5xl font-bold text-gray-900 mb-6">
-            Automatizace zpracování faktur
-          </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Askelio je SaaS platforma pro automatizované vytěžování dat z faktur a účtenek
-            pomocí OCR technologií a AI. Ušetřete čas a eliminujte chyby při zpracování dokumentů.
-          </p>
-          <div className="flex justify-center space-x-4">
-            <a
-              href="/auth/register"
-              className="bg-blue-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
-            >
-              Začít zdarma
-            </a>
-            <a
-              href="/auth/login"
-              className="border border-gray-300 text-gray-700 px-8 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors"
-            >
-              Přihlásit se
-            </a>
-          </div>
-        </div>
-
-        {/* Features */}
-        <div className="grid md:grid-cols-3 gap-8 py-16">
-          <div className="text-center">
-            <Zap className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Rychlé zpracování</h3>
-            <p className="text-gray-600">
-              Automatické vytěžení dat během několika sekund pomocí pokročilého OCR a AI.
-            </p>
-          </div>
-          <div className="text-center">
-            <Shield className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Vysoká přesnost</h3>
-            <p className="text-gray-600">
-              Inteligentní fallback na prémiové AI OCR zaručuje přesnost přes 95 % u klíčových polí.
-            </p>
-          </div>
-          <div className="text-center">
-            <Clock className="w-12 h-12 text-blue-600 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Úspora času</h3>
-            <p className="text-gray-600">
-              Eliminujte manuální přepisování dat a ušetřete desítky hodin měsíčně.
-            </p>
-          </div>
-        </div>
-      </div>
-    )
+    return <LandingPage />
   }
 
   return (

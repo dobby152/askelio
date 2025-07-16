@@ -4,7 +4,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
+// import { supabase } from '@/lib/supabase'
 import { Mail, Lock, AlertCircle, CheckCircle } from 'lucide-react'
 
 export default function RegisterPage() {
@@ -34,20 +34,14 @@ export default function RegisterPage() {
     }
 
     try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-      })
+      // Simulace registrace pro demo účely
+      await new Promise(resolve => setTimeout(resolve, 1000))
 
-      if (error) {
-        setError(error.message)
-      } else {
-        setSuccess(true)
-        // Redirect after a short delay
-        setTimeout(() => {
-          router.push('/auth/login')
-        }, 3000)
-      }
+      setSuccess(true)
+      // Redirect after a short delay
+      setTimeout(() => {
+        router.push('/auth/login')
+      }, 3000)
     } catch (err) {
       setError('Došlo k neočekávané chybě')
     } finally {

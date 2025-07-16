@@ -5,11 +5,19 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
 class ApiClient {
   private async getAuthHeaders() {
+    // For demo purposes, return basic headers
+    return {
+      'Content-Type': 'application/json'
+    }
+
+    // Uncomment when Supabase is properly configured:
+    /*
     const { data: { session } } = await supabase.auth.getSession()
     return {
       'Content-Type': 'application/json',
       ...(session?.access_token && { 'Authorization': `Bearer ${session.access_token}` })
     }
+    */
   }
 
   async uploadDocument(file: File): Promise<any> {

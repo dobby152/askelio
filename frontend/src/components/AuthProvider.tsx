@@ -27,9 +27,14 @@ export const useAuth = () => {
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false) // Set to false for demo
 
   useEffect(() => {
+    // For demo purposes, don't connect to Supabase
+    setLoading(false)
+
+    // Uncomment when Supabase is properly configured:
+    /*
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
@@ -45,10 +50,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     )
 
     return () => subscription.unsubscribe()
+    */
   }, [])
 
   const signOut = async () => {
-    await supabase.auth.signOut()
+    // await supabase.auth.signOut()
   }
 
   return (
