@@ -26,7 +26,16 @@ export const useAuth = () => {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] = useState<User | null>({
+    id: 'demo-user-123',
+    email: 'demo@askelio.cz',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    aud: 'authenticated',
+    role: 'authenticated',
+    app_metadata: {},
+    user_metadata: {}
+  } as User)
   const [loading, setLoading] = useState(false) // Set to false for demo
 
   useEffect(() => {

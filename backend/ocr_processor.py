@@ -17,6 +17,7 @@ from models import Document, DocumentStatus, User, CreditTransaction, Transactio
 from config import settings
 from google_vision import google_vision_client
 from pdf_processor import pdf_to_images, extract_text_from_pdf, cleanup_temp_images
+from combined_ocr_processor import combined_ocr_processor
 
 # Configure Celery
 celery_app = Celery("askelio", broker=settings.redis_url, backend=settings.redis_url)
@@ -163,8 +164,8 @@ def calculate_confidence_score(tesseract_conf: float, ai_conf: float, use_ai: bo
 
 @celery_app.task
 def process_document_async(document_id: str, file_path: str):
-    """Async task to process document with OCR."""
-    logger.info(f"Starting OCR processing for document {document_id}")
+    """Async task to process document with COMBINED OCR (AI + Traditional methods)."""
+    logger.info(f"Starting COMBINED OCR processing for document {document_id}")
     db = SessionLocal()
 
     try:
@@ -180,19 +181,25 @@ def process_document_async(document_id: str, file_path: str):
             logger.error(f"User {document.user_id} not found for document {document_id}")
             return
 
-        logger.info(f"Processing document {document.file_name} for user {user.email}")
+        logger.info(f"Processing document {document.file_name} for user {user.email} with COMBINED OCR")
 
-        # Extract text with Tesseract
-        tesseract_text, tesseract_conf = extract_text_tesseract(file_path)
+        # Use Combined OCR Processor (AI + Traditional methods)
+        combined_result = combined_ocr_processor.process_document(file_path)
 
-        # Determine if AI OCR is needed
-        use_ai = tesseract_conf < settings.tesseract_confidence_threshold
-        ai_text, ai_conf = "", 0.0
+        if "error" in combined_result:
+            raise Exception(combined_result["error"])
+
+        # Extract results
+        final_result = combined_result["final_result"]
+        individual_results = combined_result["individual_results"]
+        comparison = combined_result["comparison"]
+
+        # Determine processing cost based on Google Vision usage
         processing_cost = Decimal('0.00')
+        google_vision_used = any(r["method"] == "google_vision" and r["confidence"] > 0
+                               for r in individual_results)
 
-        if use_ai and user.credit_balance >= settings.ai_ocr_cost:
-            # Use AI OCR and deduct credit
-            ai_text, ai_conf = extract_text_ai(file_path)
+        if google_vision_used and user.credit_balance >= settings.ai_ocr_cost:
             processing_cost = Decimal(str(settings.ai_ocr_cost))
 
             # Deduct credit
@@ -204,32 +211,29 @@ def process_document_async(document_id: str, file_path: str):
                 document_id=document.id,
                 amount=-processing_cost,
                 type=TransactionType.usage,
-                description=f"AI OCR zpracování dokumentu {document.file_name}"
+                description=f"Combined AI+OCR zpracování dokumentu {document.file_name}"
             )
             db.add(transaction)
 
-        # Choose best result
-        if use_ai and ai_conf > tesseract_conf:
-            final_text = ai_text
-            final_confidence = ai_conf
-        else:
-            final_text = tesseract_text
-            final_confidence = tesseract_conf
+        # Prepare final data
+        final_text = final_result["text"]
+        final_confidence = final_result["confidence"]
+        structured_data = final_result["structured_data"]
 
-        # Extract structured data
-        structured_data = extract_structured_data(final_text)
-
-        # Update document
+        # Update document with combined OCR results
         document.raw_tesseract_data = {
-            "text": tesseract_text,
-            "confidence": tesseract_conf
+            "individual_results": individual_results,
+            "comparison": comparison,
+            "methods_used": [r["method"] for r in individual_results],
+            "successful_methods": comparison["successful_methods"]
         }
 
-        if use_ai:
-            document.raw_ai_data = {
-                "text": ai_text,
-                "confidence": ai_conf
-            }
+        document.raw_ai_data = {
+            "google_vision_used": google_vision_used,
+            "final_method": final_result["method_used"],
+            "total_processing_time": final_result["total_processing_time"],
+            "text_similarity_matrix": comparison["text_similarity_matrix"]
+        }
 
         document.final_extracted_data = structured_data
         document.confidence_score = final_confidence
@@ -237,17 +241,31 @@ def process_document_async(document_id: str, file_path: str):
         document.status = DocumentStatus.completed
         document.completed_at = datetime.utcnow()
 
+        # Add processing summary to document
+        document.processing_notes = json.dumps({
+            "ocr_method": "combined_ai_traditional",
+            "methods_attempted": len(individual_results),
+            "best_method": final_result["method_used"],
+            "google_vision_used": google_vision_used,
+            "processing_cost": float(processing_cost)
+        })
+
         db.commit()
+
+        logger.info(f"Combined OCR processing completed for document {document_id}. "
+                   f"Method: {final_result['method_used']}, Confidence: {final_confidence:.2f}")
 
         # Clean up file
         if os.path.exists(file_path):
             os.remove(file_path)
 
     except Exception as e:
+        logger.error(f"Combined OCR processing failed for document {document_id}: {str(e)}")
         # Update document with error
-        document.status = DocumentStatus.failed
-        document.error_message = str(e)
-        db.commit()
+        if 'document' in locals():
+            document.status = DocumentStatus.failed
+            document.error_message = str(e)
+            db.commit()
 
     finally:
         db.close()

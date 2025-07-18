@@ -1,525 +1,743 @@
 'use client'
 
 import { useState } from 'react'
-import { Star, Users, TrendingUp, BarChart3, Globe, Lock, Sparkles, ArrowRight, Play, Check, ChevronDown, Menu, X } from 'lucide-react'
+import Image from "next/image"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { MobileMenu } from "@/components/mobile-menu"
+import { LoadingButton } from "@/components/loading-button"
+import {
+  FileText,
+  CreditCard,
+  Database,
+  Download,
+  Clock,
+  Shield,
+  Users,
+  CheckCircle,
+  ArrowRight,
+  Scan,
+  Brain,
+  Star,
+  Upload,
+  Send,
+  ChevronDown,
+  TrendingUp,
+  Award,
+  Zap,
+} from "lucide-react"
 
 export function LandingPage() {
-  const [pricingPeriod, setPricingPeriod] = useState<'monthly' | 'yearly'>('monthly')
   const [openFaq, setOpenFaq] = useState<number | null>(null)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-
-  const testimonials = [
-    {
-      text: "Vysoce intuitivní a vyleštěné. Je to vše, co jsme potřebovali a ještě více!",
-      rating: 5.0,
-      author: "Alex Jonas",
-      company: "JS Marketing",
-      avatar: "/api/placeholder/40/40"
-    },
-    {
-      text: "Toto je skutečně neuvěřitelné a ušetřilo nám to nespočet hodin!",
-      rating: 5.0,
-      author: "John Robert",
-      company: "SM Strategy",
-      avatar: "/api/placeholder/40/40"
-    },
-    {
-      text: "Čistá genialita! Toto masivně zefektivnilo náš workflow.",
-      rating: 4.8,
-      author: "Maggie Hue",
-      company: "BS Growth CEO",
-      avatar: "/api/placeholder/40/40"
-    }
-  ]
-
-  const benefits = [
-    {
-      icon: <Sparkles className="w-8 h-8 text-blue-600" />,
-      title: "Okamžité úspory",
-      description: "Získejte okamžité úspory při každém nákupu, poháněné AI pro optimalizaci vašich transakcí."
-    },
-    {
-      icon: <TrendingUp className="w-8 h-8 text-blue-600" />,
-      title: "Přehledy v reálném čase",
-      description: "Dělejte chytřejší rozhodnutí s živými daty a akčními přehledy dodávanými v reálném čase."
-    },
-    {
-      icon: <BarChart3 className="w-8 h-8 text-blue-600" />,
-      title: "Flexibilní plány",
-      description: "Vyberte si plány, které se přizpůsobí potřebám vašeho podnikání s nepřekonatelnou škálovatelností."
-    },
-    {
-      icon: <Lock className="w-8 h-8 text-blue-600" />,
-      title: "Bezpečné transakce",
-      description: "Upřednostněte bezpečnost s nejmodernějším šifrováním a robustními bezpečnostními funkcemi."
-    },
-    {
-      icon: <Globe className="w-8 h-8 text-blue-600" />,
-      title: "Adaptivní systémy",
-      description: "Využijte AI-řízené systémy, které se vyvíjejí s vaším podnikáním a zajišťují efektivitu."
-    },
-    {
-      icon: <Users className="w-8 h-8 text-blue-600" />,
-      title: "Specializovaná podpora",
-      description: "Přístup k odborné pomoci 24/7, abyste nikdy nebyli sami na své cestě růstu."
-    }
-  ]
-
-  const pricingPlans = [
-    {
-      name: "Starter",
-      monthlyPrice: 12,
-      yearlyPrice: 9,
-      features: [
-        "Neomezené použití AI",
-        "Prémiová podpora",
-        "Zákaznická péče na místě",
-        "Nástroje pro spolupráci",
-        "Pravidelné aktualizace"
-      ]
-    },
-    {
-      name: "Pro",
-      monthlyPrice: 17,
-      yearlyPrice: 12,
-      popular: true,
-      features: [
-        "Integrace s třetími stranami",
-        "Pokročilá analytika",
-        "Sledování výkonu týmu",
-        "Špičková bezpečnost",
-        "Prioritní zákaznická podpora",
-        "Detailní zprávy o použití"
-      ]
-    },
-    {
-      name: "Enterprise",
-      monthlyPrice: "Custom",
-      yearlyPrice: "Custom",
-      features: [
-        "Specializovaný account manager",
-        "Vlastní zprávy a dashboardy",
-        "Nejvyšší výkonnost",
-        "Přizpůsobené onboarding",
-        "Přizpůsobitelný API přístup",
-        "Specializovaný success manager"
-      ]
-    }
-  ]
-
-  const faqs = [
-    {
-      question: "Co dělá tento template jedinečným?",
-      answer: "Tento template je navržen pro zefektivnění online prezence vašeho SaaS nebo startupu s moderním, uživatelsky orientovaným designem a bezproblémovou funkčností."
-    },
-    {
-      question: "Mohu přizpůsobit template své značce?",
-      answer: "Absolutně! Template je plně přizpůsobitelný, umožňuje změnit barvy, fonty, obrázky a obsah tak, aby dokonale odpovídal identitě vaší značky."
-    },
-    {
-      question: "Je template optimalizován pro SEO a rychlost?",
-      answer: "Ano, template je postaven s Next.js, což zajišťuje výjimečný výkon, rychlé načítání a SEO-friendly design pro zvýšení vaší online viditelnosti."
-    },
-    {
-      question: "Je template mobilně přívětivý?",
-      answer: "Ano, template je plně responzivní a zajišťuje bezproblémovou uživatelskou zkušenost napříč desktopy, tablety a mobilními zařízeními."
-    },
-    {
-      question: "Mohu použít tento template pro komerční projekty?",
-      answer: "Ano. Můžete volně používat tento template pro osobní i komerční projekty — není vyžadováno uvedení zdroje."
-    }
-  ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100" style={{ scrollBehavior: 'smooth' }}>
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="text-2xl font-bold text-gray-900">Askelio</div>
-            <div className="hidden md:flex items-center space-x-8">
-              <a href="#features" className="text-gray-600 hover:text-gray-900 transition-colors">Features</a>
-              <a href="#benefits" className="text-gray-600 hover:text-gray-900 transition-colors">Výhody</a>
-              <a href="#pricing" className="text-gray-600 hover:text-gray-900 transition-colors">Ceny</a>
-              <a href="#faq" className="text-gray-600 hover:text-gray-900 transition-colors">FAQ</a>
+    <div className="min-h-screen bg-white">
+      <style jsx global>{`
+        html {
+          scroll-behavior: smooth;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          html {
+            scroll-behavior: auto;
+          }
+        }
+      `}</style>
+
+      {/* Header */}
+      <header className="border-b border-gray-200 bg-white sticky top-0 z-50 backdrop-blur-sm bg-white/95">
+        <div className="container mx-auto px-4 sm:px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <Image
+                src="/askelio-logo.svg"
+                alt="Askelio Logo"
+                width={40}
+                height={40}
+                className="h-10 w-auto"
+                priority
+              />
+              <span className="text-xl sm:text-2xl font-bold text-gray-900">
+                Askelio
+              </span>
             </div>
-            <div className="flex items-center space-x-4">
-              <a href="/auth/login" className="hidden md:block text-gray-600 hover:text-gray-900 transition-colors">Přihlášení</a>
-              <a href="/auth/register" className="hidden md:block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">Registrace</a>
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center space-x-8 lg:space-x-10">
+              <a
+                href="#features"
+                className="text-gray-600 hover:text-blue-600 transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md px-2 py-1"
+                tabIndex={0}
               >
-                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-              </button>
-            </div>
+                Funkce
+              </a>
+              <a
+                href="#how-it-works"
+                className="text-gray-600 hover:text-blue-600 transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md px-2 py-1"
+                tabIndex={0}
+              >
+                Jak to funguje
+              </a>
+              <a
+                href="#pricing"
+                className="text-gray-600 hover:text-blue-600 transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md px-2 py-1"
+                tabIndex={0}
+              >
+                Ceník
+              </a>
+              <a
+                href="#testimonials"
+                className="text-gray-600 hover:text-blue-600 transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md px-2 py-1"
+                tabIndex={0}
+              >
+                Reference
+              </a>
+              <Button
+                variant="outline"
+                className="border-gray-300 text-gray-700 hover:bg-gray-50 bg-transparent h-11 min-w-[44px]"
+                aria-label="Přihlásit se do účtu"
+              >
+                Přihlásit se
+              </Button>
+              <LoadingButton
+                className="bg-blue-600 hover:bg-blue-700 text-white h-11 min-w-[44px]"
+                size="default"
+              >
+                Vyzkoušet zdarma
+              </LoadingButton>
+            </nav>
+
+            {/* Mobile Menu */}
+            <MobileMenu />
           </div>
         </div>
+      </header>
 
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden bg-white border-t border-gray-200">
-            <div className="px-4 py-2 space-y-2">
-              <a href="#features" className="block py-2 text-gray-600 hover:text-gray-900 transition-colors" onClick={() => setMobileMenuOpen(false)}>Features</a>
-              <a href="#benefits" className="block py-2 text-gray-600 hover:text-gray-900 transition-colors" onClick={() => setMobileMenuOpen(false)}>Výhody</a>
-              <a href="#pricing" className="block py-2 text-gray-600 hover:text-gray-900 transition-colors" onClick={() => setMobileMenuOpen(false)}>Ceny</a>
-              <a href="#faq" className="block py-2 text-gray-600 hover:text-gray-900 transition-colors" onClick={() => setMobileMenuOpen(false)}>FAQ</a>
-              <div className="pt-2 border-t border-gray-200">
-                <a href="/auth/login" className="block py-2 text-gray-600 hover:text-gray-900 transition-colors">Přihlášení</a>
-                <a href="/auth/register" className="block py-2 bg-blue-600 text-white text-center rounded-lg hover:bg-blue-700 transition-colors">Registrace</a>
+      {/* Hero Section with Grid Pattern */}
+      <section className="py-16 sm:py-24 lg:py-32 bg-white relative overflow-hidden">
+        {/* Grid Pattern Background */}
+        <div className="absolute inset-0 opacity-[0.02]" aria-hidden="true">
+          <div
+            className="w-full h-full"
+            style={{
+              backgroundImage: `
+                linear-gradient(to right, #1e3a8a 1px, transparent 1px),
+                linear-gradient(to bottom, #1e3a8a 1px, transparent 1px)
+              `,
+              backgroundSize: "32px 32px",
+            }}
+          />
+        </div>
+
+        <div className="container mx-auto px-4 sm:px-6 relative">
+          <div className="max-w-5xl mx-auto text-center">
+            <Badge className="mb-6 sm:mb-8 bg-blue-50 text-blue-700 border-blue-200 px-4 py-2 text-sm sm:text-base">
+              🚀 Automatizované zpracování faktur a účtenek s AI
+            </Badge>
+
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 sm:mb-8 lg:mb-10 leading-tight tracking-tight">
+              Ušetřete až{" "}
+              <span className="text-blue-600">15 hodin týdně</span>{" "}
+              na účetnictví
+            </h1>
+
+            <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 mb-8 sm:mb-10 lg:mb-12 max-w-4xl mx-auto leading-relaxed font-light px-4 sm:px-0">
+              Askelio automaticky zpracuje vaše faktury a účtenky s{" "}
+              <strong className="font-semibold text-gray-900">99% přesností</strong>. Snižte chyby o 95% a integrujte se
+              s českými ERP systémy během 5 minut.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center mb-12 sm:mb-16 px-4 sm:px-0">
+              <LoadingButton
+                size="lg"
+                className="bg-blue-600 hover:bg-blue-700 text-white text-lg sm:text-xl px-8 sm:px-12 py-4 sm:py-6 h-12 sm:h-auto min-w-[44px] order-1"
+                showArrow
+              >
+                Začít zdarma - bez karty
+              </LoadingButton>
+              <LoadingButton
+                variant="outline"
+                size="lg"
+                className="border-gray-300 text-gray-700 hover:bg-gray-50 text-lg sm:text-xl px-8 sm:px-12 py-4 sm:py-6 bg-transparent h-12 sm:h-auto min-w-[44px] order-2"
+              >
+                Sledovat demo (2 min)
+              </LoadingButton>
+            </div>
+
+            {/* Social Proof */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 text-center mb-12 sm:mb-16 lg:mb-20 px-4 sm:px-0">
+              <div className="bg-white border border-gray-200 rounded-xl p-4 sm:p-6 lg:p-8 shadow-sm hover:shadow-md transition-shadow">
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-blue-600 mb-1 sm:mb-2">15h</div>
+                <div className="text-sm sm:text-base text-gray-600 font-medium">Úspora týdně</div>
+              </div>
+              <div className="bg-white border border-gray-200 rounded-xl p-4 sm:p-6 lg:p-8 shadow-sm hover:shadow-md transition-shadow">
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-emerald-600 mb-1 sm:mb-2">95%</div>
+                <div className="text-sm sm:text-base text-gray-600 font-medium">Méně chyb</div>
+              </div>
+              <div className="bg-white border border-gray-200 rounded-xl p-4 sm:p-6 lg:p-8 shadow-sm hover:shadow-md transition-shadow">
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-blue-600 mb-1 sm:mb-2">5 min</div>
+                <div className="text-sm sm:text-base text-gray-600 font-medium">Nastavení</div>
+              </div>
+              <div className="bg-white border border-gray-200 rounded-xl p-4 sm:p-6 lg:p-8 shadow-sm hover:shadow-md transition-shadow">
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-emerald-600 mb-1 sm:mb-2">1200+</div>
+                <div className="text-sm sm:text-base text-gray-600 font-medium">Spokojených firem</div>
               </div>
             </div>
-          </div>
-        )}
-      </nav>
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden pt-16">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-32">
-          {/* Social Proof */}
-          <div className="flex items-center justify-center mb-8">
-            <div className="flex -space-x-2">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 border-2 border-white"></div>
-              ))}
-            </div>
-            <span className="ml-3 text-sm text-gray-600">
-              Připojte se k <span className="font-semibold text-gray-900">10,000+</span> spokojených zákazníků
-            </span>
-          </div>
-
-          <div className="text-center">
-            <h1 className="text-6xl md:text-7xl font-bold text-gray-900 mb-6 leading-tight">
-              Nejlepší platforma pro
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"> růst vašeho</span> podnikání
-            </h1>
-            <p className="text-xl text-gray-600 mb-10 max-w-4xl mx-auto leading-relaxed">
-              Nejsilnější nástroje pro zvýšení prodeje, najímání nejlepších lidí a přístup k exkluzivním tržním přehledům pomocí AI technologií.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row justify-center gap-4 mb-16">
-              <button className="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center justify-center">
-                Začít hned teď
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </button>
-              <button className="group border-2 border-gray-200 text-gray-700 px-8 py-4 rounded-xl font-semibold hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 flex items-center justify-center">
-                <Play className="mr-2 w-5 h-5" />
-                Rezervovat demo
-              </button>
-            </div>
-
-            {/* Company Logos */}
-            <div className="flex items-center justify-center space-x-8 opacity-60">
-              {['Microsoft', 'Google', 'Stripe', 'Notion', 'Slack'].map((company) => (
-                <div key={company} className="text-gray-400 font-semibold text-lg">
-                  {company}
-                </div>
-              ))}
+            {/* Trusted by */}
+            <div className="text-center px-4 sm:px-0">
+              <p className="text-gray-500 mb-6 sm:mb-8 font-medium text-base sm:text-lg">Důvěřuje nám přes 1200 českých firem</p>
+              <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-8 lg:gap-12 opacity-60">
+                <div className="bg-gray-100 rounded-lg px-4 sm:px-6 lg:px-8 py-2 sm:py-3 lg:py-4 font-bold text-gray-600 text-sm sm:text-base lg:text-lg">POHODA</div>
+                <div className="bg-gray-100 rounded-lg px-4 sm:px-6 lg:px-8 py-2 sm:py-3 lg:py-4 font-bold text-gray-600 text-sm sm:text-base lg:text-lg">MONEY S3</div>
+                <div className="bg-gray-100 rounded-lg px-4 sm:px-6 lg:px-8 py-2 sm:py-3 lg:py-4 font-bold text-gray-600 text-sm sm:text-base lg:text-lg">HELIOS</div>
+                <div className="bg-gray-100 rounded-lg px-4 sm:px-6 lg:px-8 py-2 sm:py-3 lg:py-4 font-bold text-gray-600 text-sm sm:text-base lg:text-lg">ABRA</div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div>
-              <h3 className="text-3xl font-bold text-gray-900 mb-4">Rozlište se</h3>
-              <p className="text-gray-600 mb-8">
-                Pozvedněte svou značku se zlatým odznakem a spojte se s špičkovými partnery.
-              </p>
-              <div className="space-y-4">
-                {['Askelio Pro', 'Crystalio', 'Robinson jr'].map((name, index) => (
-                  <div key={name} className="flex items-center space-x-3 group">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 group-hover:scale-110 transition-transform duration-200"></div>
-                    <span className="font-medium text-gray-900">{name}</span>
-                    <Check className="w-5 h-5 text-green-500" />
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-8 rounded-2xl">
-              <div className="space-y-4">
-                <div className="bg-white p-4 rounded-lg shadow-sm">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Měsíční návštěvy</span>
-                    <TrendingUp className="w-4 h-4 text-green-500" />
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900">125,432</div>
-                </div>
-                <div className="bg-white p-4 rounded-lg shadow-sm">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Posledních 24h</span>
-                    <BarChart3 className="w-4 h-4 text-blue-500" />
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900">2,847</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Benefits Section */}
-      <section id="benefits" className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <p className="text-sm font-semibold text-blue-600 mb-2">VÝHODY</p>
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Proč si vybrat nás?</h2>
-            <p className="text-xl text-gray-600">
-              Inovativní nástroje a silné přehledy navržené pro povznesení vašeho podnikání
+      <section id="features" className="py-16 sm:py-24 lg:py-32 bg-gray-50">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="max-w-4xl mx-auto text-center mb-12 sm:mb-16 lg:mb-20">
+            <Badge className="mb-4 sm:mb-6 bg-blue-50 text-blue-700 border-blue-200">
+              ⚡ Funkce
+            </Badge>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6">
+              Vše co potřebujete pro automatizaci
+            </h2>
+            <p className="text-lg sm:text-xl text-gray-600 leading-relaxed">
+              Pokročilé AI technologie pro zpracování dokumentů s maximální přesností a rychlostí
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {benefits.map((benefit, index) => (
-              <div
-                key={index}
-                className="group bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 border border-gray-100 hover:border-blue-200"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <div className="mb-4 group-hover:scale-110 transition-transform duration-200">{benefit.icon}</div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">{benefit.title}</h3>
-                <p className="text-gray-600 group-hover:text-gray-700 transition-colors">{benefit.description}</p>
-              </div>
-            ))}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                  <Scan className="w-6 h-6 text-blue-600" />
+                </div>
+                <CardTitle className="text-xl font-semibold text-gray-900">OCR Rozpoznávání</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">99% přesnost při rozpoznávání textu z faktur, účtenek a dokumentů</p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center mb-4">
+                  <Brain className="w-6 h-6 text-emerald-600" />
+                </div>
+                <CardTitle className="text-xl font-semibold text-gray-900">AI Zpracování</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">Inteligentní extrakce dat s automatickou kategorizací a validací</p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                  <Database className="w-6 h-6 text-purple-600" />
+                </div>
+                <CardTitle className="text-xl font-semibold text-gray-900">ERP Integrace</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">Přímé propojení s Pohoda, Money S3, Helios a dalšími systémy</p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
+                  <Download className="w-6 h-6 text-orange-600" />
+                </div>
+                <CardTitle className="text-xl font-semibold text-gray-900">Export Formáty</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">CSV, JSON, ISDOC, XML - exportujte data v libovolném formátu</p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
+                  <Clock className="w-6 h-6 text-red-600" />
+                </div>
+                <CardTitle className="text-xl font-semibold text-gray-900">Rychlé Zpracování</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">Dokumenty zpracovány do 30 sekund s okamžitými výsledky</p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                  <Shield className="w-6 h-6 text-green-600" />
+                </div>
+                <CardTitle className="text-xl font-semibold text-gray-900">Bezpečnost</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">GDPR compliance, AES-256 šifrování, EU datacentra</p>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
 
       {/* Testimonials Section */}
-      <section data-testid="testimonials" className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <p className="text-sm font-semibold text-blue-600 mb-2">STĚNA LÁSKY</p>
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Milováno mysliteli</h2>
-            <p className="text-xl text-gray-600">
-              Zde je to, co lidé po celém světě říkají o nás
+      <section id="testimonials" className="py-16 sm:py-24 lg:py-32 bg-white">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="max-w-4xl mx-auto text-center mb-12 sm:mb-16 lg:mb-20">
+            <Badge className="mb-4 sm:mb-6 bg-emerald-50 text-emerald-700 border-emerald-200">
+              💬 Reference
+            </Badge>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6">
+              Co říkají naši zákazníci
+            </h2>
+            <p className="text-lg sm:text-xl text-gray-600 leading-relaxed">
+              Přečtěte si zkušenosti firem, které už používají Askelio pro automatizaci účetnictví
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <div
-                key={index}
-                className="group bg-gray-50 p-8 rounded-2xl hover:bg-white hover:shadow-lg transition-all duration-300 border border-transparent hover:border-gray-200"
-                style={{ animationDelay: `${index * 150}ms` }}
-              >
-                <div className="mb-6">
-                  <p className="text-gray-900 mb-4 group-hover:text-gray-800 transition-colors">"{testimonial.text}"</p>
-                  <div className="flex items-center mb-4">
-                    <span className="text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{testimonial.rating}</span>
-                    <div className="flex ml-2">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400 group-hover:scale-110 transition-transform duration-200" style={{ transitionDelay: `${i * 50}ms` }} />
-                      ))}
-                    </div>
-                  </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-12 sm:mb-16">
+            <Card className="bg-gray-50 border-gray-200 hover:bg-white hover:shadow-lg transition-all">
+              <CardContent className="p-6 sm:p-8">
+                <div className="flex items-center mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                  ))}
                 </div>
+                <p className="text-gray-700 mb-6 leading-relaxed">
+                  "Askelio nám ušetřilo 12 hodin týdně. Rozpoznávání je neuvěřitelně přesné a integrace s Pohoda byla hračka."
+                </p>
                 <div className="flex items-center">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 mr-4 group-hover:scale-110 transition-transform duration-200"></div>
+                  <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold mr-3">
+                    JP
+                  </div>
                   <div>
-                    <div className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">{testimonial.author}</div>
-                    <div className="text-sm text-gray-600">{testimonial.company}</div>
+                    <div className="font-semibold text-gray-900">Jana Procházková</div>
+                    <div className="text-sm text-gray-600">CFO, FinanceMax</div>
                   </div>
                 </div>
-              </div>
-            ))}
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gray-50 border-gray-200 hover:bg-white hover:shadow-lg transition-all">
+              <CardContent className="p-6 sm:p-8">
+                <div className="flex items-center mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                  ))}
+                </div>
+                <p className="text-gray-700 mb-6 leading-relaxed">
+                  "Skvělá podpora pro malé firmy. Cena odpovídá hodnotě, kterou dostáváme. Doporučuji všem účetním."
+                </p>
+                <div className="flex items-center">
+                  <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center text-white font-semibold mr-3">
+                    MK
+                  </div>
+                  <div>
+                    <div className="font-semibold text-gray-900">Michal Krejčí</div>
+                    <div className="text-sm text-gray-600">Zakladatel, MK Consulting</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gray-50 border-gray-200 hover:bg-white hover:shadow-lg transition-all">
+              <CardContent className="p-6 sm:p-8">
+                <div className="flex items-center mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                  ))}
+                </div>
+                <p className="text-gray-700 mb-6 leading-relaxed">
+                  "AI technologie je na špičkové úrovni. Rozpoznává i ručně psané poznámky a složité faktury."
+                </p>
+                <div className="flex items-center">
+                  <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center text-white font-semibold mr-3">
+                    LH
+                  </div>
+                  <div>
+                    <div className="font-semibold text-gray-900">Lucie Horáková</div>
+                    <div className="text-sm text-gray-600">Analytička, DataCorp</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
-          {/* Social Proof */}
-          <div className="text-center mt-16">
-            <div className="flex items-center justify-center mb-4">
-              <div className="flex -space-x-2">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 border-2 border-white"></div>
-                ))}
+          {/* Social Proof Stats */}
+          <div className="text-center">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-8">
+              <div className="text-center">
+                <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">1200+</div>
+                <div className="text-sm text-gray-600">Aktivních firem</div>
               </div>
-              <span className="ml-3 text-sm text-gray-600">
-                Připojte se k <span className="font-semibold text-gray-900">1,000+</span> dalším milujícím zákazníkům
-              </span>
+              <div className="text-center">
+                <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">99%</div>
+                <div className="text-sm text-gray-600">Přesnost OCR</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">15h</div>
+                <div className="text-sm text-gray-600">Úspora týdně</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">4.9/5</div>
+                <div className="text-sm text-gray-600">Hodnocení</div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <p className="text-sm font-semibold text-blue-600 mb-2">CENY & PLÁNY</p>
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Flexibilní cenové plány</h2>
-            <p className="text-xl text-gray-600">
-              Vyberte si plán, který odpovídá potřebám vašeho podnikání a odemkněte plný potenciál naší platformy
+      <section id="pricing" className="py-16 sm:py-24 lg:py-32 bg-gray-50">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="max-w-4xl mx-auto text-center mb-12 sm:mb-16 lg:mb-20">
+            <Badge className="mb-4 sm:mb-6 bg-purple-50 text-purple-700 border-purple-200">
+              💰 Ceník
+            </Badge>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6">
+              Transparentní ceny podle kreditů
+            </h2>
+            <p className="text-lg sm:text-xl text-gray-600 leading-relaxed">
+              Platíte jen za to, co skutečně použijete. Žádné skryté poplatky, žádné měsíční závazky.
             </p>
           </div>
 
-          {/* Pricing Toggle */}
-          <div className="flex justify-center mb-12">
-            <div className="bg-white p-1 rounded-xl shadow-sm">
-              <button
-                onClick={() => setPricingPeriod('monthly')}
-                className={`px-6 py-2 rounded-lg font-medium transition-all ${
-                  pricingPeriod === 'monthly'
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                Monthly
-              </button>
-              <button
-                onClick={() => setPricingPeriod('yearly')}
-                className={`px-6 py-2 rounded-lg font-medium transition-all relative ${
-                  pricingPeriod === 'yearly'
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                Yearly
-                <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
-                  30% off
-                </span>
-              </button>
-            </div>
-          </div>
-
-          {/* Pricing Cards */}
-          <div className="grid md:grid-cols-3 gap-8">
-            {pricingPlans.map((plan, index) => (
-              <div
-                key={index}
-                className={`group bg-white p-8 rounded-2xl shadow-sm relative transition-all duration-300 hover:shadow-xl hover:-translate-y-2 border ${
-                  plan.popular
-                    ? 'ring-2 ring-blue-600 scale-105 border-blue-200'
-                    : 'border-gray-100 hover:border-blue-200'
-                }`}
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-medium">
-                      Populární
-                    </span>
-                  </div>
-                )}
-
-                <div className="text-center mb-8">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-4">{plan.name}</h3>
-                  <div className="mb-4">
-                    <span className="text-4xl font-bold text-gray-900">
-                      {typeof plan.monthlyPrice === 'number'
-                        ? `$${pricingPeriod === 'yearly' ? plan.yearlyPrice : plan.monthlyPrice}`
-                        : plan.monthlyPrice
-                      }
-                    </span>
-                    {typeof plan.monthlyPrice === 'number' && (
-                      <span className="text-gray-600 ml-2">/ měsíc</span>
-                    )}
-                  </div>
-                  <button className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 hover:scale-105 transition-all duration-200 group-hover:shadow-lg">
-                    Začít hned teď
-                  </button>
+          <div className="grid md:grid-cols-3 gap-6 sm:gap-8 max-w-5xl mx-auto">
+            <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow">
+              <CardHeader className="text-center">
+                <CardTitle className="text-xl font-semibold text-gray-900 mb-2">START</CardTitle>
+                <div className="mb-4">
+                  <span className="text-3xl font-bold text-gray-900">150 Kč</span>
+                  <span className="text-gray-600 ml-2">/ 100 kreditů</span>
                 </div>
+                <p className="text-sm text-gray-600">Ideální pro malé firmy</p>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3 mb-6">
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-600">100 kreditů</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-600">Základní OCR</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-600">E-mailová podpora</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-600">CSV export</span>
+                  </li>
+                </ul>
+                <LoadingButton className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                  Začít hned
+                </LoadingButton>
+              </CardContent>
+            </Card>
 
-                <div>
-                  <p className="font-medium text-gray-900 mb-4">Zahrnuje:</p>
-                  <ul className="space-y-3">
-                    {plan.features.map((feature, featureIndex) => (
-                      <li key={featureIndex} className="flex items-center">
-                        <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-                        <span className="text-gray-600">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+            <Card className="bg-white border-blue-200 ring-2 ring-blue-600 relative hover:shadow-lg transition-shadow">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                <Badge className="bg-blue-600 text-white px-4 py-1">Nejpopulárnější</Badge>
               </div>
-            ))}
+              <CardHeader className="text-center">
+                <CardTitle className="text-xl font-semibold text-gray-900 mb-2">PROFI</CardTitle>
+                <div className="mb-4">
+                  <span className="text-3xl font-bold text-gray-900">700 Kč</span>
+                  <span className="text-gray-600 ml-2">/ 500 kreditů</span>
+                </div>
+                <p className="text-sm text-green-600 font-medium">Úspora 30%</p>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3 mb-6">
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-600">500 kreditů</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-600">Premium OCR + AI</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-600">Prioritní podpora</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-600">Všechny exporty</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-600">ERP integrace</span>
+                  </li>
+                </ul>
+                <LoadingButton className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                  Začít hned
+                </LoadingButton>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow">
+              <CardHeader className="text-center">
+                <CardTitle className="text-xl font-semibold text-gray-900 mb-2">BUSINESS</CardTitle>
+                <div className="mb-4">
+                  <span className="text-3xl font-bold text-gray-900">1250 Kč</span>
+                  <span className="text-gray-600 ml-2">/ 1000 kreditů</span>
+                </div>
+                <p className="text-sm text-green-600 font-medium">Úspora 38%</p>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3 mb-6">
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-600">1000 kreditů</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-600">Premium OCR + AI</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-600">Dedikovaná podpora</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-600">API přístup</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-600">Vlastní integrace</span>
+                  </li>
+                </ul>
+                <LoadingButton className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                  Kontaktovat prodej
+                </LoadingButton>
+              </CardContent>
+            </Card>
           </div>
 
           <div className="text-center mt-12">
             <p className="text-sm text-gray-600">
-              Askelio přispívá 5% z předplatného na udržitelný rozvoj
+              Všechny plány zahrnují 14denní zkušební období zdarma • Bez závazků • Zrušte kdykoli
             </p>
           </div>
         </div>
       </section>
 
       {/* FAQ Section */}
-      <section data-testid="faq" className="py-20 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <p className="text-sm font-semibold text-blue-600 mb-2">FAQ SEKCE</p>
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Některé běžné FAQ</h2>
-            <p className="text-xl text-gray-600">
-              Získejte odpovědi na své otázky a dozvěďte se více o naší platformě
-            </p>
-          </div>
+      <section className="py-16 sm:py-24 lg:py-32 bg-white">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12 sm:mb-16 lg:mb-20">
+              <Badge className="mb-4 sm:mb-6 bg-orange-50 text-orange-700 border-orange-200">
+                ❓ FAQ
+              </Badge>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6">
+                Často kladené otázky
+              </h2>
+              <p className="text-lg sm:text-xl text-gray-600 leading-relaxed">
+                Odpovědi na nejčastější otázky o Askelio a automatizaci zpracování dokumentů
+              </p>
+            </div>
 
-          <div className="space-y-4">
-            {faqs.map((faq, index) => (
-              <div key={index} className="bg-gray-50 rounded-2xl overflow-hidden hover:bg-gray-100 transition-all duration-200 border border-transparent hover:border-gray-200">
+            <div className="space-y-4">
+              <div className="bg-gray-50 rounded-2xl overflow-hidden hover:bg-gray-100 transition-all border border-transparent hover:border-gray-200">
                 <button
-                  onClick={() => setOpenFaq(openFaq === index ? null : index)}
-                  className="w-full px-8 py-6 text-left flex items-center justify-between transition-colors"
+                  onClick={() => setOpenFaq(openFaq === 0 ? null : 0)}
+                  className="w-full px-6 sm:px-8 py-6 text-left flex items-center justify-between transition-colors"
                 >
-                  <span className="font-semibold text-gray-900 hover:text-blue-600 transition-colors">{faq.question}</span>
+                  <span className="font-semibold text-gray-900 hover:text-blue-600 transition-colors">
+                    Jak přesné je OCR rozpoznávání?
+                  </span>
                   <ChevronDown
                     className={`w-5 h-5 text-gray-600 transition-all duration-300 ${
-                      openFaq === index ? 'rotate-180 text-blue-600' : ''
+                      openFaq === 0 ? 'rotate-180 text-blue-600' : ''
                     }`}
                   />
                 </button>
-                {openFaq === index && (
-                  <div className="px-8 pb-6 animate-in slide-in-from-top-2 duration-300">
-                    <p className="text-gray-600 leading-relaxed">{faq.answer}</p>
+                {openFaq === 0 && (
+                  <div className="px-6 sm:px-8 pb-6">
+                    <p className="text-gray-600 leading-relaxed">
+                      Naše OCR technologie dosahuje přesnosti 99% při rozpoznávání textu z faktur a dokumentů.
+                      Pro ručně psané poznámky je přesnost 85-90%. Používáme kombinaci Tesseract a premium AI modelů.
+                    </p>
                   </div>
                 )}
               </div>
-            ))}
+
+              <div className="bg-gray-50 rounded-2xl overflow-hidden hover:bg-gray-100 transition-all border border-transparent hover:border-gray-200">
+                <button
+                  onClick={() => setOpenFaq(openFaq === 1 ? null : 1)}
+                  className="w-full px-6 sm:px-8 py-6 text-left flex items-center justify-between transition-colors"
+                >
+                  <span className="font-semibold text-gray-900 hover:text-blue-600 transition-colors">
+                    Které ERP systémy podporujete?
+                  </span>
+                  <ChevronDown
+                    className={`w-5 h-5 text-gray-600 transition-all duration-300 ${
+                      openFaq === 1 ? 'rotate-180 text-blue-600' : ''
+                    }`}
+                  />
+                </button>
+                {openFaq === 1 && (
+                  <div className="px-6 sm:px-8 pb-6">
+                    <p className="text-gray-600 leading-relaxed">
+                      Podporujeme všechny hlavní ERP systémy včetně Pohoda, Money S3, Helios, Abra a další.
+                      Můžeme také vytvořit vlastní integraci podle vašich potřeb.
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <div className="bg-gray-50 rounded-2xl overflow-hidden hover:bg-gray-100 transition-all border border-transparent hover:border-gray-200">
+                <button
+                  onClick={() => setOpenFaq(openFaq === 2 ? null : 2)}
+                  className="w-full px-6 sm:px-8 py-6 text-left flex items-center justify-between transition-colors"
+                >
+                  <span className="font-semibold text-gray-900 hover:text-blue-600 transition-colors">
+                    Jak dlouho trvá zpracování dokumentu?
+                  </span>
+                  <ChevronDown
+                    className={`w-5 h-5 text-gray-600 transition-all duration-300 ${
+                      openFaq === 2 ? 'rotate-180 text-blue-600' : ''
+                    }`}
+                  />
+                </button>
+                {openFaq === 2 && (
+                  <div className="px-6 sm:px-8 pb-6">
+                    <p className="text-gray-600 leading-relaxed">
+                      Standardní faktura je zpracována do 30 sekund. Složitější dokumenty mohou trvat až 2 minuty.
+                      Výsledky dostanete e-mailem nebo přes API v reálném čase.
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <div className="bg-gray-50 rounded-2xl overflow-hidden hover:bg-gray-100 transition-all border border-transparent hover:border-gray-200">
+                <button
+                  onClick={() => setOpenFaq(openFaq === 3 ? null : 3)}
+                  className="w-full px-6 sm:px-8 py-6 text-left flex items-center justify-between transition-colors"
+                >
+                  <span className="font-semibold text-gray-900 hover:text-blue-600 transition-colors">
+                    Jak zabezpečujete nahrané dokumenty?
+                  </span>
+                  <ChevronDown
+                    className={`w-5 h-5 text-gray-600 transition-all duration-300 ${
+                      openFaq === 3 ? 'rotate-180 text-blue-600' : ''
+                    }`}
+                  />
+                </button>
+                {openFaq === 3 && (
+                  <div className="px-6 sm:px-8 pb-6">
+                    <p className="text-gray-600 leading-relaxed">
+                      Všechny dokumenty jsou šifrovány AES-256, ukládány v EU datacentrech a automaticky mazány po 30 dnech.
+                      Splňujeme GDPR a ISO 27001 standardy.
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <div className="bg-gray-50 rounded-2xl overflow-hidden hover:bg-gray-100 transition-all border border-transparent hover:border-gray-200">
+                <button
+                  onClick={() => setOpenFaq(openFaq === 4 ? null : 4)}
+                  className="w-full px-6 sm:px-8 py-6 text-left flex items-center justify-between transition-colors"
+                >
+                  <span className="font-semibold text-gray-900 hover:text-blue-600 transition-colors">
+                    Můžu zrušit předplatné kdykoli?
+                  </span>
+                  <ChevronDown
+                    className={`w-5 h-5 text-gray-600 transition-all duration-300 ${
+                      openFaq === 4 ? 'rotate-180 text-blue-600' : ''
+                    }`}
+                  />
+                </button>
+                {openFaq === 4 && (
+                  <div className="px-6 sm:px-8 pb-6">
+                    <p className="text-gray-600 leading-relaxed">
+                      Ano, můžete zrušit kdykoli bez poplatků. Kredity nevyprší a můžete je použít i po zrušení.
+                      Žádné dlouhodobé závazky ani skryté poplatky.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-sm font-semibold text-blue-200 mb-2">NA CO JEŠTĚ ČEKÁTE</p>
-          <h2 className="text-4xl font-bold text-white mb-4">Růst nyní s Askelio</h2>
-          <p className="text-xl text-blue-100 mb-8">
-            Odemkněte sílu dat pro chytřejší rozhodnutí a rychlejší růst s naší platformou.
-          </p>
+      <section className="py-16 sm:py-24 lg:py-32 bg-gradient-to-r from-blue-600 to-purple-600">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6">
+              Začněte automatizovat ještě dnes
+            </h2>
+            <p className="text-lg sm:text-xl text-blue-100 mb-8 sm:mb-10 leading-relaxed">
+              Připojte se k více než 1200 firmám, které už ušetřily tisíce hodin díky Askelio
+            </p>
 
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <button className="bg-white text-blue-600 px-8 py-4 rounded-xl font-semibold hover:bg-gray-50 transition-colors">
-              Začít hned teď
-            </button>
-            <button className="border-2 border-white text-white px-8 py-4 rounded-xl font-semibold hover:bg-white hover:text-blue-600 transition-colors">
-              Rezervovat demo
-            </button>
+            <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6">
+              <LoadingButton
+                size="lg"
+                className="bg-white text-blue-600 hover:bg-gray-50 text-lg px-8 py-4 h-12 sm:h-auto"
+              >
+                Začít zdarma - bez karty
+              </LoadingButton>
+              <LoadingButton
+                variant="outline"
+                size="lg"
+                className="border-2 border-white text-white hover:bg-white hover:text-blue-600 text-lg px-8 py-4 h-12 sm:h-auto bg-transparent"
+              >
+                Rezervovat demo
+              </LoadingButton>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <footer className="bg-gray-900 text-white py-12 sm:py-16">
+        <div className="container mx-auto px-4 sm:px-6">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
-              <div className="text-2xl font-bold mb-4">Askelio</div>
-              <p className="text-gray-400 mb-4">
-                Nejlepší platforma pro růst vašeho podnikání pomocí AI technologií.
+              <div className="flex items-center space-x-3 mb-4">
+                <Image
+                  src="/askelio-logo.svg"
+                  alt="Askelio Logo"
+                  width={32}
+                  height={32}
+                  className="h-8 w-auto"
+                />
+                <div className="text-xl font-bold">Askelio</div>
+              </div>
+              <p className="text-gray-400 mb-4 leading-relaxed">
+                OCR platforma pro automatizaci zpracování faktur a dokumentů s AI technologií.
               </p>
-              <p className="text-gray-400">askelio@mail.com</p>
+              <div className="text-gray-400 text-sm space-y-1">
+                <p>Askela s.r.o.</p>
+                <p>IČO: 26757125, DIČ: CZ26757125</p>
+                <p>info@askela.cz</p>
+              </div>
             </div>
 
             <div>
               <h4 className="font-semibold mb-4">Produkt</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
-                <li><a href="#benefits" className="hover:text-white transition-colors">Výhody</a></li>
-                <li><a href="#pricing" className="hover:text-white transition-colors">Ceny</a></li>
+                <li><a href="#features" className="hover:text-white transition-colors">Funkce</a></li>
+                <li><a href="#pricing" className="hover:text-white transition-colors">Ceník</a></li>
+                <li><a href="#testimonials" className="hover:text-white transition-colors">Reference</a></li>
+                <li><a href="/auth/register" className="hover:text-white transition-colors">Registrace</a></li>
               </ul>
             </div>
 
@@ -536,17 +754,17 @@ export function LandingPage() {
               <h4 className="font-semibold mb-4">Právní</h4>
               <ul className="space-y-2 text-gray-400">
                 <li><a href="/privacy" className="hover:text-white transition-colors">Ochrana soukromí</a></li>
-                <li><a href="/terms" className="hover:text-white transition-colors">Podmínky</a></li>
+                <li><a href="/terms" className="hover:text-white transition-colors">Podmínky použití</a></li>
               </ul>
             </div>
           </div>
 
-          <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-400">© 2025 Askelio. Všechna práva vyhrazena.</p>
+          <div className="border-t border-gray-800 mt-8 sm:mt-12 pt-6 sm:pt-8 flex flex-col md:flex-row justify-between items-center">
+            <p className="text-gray-400 text-sm">© 2025 Askelio. Všechna práva vyhrazena.</p>
             <div className="flex space-x-6 mt-4 md:mt-0">
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">Instagram</a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">Twitter</a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">Facebook</a>
+              <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">LinkedIn</a>
+              <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Twitter</a>
+              <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Facebook</a>
             </div>
           </div>
         </div>
@@ -554,3 +772,4 @@ export function LandingPage() {
     </div>
   )
 }
+

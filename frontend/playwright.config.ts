@@ -24,6 +24,10 @@ export default defineConfig({
   /* Expect timeout */
   expect: {
     timeout: 10000,
+    /* Screenshot comparison threshold */
+    threshold: 0.3,
+    /* Screenshot comparison mode */
+    mode: 'strict'
   },
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
@@ -32,6 +36,18 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+
+    /* Screenshot on failure */
+    screenshot: 'only-on-failure',
+
+    /* Video recording */
+    video: 'retain-on-failure',
+
+    /* Timeout for each action */
+    actionTimeout: 10000,
+
+    /* Timeout for navigation */
+    navigationTimeout: 30000,
   },
 
   /* Configure projects for major browsers */
@@ -61,15 +77,39 @@ export default defineConfig({
       use: { ...devices['iPhone 12'] },
     },
 
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    // },
+    /* Test against tablet viewports */
+    {
+      name: 'Tablet',
+      use: {
+        ...devices['iPad Pro'],
+        viewport: { width: 768, height: 1024 }
+      },
+    },
+
+    /* Test against different desktop resolutions */
+    {
+      name: 'Desktop Large',
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1920, height: 1080 }
+      },
+    },
+
+    /* Test against branded browsers */
+    {
+      name: 'Microsoft Edge',
+      use: { ...devices['Desktop Edge'], channel: 'msedge' },
+    },
+
+    /* Visual regression testing project */
+    {
+      name: 'visual-tests',
+      testMatch: '**/dashboard-visual.spec.ts',
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1280, height: 720 }
+      },
+    },
   ],
 
   /* Run your local dev server before starting the tests */
@@ -77,5 +117,6 @@ export default defineConfig({
     command: 'npm run dev',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
+    timeout: 120000,
   },
 });
