@@ -69,49 +69,8 @@ export function RecentDocuments({ userId, onDocumentUpdate }: RecentDocumentsPro
           onDocumentUpdate(data[0])
         }
       } else {
-        // Fallback to mock data for development
-        const mockDocuments: Document[] = [
-          {
-            id: '1',
-            file_name: 'Faktura_2025_001.pdf',
-            status: 'completed',
-            created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-            completed_at: new Date(Date.now() - 1.5 * 60 * 60 * 1000).toISOString(),
-            final_extracted_data: {
-              total_amount: 15420,
-              currency: 'CZK',
-              vendor_name: 'ABC s.r.o.'
-            },
-            confidence_score: 0.98
-          },
-          {
-            id: '2',
-            file_name: 'Uctenka_Tesco_240125.jpg',
-            status: 'processing',
-            created_at: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString()
-          },
-          {
-            id: '3',
-            file_name: 'Faktura_Dodavatel_XY.pdf',
-            status: 'completed',
-            created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-            completed_at: new Date(Date.now() - 23 * 60 * 60 * 1000).toISOString(),
-            final_extracted_data: {
-              total_amount: 8750,
-              currency: 'CZK',
-              vendor_name: 'Dodavatel XY'
-            },
-            confidence_score: 0.95
-          },
-          {
-            id: '4',
-            file_name: 'Receipt_Error.jpg',
-            status: 'error',
-            created_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-            error_message: 'Nepodařilo se rozpoznat text v dokumentu'
-          }
-        ]
-        setDocuments(mockDocuments)
+        // Show empty state instead of fake data
+        setDocuments([])
       }
     } catch (error) {
       console.error('Error fetching documents:', error)

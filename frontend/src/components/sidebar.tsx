@@ -17,6 +17,7 @@ import {
   Shield,
 } from "lucide-react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 
 // Přidej onExportClick prop do interface
 interface SidebarProps {
@@ -26,10 +27,10 @@ interface SidebarProps {
 }
 
 const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard, current: true },
-  { name: "Dokumenty", href: "/documents", icon: FileText, current: false },
-  { name: "Statistiky", href: "/statistics", icon: BarChart3, current: false },
-  { name: "Uživatelé", href: "/users", icon: Users, current: false },
+  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { name: "Dokumenty", href: "/documents", icon: FileText },
+  { name: "Statistiky", href: "/statistics", icon: BarChart3 },
+  { name: "Uživatelé", href: "/users", icon: Users },
 ]
 
 const quickActions = [
@@ -42,6 +43,7 @@ const quickActions = [
 
 // Aktualizuj komponentu aby přijímala onExportClick
 export function Sidebar({ open, setOpen, onExportClick }: SidebarProps) {
+  const pathname = usePathname()
   return (
     <>
       {/* Mobile backdrop */}
@@ -73,21 +75,31 @@ export function Sidebar({ open, setOpen, onExportClick }: SidebarProps) {
                 Navigace
               </h3>
               <div className="mt-3 space-y-1">
-                {navigation.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className={cn(
-                      "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
-                      item.current
-                        ? "bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-200"
-                        : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700",
-                    )}
-                  >
-                    <item.icon className="mr-3 w-5 h-5" />
-                    {item.name}
-                  </Link>
-                ))}
+                {navigation.map((item) => {
+                  const isActive = pathname === item.href
+                  return (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      data-active={isActive}
+                      data-pathname={pathname}
+                      data-href={item.href}
+                      className={cn(
+                        "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                        isActive
+                          ? "!bg-blue-50 dark:!bg-blue-900/50 !text-blue-700 dark:!text-blue-200"
+                          : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700",
+                      )}
+                      style={isActive ? {
+                        backgroundColor: '#eff6ff',
+                        color: '#1d4ed8'
+                      } : {}}
+                    >
+                      <item.icon className="mr-3 w-5 h-5" />
+                      {item.name}
+                    </Link>
+                  )
+                })}
               </div>
             </div>
 

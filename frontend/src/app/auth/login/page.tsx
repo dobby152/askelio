@@ -24,8 +24,8 @@ export default function LoginPage() {
       // Simulace přihlášení pro demo účely
       await new Promise(resolve => setTimeout(resolve, 1000))
 
-      // Pro demo - přesměruj na hlavní stránku
-      router.push('/')
+      // Pro demo - přesměruj na dashboard
+      router.push('/dashboard')
     } catch (err) {
       setError('Došlo k neočekávané chybě')
     } finally {

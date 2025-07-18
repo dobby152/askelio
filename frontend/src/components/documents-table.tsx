@@ -25,6 +25,7 @@ import {
 // Přidej import pro ExportDialog
 import { ExportDialog } from "@/components/export-dialog"
 import { apiClient } from "@/lib/api"
+import { cn } from "@/lib/utils"
 
 interface Document {
   id: string
@@ -35,62 +36,28 @@ interface Document {
   processedAt: string
   size: string
   pages: number
+  extractedData?: {
+    vendor?: string
+    amount?: number
+    currency?: string
+    date?: string
+    invoice_number?: string
+  }
 }
 
-const mockDocuments: Document[] = [
-  {
-    id: "1",
-    name: "Faktura_2024_001.pdf",
-    type: "pdf",
-    status: "completed",
-    accuracy: 98.5,
-    processedAt: "2024-01-15 14:30",
-    size: "2.4 MB",
-    pages: 3,
-  },
-  {
-    id: "2",
-    name: "Smlouva_dodavatel.pdf",
-    type: "pdf",
-    status: "completed",
-    accuracy: 97.2,
-    processedAt: "2024-01-15 13:45",
-    size: "1.8 MB",
-    pages: 5,
-  },
-  {
-    id: "3",
-    name: "Doklad_scan.jpg",
-    type: "image",
-    status: "processing",
-    accuracy: 0,
-    processedAt: "2024-01-15 15:20",
-    size: "3.2 MB",
-    pages: 1,
-  },
-  {
-    id: "4",
-    name: "Certifikat_ISO.pdf",
-    type: "pdf",
-    status: "error",
-    accuracy: 0,
-    processedAt: "2024-01-15 12:15",
-    size: "5.1 MB",
-    pages: 8,
-  },
-  {
-    id: "5",
-    name: "Objednavka_2024.pdf",
-    type: "pdf",
-    status: "completed",
-    accuracy: 99.1,
-    processedAt: "2024-01-15 11:30",
-    size: "1.2 MB",
-    pages: 2,
-  },
-]
 
-export function DocumentsTable() {
+
+interface DocumentsTableProps {
+  onDocumentSelect?: (documentId: string) => void
+  selectedDocumentId?: string
+  className?: string
+}
+
+export function DocumentsTable({
+  onDocumentSelect,
+  selectedDocumentId,
+  className
+}: DocumentsTableProps = {}) {
   const [documents, setDocuments] = useState<Document[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
@@ -105,7 +72,7 @@ export function DocumentsTable() {
           const data = await response.json()
           // Transform backend data to frontend format
           const transformedDocs = data.map((doc: any) => ({
-            id: doc.id,
+            id: doc.id.toString(),
             name: doc.filename || doc.name || 'Unknown',
             type: doc.type === 'application/pdf' ? 'pdf' : 'image',
             status: doc.status === 'completed' ? 'completed' :
@@ -113,17 +80,17 @@ export function DocumentsTable() {
             accuracy: doc.accuracy || 0,
             processedAt: doc.processed_at || doc.created_at || new Date().toISOString(),
             size: doc.size || '0 MB',
-            pages: doc.pages || 1
+            pages: doc.pages || 1,
+            extractedData: doc.extracted_data
           }))
           setDocuments(transformedDocs)
         } else {
-          // Fallback to mock data
-          setDocuments(mockDocuments)
+          console.error('Failed to fetch documents')
+          setDocuments([])
         }
       } catch (error) {
         console.error('Error fetching documents:', error)
-        // Fallback to mock data
-        setDocuments(mockDocuments)
+        setDocuments([])
       } finally {
         setLoading(false)
       }
@@ -176,7 +143,7 @@ export function DocumentsTable() {
   }
 
   return (
-    <Card>
+    <Card className={cn("h-full flex flex-col", className)}>
       <CardHeader>
         {/* V CardHeader sekci, přidej export tlačítko vedle filtrů: */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
@@ -227,14 +194,15 @@ export function DocumentsTable() {
           </div>
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="overflow-x-auto">
+      <CardContent className="flex-1 overflow-hidden">
+        <div className="h-full overflow-x-auto overflow-y-auto">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Dokument</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Přesnost</TableHead>
+                <TableHead>Extrahovaná data</TableHead>
                 <TableHead>Zpracováno</TableHead>
                 <TableHead>Velikost</TableHead>
                 <TableHead>Stránky</TableHead>
@@ -243,7 +211,13 @@ export function DocumentsTable() {
             </TableHeader>
             <TableBody>
               {filteredDocuments.map((document) => (
-                <TableRow key={document.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                <TableRow
+                  key={document.id}
+                  className={`hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors ${
+                    selectedDocumentId === document.id ? 'bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500' : ''
+                  }`}
+                  onClick={() => onDocumentSelect?.(document.id)}
+                >
                   <TableCell>
                     <div className="flex items-center space-x-3">
                       {getTypeIcon(document.type)}
@@ -261,6 +235,34 @@ export function DocumentsTable() {
                       <span className="text-gray-400">-</span>
                     )}
                   </TableCell>
+                  <TableCell>
+                    {document.extractedData ? (
+                      <div className="text-sm space-y-1">
+                        {document.extractedData.vendor && (
+                          <div className="text-gray-900 dark:text-white font-medium">
+                            {document.extractedData.vendor}
+                          </div>
+                        )}
+                        {document.extractedData.amount && (
+                          <div className="text-green-600 dark:text-green-400 font-semibold">
+                            {document.extractedData.amount} {document.extractedData.currency || 'CZK'}
+                          </div>
+                        )}
+                        {document.extractedData.date && (
+                          <div className="text-gray-500 dark:text-gray-400">
+                            {document.extractedData.date}
+                          </div>
+                        )}
+                        {document.extractedData.invoice_number && (
+                          <div className="text-blue-600 dark:text-blue-400 text-xs">
+                            #{document.extractedData.invoice_number}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-gray-400 text-sm">Žádná data</span>
+                    )}
+                  </TableCell>
                   <TableCell className="text-sm text-gray-500 dark:text-gray-400">{document.processedAt}</TableCell>
                   <TableCell className="text-sm text-gray-500 dark:text-gray-400">{document.size}</TableCell>
                   <TableCell className="text-sm text-gray-500 dark:text-gray-400">{document.pages}</TableCell>
@@ -272,11 +274,13 @@ export function DocumentsTable() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onDocumentSelect?.(document.id)}>
                           <Eye className="w-4 h-4 mr-2" />
                           Zobrazit
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => {
+                          window.open(`http://localhost:8000/documents/${document.id}/preview`, '_blank')
+                        }}>
                           <Download className="w-4 h-4 mr-2" />
                           Stáhnout
                         </DropdownMenuItem>

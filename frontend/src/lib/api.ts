@@ -98,6 +98,56 @@ class ApiClient {
 
     return response.json()
   }
+
+  async testMultilayerOCR(file: File): Promise<any> {
+    const headers = await this.getAuthHeaders()
+    delete headers['Content-Type'] // Let browser set it for FormData
+
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const response = await fetch(`${API_BASE_URL}/test-multilayer-ocr`, {
+      method: 'POST',
+      headers: headers,
+      body: formData
+    })
+
+    if (!response.ok) {
+      throw new Error(`Multilayer OCR test failed: ${response.statusText}`)
+    }
+
+    return response.json()
+  }
+
+  async getOCRStatus(): Promise<any> {
+    const headers = await this.getAuthHeaders()
+
+    const response = await fetch(`${API_BASE_URL}/ocr/status`, {
+      method: 'GET',
+      headers: headers
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to get OCR status: ${response.statusText}`)
+    }
+
+    return response.json()
+  }
+
+  async getOCRProviders(): Promise<any> {
+    const headers = await this.getAuthHeaders()
+
+    const response = await fetch(`${API_BASE_URL}/ocr/providers`, {
+      method: 'GET',
+      headers: headers
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to get OCR providers: ${response.statusText}`)
+    }
+
+    return response.json()
+  }
 }
 
 export const apiClient = new ApiClient()

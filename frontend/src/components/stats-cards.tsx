@@ -72,17 +72,17 @@ export function StatsCards() {
         })
       } catch (error) {
         console.error('Error fetching stats:', error)
-        // Fallback to demo data
+        // Show error state instead of fake data
         setStats({
-          processedDocuments: 5,
-          timeSaved: 2.5,
-          accuracy: 97.8,
-          remainingCredits: 100,
+          processedDocuments: 0,
+          timeSaved: 0,
+          accuracy: 0,
+          remainingCredits: 0,
           trends: {
-            documents: 12.5,
-            timeSaved: 8.1,
-            accuracy: 0.3,
-            credits: -15.2
+            documents: 0,
+            timeSaved: 0,
+            accuracy: 0,
+            credits: 0
           }
         })
       } finally {

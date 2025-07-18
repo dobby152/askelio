@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Faktura</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .invoice-details { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>FAKTURA</h1>
+        <p>Číslo faktury: 2025001</p>
+        <p>Datum: 18.01.2025</p>
+    </div>
+    
+    <div class="invoice-details">
+        <h3>Dodavatel:</h3>
+        <p>Test Company s.r.o.<br>
+        Testovací 123<br>
+        110 00 Praha</p>
+        
+        <h3>Odběratel:</h3>
+        <p>Zákazník s.r.o.<br>
+        Zákaznická 456<br>
+        120 00 Praha</p>
+        
+        <h3>Položky:</h3>
+        <table border="1" style="width: 100%; border-collapse: collapse;">
+            <tr>
+                <th>Popis</th>
+                <th>Množství</th>
+                <th>Cena za kus</th>
+                <th>Celkem</th>
+            </tr>
+            <tr>
+                <td>Testovací služba</td>
+                <td>1</td>
+                <td>1 500,00 Kč</td>
+                <td>1 500,00 Kč</td>
+            </tr>
+        </table>
+        
+        <p><strong>Celkem k úhradě: 1 500,00 Kč</strong></p>
+    </div>
+</body>
+</html>

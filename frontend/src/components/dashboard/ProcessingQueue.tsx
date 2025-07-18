@@ -53,36 +53,10 @@ export function ProcessingQueue({ userId, onQueueUpdate }: ProcessingQueueProps)
           onQueueUpdate(data)
         }
       } else {
-        // Mock data for development
-        const mockQueue: QueueItem[] = [
-          {
-            id: '1',
-            file_name: 'Faktura_ABC_2025.pdf',
-            status: 'processing',
-            progress: 75,
-            estimated_time: 45,
-            created_at: new Date(Date.now() - 2 * 60 * 1000).toISOString()
-          },
-          {
-            id: '2',
-            file_name: 'Receipt_Store_XY.jpg',
-            status: 'queued',
-            progress: 0,
-            estimated_time: 120,
-            created_at: new Date(Date.now() - 1 * 60 * 1000).toISOString()
-          },
-          {
-            id: '3',
-            file_name: 'Invoice_Supplier_Z.pdf',
-            status: 'queued',
-            progress: 0,
-            estimated_time: 90,
-            created_at: new Date().toISOString()
-          }
-        ]
-        setQueue(mockQueue)
+        // Show empty queue instead of fake data
+        setQueue([])
         if (onQueueUpdate) {
-          onQueueUpdate(mockQueue)
+          onQueueUpdate([])
         }
       }
     } catch (error) {

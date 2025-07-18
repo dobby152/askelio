@@ -70,17 +70,17 @@ export function DashboardStats({ userId }: DashboardStatsProps) {
       })
     } catch (error) {
       console.error('Error fetching stats:', error)
-      // Fallback to mock data for development
+      // Show error state instead of fake data
       setStats({
-        processedDocuments: 247,
-        timeSaved: 15.2,
-        accuracy: 98.5,
-        remainingCredits: 1250,
+        processedDocuments: 0,
+        timeSaved: 0,
+        accuracy: 0,
+        remainingCredits: 0,
         trends: {
-          documents: 12,
-          timeSaved: 8,
-          accuracy: 0.3,
-          credits: -45
+          documents: 0,
+          timeSaved: 0,
+          accuracy: 0,
+          credits: 0
         }
       })
     } finally {

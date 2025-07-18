@@ -1,0 +1,26 @@
+FAKTURA č. 2025-0123
+
+Dodavatel:
+ACME Corporation s.r.o.
+IČ: 12345678
+DIČ: CZ12345678
+Adresa: Václavské náměstí 1, 110 00 Praha 1
+
+Odběratel:
+Test Customer s.r.o.
+IČ: 87654321
+
+Datum vystavení: 18.01.2025
+Datum splatnosti: 18.02.2025
+
+Položky:
+1. Konzultační služby IT - 40 hodin à 850 CZK = 34,000 CZK
+2. Správa serverů - měsíční poplatek = 5,500 CZK
+3. Licence software - roční poplatek = 12,300 CZK
+
+Celkem bez DPH: 51,800 CZK
+DPH 21%: 10,878 CZK
+Celkem k úhradě: 62,678 CZK
+
+Způsob platby: bankovní převod
+Číslo účtu: 123456789/0100

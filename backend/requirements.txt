@@ -44,10 +44,26 @@ google-auth==2.23.4
 # boto3==1.34.0
 # botocore==1.34.0
 
-# Open Source OCR Alternatives (optional)
-# paddlepaddle==2.5.2
-# paddleocr==2.7.3
-# easyocr==1.7.0
+# Open Source OCR Alternatives - Now ENABLED for maximum precision
+paddlepaddle==2.5.2
+paddleocr==2.7.3
+easyocr==1.7.0
+
+# Advanced ML-based OCR
+transformers==4.35.2
+torch==2.1.1
+torchvision==0.16.1
+
+# Enhanced text processing and analysis
+textdistance==4.6.0
+langdetect==1.0.9
+difflib2==0.1.0
+
+# Performance optimization
+concurrent-futures==3.1.1
+
+# Additional image processing
+scipy==1.11.4
 
 # Payment and External Services
 stripe==7.8.0
