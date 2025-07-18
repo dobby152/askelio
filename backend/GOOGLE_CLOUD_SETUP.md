@@ -22,10 +22,14 @@ Stažený JSON soubor obsahuje:
 
 ## Instalace
 
-### Krok 1: Nahradit placeholder v google-credentials.json
-1. Otevřete stažený soubor `crested-guru-465410-h3-59c6a1dbbe93.json`
-2. Zkopírujte celý obsah
-3. Nahraďte obsah souboru `backend/google-credentials.json`
+### Krok 1: Vytvořit google-credentials.json
+1. Zkopírujte template soubor:
+   ```bash
+   cp backend/google-credentials-template.json backend/google-credentials.json
+   ```
+2. Otevřete stažený soubor s vašimi Google Cloud credentials
+3. Zkopírujte celý obsah
+4. Nahraďte obsah souboru `backend/google-credentials.json`
 
 ### Krok 2: Ověření konfigurace
 Soubor `.env` už obsahuje správnou konfiguraci:
