@@ -1,0 +1,27 @@
+FAKTURA č. 2025-0456
+
+Dodavatel:
+TechSolutions s.r.o.
+IČ: 98765432
+DIČ: CZ98765432
+Adresa: Národní třída 25, 110 00 Praha 1
+
+Odběratel:
+Modern Business a.s.
+IČ: 11223344
+
+Datum vystavení: 18.07.2025
+Datum splatnosti: 18.08.2025
+
+Položky:
+1. Vývoj webové aplikace - 120 hodin à 1,200 CZK = 144,000 CZK
+2. Hosting a údržba - roční poplatek = 24,000 CZK
+3. SSL certifikát - roční poplatek = 3,600 CZK
+
+Celkem bez DPH: 171,600 CZK
+DPH 21%: 36,036 CZK
+Celkem k úhradě: 207,636 CZK
+
+Způsob platby: bankovní převod
+Číslo účtu: 987654321/2700
+Variabilní symbol: 2025456
