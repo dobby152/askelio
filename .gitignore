@@ -38,6 +38,9 @@ logs/
 .env.test.local
 .env.production.local
 
+# Google Cloud credentials (keep template, ignore actual credentials)
+backend/google-credentials-real.json
+
 # Build outputs
 /frontend/.next/
 /frontend/out/
