@@ -1,32 +1,24 @@
-# FastAPI main application
-from fastapi import FastAPI, HTTPException, Depends, UploadFile, File
+# Clean FastAPI main application for Invoice/Receipt Processing
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from sqlalchemy.orm import Session
 import uvicorn
-from typing import List, Optional
 import os
 import tempfile
 from dotenv import load_dotenv
 
-from database import get_db, engine
-from models import Base
-from routers import auth, documents, credits, integrations
-from auth_utils import get_current_user
-from google_vision import google_vision_client
-from combined_ocr_processor import combined_ocr_processor
+from invoice_processor import InvoiceProcessor
 
 # Load environment variables
 load_dotenv()
 
-# Create database tables
-Base.metadata.create_all(bind=engine)
+# Initialize Invoice Processor (handles 5 OCR sources + Gemini AI)
+invoice_processor = InvoiceProcessor()
 
-# Initialize FastAPI app
+# Initialize Clean FastAPI app
 app = FastAPI(
-    title="Askelio API",
-    description="API pro automatizované zpracování faktur a účtenek",
-    version="1.0.0"
+    title="Askelio Invoice Processing API",
+    description="Clean API for invoice/receipt processing with 5 OCR sources + Gemini AI",
+    version="2.0.0"
 )
 
 # Configure CORS
@@ -38,24 +30,28 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routers
-app.include_router(auth.router, prefix="/auth", tags=["authentication"])
-app.include_router(documents.router, prefix="/documents", tags=["documents"])
-app.include_router(credits.router, prefix="/credits", tags=["credits"])
-app.include_router(integrations.router, prefix="/integrations", tags=["integrations"])
-
 @app.get("/")
 async def root():
-    return {"message": "Askelio API v1.0.0"}
+    return {
+        "message": "Askelio Invoice Processing API v2.0.0",
+        "description": "Clean API with 5 OCR sources + Gemini AI decision making",
+        "endpoints": {
+            "POST /process-invoice": "Main endpoint for invoice/receipt processing",
+            "GET /health": "Health check",
+            "GET /system-status": "System status and available providers"
+        }
+    }
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy"}
+    return {"status": "healthy", "version": "2.0.0"}
 
-@app.post("/test-vision")
-async def test_google_vision(file: UploadFile = File(...)):
-    """Test endpoint for Google Vision API (legacy - use /test-combined-ocr instead)."""
-
+@app.post("/process-invoice")
+async def process_invoice(file: UploadFile = File(...)):
+    """
+    Main endpoint for invoice/receipt processing
+    Sequential processing through 5 OCR sources + Gemini AI decision making
+    """
     # Validate file type
     allowed_types = [
         "application/pdf",
@@ -66,7 +62,7 @@ async def test_google_vision(file: UploadFile = File(...)):
     if file.content_type not in allowed_types:
         raise HTTPException(
             status_code=400,
-            detail="Unsupported file type"
+            detail=f"Unsupported file type: {file.content_type}. Supported types: {', '.join(allowed_types)}"
         )
 
     # Save file temporarily
@@ -76,112 +72,101 @@ async def test_google_vision(file: UploadFile = File(...)):
         temp_file_path = temp_file.name
 
     try:
-        # Test Google Vision API
-        if google_vision_client.client:
-            text, confidence, structured_data = google_vision_client.extract_document_text(temp_file_path)
+        # Process invoice through complete pipeline
+        result = invoice_processor.process_invoice(temp_file_path, file.filename)
 
-            return {
-                "status": "success",
-                "google_vision_available": True,
-                "file_name": file.filename,
-                "extracted_text": text[:500] + "..." if len(text) > 500 else text,
-                "confidence": confidence,
-                "text_length": len(text),
-                "structured_data_summary": {
-                    "pages": structured_data.get("pages", 0),
-                    "blocks": len(structured_data.get("blocks", [])),
-                    "paragraphs": len(structured_data.get("paragraphs", [])),
-                    "words": len(structured_data.get("words", []))
-                }
-            }
-        else:
-            return {
-                "status": "error",
-                "google_vision_available": False,
-                "message": "Google Vision API not configured"
-            }
+        return {
+            "status": "success" if result.success else "error",
+            "file_name": result.file_name,
+            "processing_time": result.processing_time,
+
+            # Main results
+            "extracted_text": result.extracted_text[:1000] + "..." if len(result.extracted_text) > 1000 else result.extracted_text,
+            "confidence": result.confidence,
+            "selected_provider": result.selected_provider,
+
+            # AI Decision details
+            "ai_decision": {
+                "reasoning": result.ai_decision.reasoning,
+                "quality_analysis": result.ai_decision.quality_analysis,
+                "gemini_used": result.ai_decision.success
+            },
+
+            # OCR Results summary
+            "ocr_summary": {
+                "total_providers_used": len(result.ocr_results),
+                "successful_providers": len([r for r in result.ocr_results if r.success]),
+                "provider_results": [
+                    {
+                        "provider": r.provider,
+                        "success": r.success,
+                        "confidence": r.confidence,
+                        "text_length": len(r.text) if r.success else 0,
+                        "processing_time": r.processing_time
+                    }
+                    for r in result.ocr_results
+                ]
+            },
+
+            # Structured invoice data
+            "structured_data": result.structured_data,
+
+            # Error information
+            "error_message": result.error_message
+        }
 
     except Exception as e:
         return {
             "status": "error",
-            "google_vision_available": False,
-            "message": str(e)
+            "message": f"Processing failed: {str(e)}",
+            "file_name": file.filename
         }
     finally:
         # Clean up temporary file
         if os.path.exists(temp_file_path):
             os.remove(temp_file_path)
 
-@app.post("/test-combined-ocr")
-async def test_combined_ocr(file: UploadFile = File(...)):
-    """Test endpoint for Combined OCR (AI + Traditional methods)."""
-
-    # Validate file type
-    allowed_types = [
-        "application/pdf",
-        "image/jpeg", "image/jpg", "image/png",
-        "image/gif", "image/bmp", "image/tiff"
-    ]
-
-    if file.content_type not in allowed_types:
-        raise HTTPException(
-            status_code=400,
-            detail="Unsupported file type"
-        )
-
-    # Save file temporarily
-    with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(file.filename)[1]) as temp_file:
-        content = await file.read()
-        temp_file.write(content)
-        temp_file_path = temp_file.name
-
+@app.get("/system-status")
+async def system_status():
+    """Get status of the entire invoice processing system"""
     try:
-        # Test Combined OCR (AI + Traditional)
-        result = combined_ocr_processor.process_document(temp_file_path)
-
-        if "error" in result:
-            return {
-                "status": "error",
-                "message": result["error"]
-            }
-
+        status = invoice_processor.get_system_status()
         return {
             "status": "success",
-            "file_name": file.filename,
-            "ocr_type": "combined_ai_traditional",
-            "final_result": {
-                "text_preview": result["final_result"]["text"][:500] + "..." if len(result["final_result"]["text"]) > 500 else result["final_result"]["text"],
-                "confidence": result["final_result"]["confidence"],
-                "method_used": result["final_result"]["method_used"],
-                "total_processing_time": result["final_result"]["total_processing_time"],
-                "structured_data": result["final_result"]["structured_data"]
+            "system_ready": status["system_ready"],
+            "ocr_providers": {
+                "available": status["ocr_manager"]["available_providers"],
+                "total_available": len(status["ocr_manager"]["available_providers"]),
+                "provider_status": status["ocr_manager"]["provider_status"]
             },
-            "methods_comparison": {
-                "methods_used": result["comparison"]["methods_used"],
-                "successful_methods": result["comparison"]["successful_methods"],
-                "best_individual_confidence": result["comparison"]["best_individual_confidence"]
-            },
-            "individual_results": [
-                {
-                    "method": r["method"],
-                    "confidence": r["confidence"],
-                    "text_length": r["text_length"],
-                    "processing_time": r["processing_time"],
-                    "preprocessing": r["preprocessing"]
-                }
-                for r in result["individual_results"]
-            ]
+            "gemini_ai": status["gemini_engine"],
+            "supported_file_types": status["supported_file_types"],
+            "message": f"System ready with {len(status['ocr_manager']['available_providers'])} OCR providers"
         }
-
     except Exception as e:
         return {
             "status": "error",
-            "message": str(e)
+            "message": f"Failed to get system status: {str(e)}",
+            "system_ready": False
         }
-    finally:
-        # Clean up temporary file
-        if os.path.exists(temp_file_path):
-            os.remove(temp_file_path)
+
+
+@app.get("/test-system")
+async def test_system():
+    """Test the entire invoice processing system"""
+    try:
+        test_result = invoice_processor.test_system()
+        return {
+            "status": "success",
+            "test_results": test_result,
+            "message": "System test completed"
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": f"System test failed: {str(e)}"
+        }
+
 
 if __name__ == "__main__":
     uvicorn.run(

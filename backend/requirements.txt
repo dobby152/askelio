@@ -24,46 +24,28 @@ redis==5.0.1
 pillow==10.1.0
 pytesseract==0.3.10
 pdf2image==1.16.3
-PyMuPDF==1.23.8
-
-# Advanced Image Processing for Multilayer OCR
-opencv-python==4.8.1.78
-opencv-contrib-python==4.8.1.78
-scikit-image==0.21.0
 numpy==1.24.3
 
-# OCR Providers - Cloud Services
+# OCR Providers - 5 Sources for Maximum Accuracy
+# 1. Google Vision API (cloud-based, high accuracy)
 google-cloud-vision==3.4.5
 google-auth==2.23.4
 
-# Azure Computer Vision (optional)
-# azure-cognitiveservices-vision-computervision==0.9.0
-# msrest==0.7.1
+# 2. Azure Computer Vision (cloud-based alternative)
+azure-cognitiveservices-vision-computervision==0.9.0
+msrest==0.7.1
 
-# AWS Textract (optional)
-# boto3==1.34.0
-# botocore==1.34.0
+# 3. Tesseract (open-source, local) - already included via pytesseract
 
-# Open Source OCR Alternatives - Now ENABLED for maximum precision
-paddlepaddle==2.5.2
-paddleocr==2.7.3
+# 4. EasyOCR (ML-based, local)
 easyocr==1.7.0
 
-# Advanced ML-based OCR
-transformers==4.35.2
-torch==2.1.1
-torchvision==0.16.1
+# 5. PaddleOCR (ML-based, local, good for multiple languages)
+paddlepaddle==2.5.2
+paddleocr==2.7.3
 
-# Enhanced text processing and analysis
-textdistance==4.6.0
-langdetect==1.0.9
-difflib2==0.1.0
-
-# Performance optimization
-concurrent-futures==3.1.1
-
-# Additional image processing
-scipy==1.11.4
+# Google Gemini AI for decision making
+google-generativeai==0.3.2
 
 # Payment and External Services
 stripe==7.8.0
