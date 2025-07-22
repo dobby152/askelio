@@ -6,10 +6,10 @@ test.describe('Complete Dashboard Integration Tests', () => {
 
   test.beforeEach(async ({ page }) => {
     dashboard = new DashboardHelpers(page);
-    
-    // Navigate to the dashboard (adjust URL based on your setup)
-    await page.goto('/');
-    
+
+    // Navigate to the dashboard
+    await page.goto('/dashboard');
+
     // Wait for dashboard to fully load
     await dashboard.waitForDashboardLoad();
   });

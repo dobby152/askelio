@@ -13,7 +13,7 @@ import pdf2image
 from pathlib import Path
 
 from ocr_manager import OCRManager, OCRResult
-from gemini_decision_engine import GeminiDecisionEngine, GeminiDecision
+from gemini_decision_engine import GeminiDecisionEngine, GeminiDecision, GeminiStructuredData
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -35,7 +35,9 @@ class InvoiceProcessingResult:
     
     # Structured invoice data
     structured_data: Dict[str, any]
-    
+    gemini_structured_data: Optional[GeminiStructuredData] = None
+    basic_structured_data: Optional[Dict[str, any]] = None
+
     # Error information
     error_message: Optional[str] = None
 
@@ -101,48 +103,64 @@ class InvoiceProcessor:
             logger.info("Step 2: File conversion")
             image_path = self._prepare_image(file_path, file_name)
             
-            # Step 3: OCR processing (sequential through all providers)
-            logger.info("Step 3: Sequential OCR processing")
-            ocr_results = self.ocr_manager.process_image_sequential(image_path)
-            
-            if not ocr_results:
+            # Step 3: Simplified OCR processing with immediate structuring
+            logger.info("Step 3: Google Vision OCR + Gemini structuring")
+            processing_result = self.ocr_manager.process_image_with_structuring(image_path, "invoice")
+
+            if not processing_result["success"]:
                 return InvoiceProcessingResult(
                     success=False,
                     file_name=file_name,
                     extracted_text="",
                     confidence=0.0,
-                    selected_provider="none",
+                    selected_provider="google_vision",
                     processing_time=time.time() - start_time,
                     ocr_results=[],
                     ai_decision=GeminiDecision(
-                        selected_provider="none",
+                        selected_provider="google_vision",
                         confidence_score=0.0,
-                        reasoning="No OCR results obtained",
+                        reasoning="OCR processing failed",
                         quality_analysis={},
                         text_result="",
                         processing_time=0.0,
                         success=False,
-                        error_message="No OCR providers available"
+                        error_message=processing_result.get("error", "Unknown error")
                     ),
                     structured_data={},
-                    error_message="No OCR results obtained"
+                    error_message=processing_result.get("error", "OCR processing failed")
                 )
-            
-            # Step 4: AI decision making
-            logger.info("Step 4: Gemini AI decision making")
-            ai_decision = self.gemini_engine.analyze_ocr_results(ocr_results, "invoice")
-            
-            # Step 5: Structure the data
-            logger.info("Step 5: Data structuring")
-            structured_data = self._structure_invoice_data(ai_decision.text_result)
-            
+
+            # Data is already structured by Gemini in the OCR step
+            logger.info("Step 4: Data already structured by Gemini")
+            structured_data = processing_result.get("structured_data", {})
+
+            # Create a mock AI decision for compatibility
+            ai_decision = GeminiDecision(
+                selected_provider="google_vision",
+                confidence_score=processing_result.get("structuring_confidence", processing_result["confidence"]),
+                reasoning="Simplified processing with Google Vision + Gemini",
+                quality_analysis={"google_vision": processing_result["confidence"]},
+                text_result=processing_result["raw_text"],
+                processing_time=processing_result["processing_time"],
+                success=True
+            )
+
             # Clean up temporary files
             if image_path != file_path and os.path.exists(image_path):
                 os.remove(image_path)
-            
+
             total_time = time.time() - start_time
-            logger.info(f"Invoice processing completed in {total_time:.2f}s")
-            
+            logger.info(f"Simplified invoice processing completed in {total_time:.2f}s")
+
+            # Create a single OCR result for compatibility
+            ocr_result = OCRResult(
+                provider="google_vision",
+                text=processing_result["raw_text"],
+                confidence=processing_result["confidence"],
+                processing_time=processing_result["processing_time"],
+                success=processing_result["success"]
+            )
+
             return InvoiceProcessingResult(
                 success=ai_decision.success,
                 file_name=file_name,
@@ -150,9 +168,11 @@ class InvoiceProcessor:
                 confidence=ai_decision.confidence_score,
                 selected_provider=ai_decision.selected_provider,
                 processing_time=total_time,
-                ocr_results=ocr_results,
+                ocr_results=[ocr_result],
                 ai_decision=ai_decision,
-                structured_data=structured_data
+                structured_data=structured_data,
+                gemini_structured_data=None,
+                basic_structured_data=None
             )
             
         except Exception as e:
@@ -289,12 +309,18 @@ class InvoiceProcessor:
     
     def get_system_status(self) -> Dict[str, any]:
         """Get status of the entire invoice processing system"""
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(f"🔍 DEBUG get_system_status: gemini_engine instance: {id(self.gemini_engine)}")
+        logger.info(f"🔍 DEBUG get_system_status: gemini_engine.is_available: {self.gemini_engine.is_available}")
+        gemini_status = self.gemini_engine.get_status()
+        logger.info(f"🔍 DEBUG get_system_status: gemini_status: {gemini_status}")
         return {
             "ocr_manager": {
                 "available_providers": self.ocr_manager.get_available_providers(),
                 "provider_status": self.ocr_manager.get_provider_status()
             },
-            "gemini_engine": self.gemini_engine.get_status(),
+            "gemini_engine": gemini_status,
             "supported_file_types": self.supported_types,
             "system_ready": len(self.ocr_manager.get_available_providers()) > 0
         }

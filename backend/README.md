@@ -32,14 +32,22 @@ FastAPI backend pro automatizované zpracování faktur a účtenek s **pokroči
 4. **EasyOCR** (Priorita: 0.8) - Moderní neural network OCR
 5. **Tesseract** (Priorita: 0.7) - Tradiční OCR jako fallback
 
-### 🧠 Gemini AI Rozhodování
-**NOVĚ: Skutečná AI místo algoritmů!**
+### 🧠 Gemini AI Rozhodování + Strukturování
+**NOVĚ: Skutečná AI místo algoritmů + Inteligentní strukturování dat!**
 
+#### OCR Výběr
 - **Google Gemini AI** analyzuje všechny OCR výsledky
 - **Inteligentní porozumění** kontextu dokumentů
 - **Rozpoznání chyb** a nelogičností v textu
 - **Detailní zdůvodnění** každého rozhodnutí
 - **Flexibilní hodnocení** na základě typu dokumentu
+
+#### Data Strukturování (NOVÉ!)
+- **Inteligentní extrakce** strukturovaných dat z OCR textu
+- **Validace a opravy** chyb základní regex extrakce
+- **Standardizace formátů** (data, měny, IČO/DIČ)
+- **Porovnání metod** - transparentní srovnání základní vs AI extrakce
+- **Fallback mechanismus** při nedostupnosti Gemini API
 
 ### Fallback AI Kritéria (když Gemini není dostupný)
 - **Confidence Score** (25%) - Spolehlivost extrakce
@@ -156,8 +164,10 @@ Po spuštění je dostupná na:
 
 ### Hlavní endpointy
 
-#### 🚀 Enhanced Multilayer OCR (NOVÉ!)
+#### 🚀 Enhanced Multilayer OCR + Gemini AI (NOVÉ!)
+- `POST /process-invoice` - **Kompletní zpracování s 5 OCR providery + Gemini AI strukturování**
 - `POST /enhanced-multilayer-ocr` - **Maximální přesnost s 5 OCR providery + AI**
+- `POST /test-gemini-structuring` - **Test Gemini AI strukturování dat**
 - `GET /enhanced-ocr-status` - Stav Enhanced OCR systému
 - `POST /test-combined-ocr` - Test kombinovaného OCR (legacy)
 
@@ -183,6 +193,20 @@ Po spuštění je dostupná na:
 - `GET /integrations/formats` - Podporované formáty
 
 ### 🧪 Testovací Endpointy
+
+#### Test Gemini AI Strukturování
+```bash
+# Test Gemini AI strukturování s ukázkovým textem
+curl -X POST "http://localhost:8000/test-gemini-structuring" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "text=FAKTURA č. 2024-001
+Datum: 21.07.2024
+Celkem: 24200 Kč
+Dodavatel: ABC s.r.o.
+IČO: 12345678"
+```
+
+#### Test Enhanced Multilayer OCR
 ```bash
 # Test Enhanced Multilayer OCR
 curl -X POST "http://localhost:8000/enhanced-multilayer-ocr" \

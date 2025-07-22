@@ -14,6 +14,7 @@ import { Progress } from "@/components/ui/progress"
 import { useToast } from "@/lib/use-toast"
 import { Download, FileSpreadsheet, FileText, Calendar, Filter, Settings2 } from "lucide-react"
 import { exportToCSV, exportToExcel, type ExportData, type ExportOptions } from "@/lib/export-utils"
+import { apiClient } from "@/lib/api-complete"
 import type { DateRange } from "react-day-picker"
 
 interface ExportDialogProps {

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Frontend - Documents</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .document { 
+            border: 1px solid #ddd; 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-radius: 4px;
+            background: #fafafa;
+        }
+        .loading { 
+            color: #666; 
+            text-align: center;
+            padding: 40px;
+        }
+        .error { 
+            color: red; 
+            background: #ffe6e6;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success { 
+            color: green; 
+            background: #e6ffe6;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status.completed { background: #d4edda; color: #155724; }
+        .status.processing { background: #fff3cd; color: #856404; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background: #f8f9fa;
+            font-weight: bold;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Debug Frontend - Documents</h1>
+        <div id="status" class="loading">
+            <div class="spinner"></div>
+            <p>Načítání dokumentů z backendu...</p>
+        </div>
+        <div id="documents"></div>
+        <div id="debug-info" style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 4px;">
+            <h3>Debug informace:</h3>
+            <div id="debug-log"></div>
+        </div>
+    </div>
+
+    <script>
+        const debugLog = document.getElementById('debug-log');
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.style.margin = '5px 0';
+            logEntry.style.padding = '5px';
+            logEntry.style.borderRadius = '3px';
+            
+            switch(type) {
+                case 'error':
+                    logEntry.style.background = '#ffe6e6';
+                    logEntry.style.color = '#d00';
+                    break;
+                case 'success':
+                    logEntry.style.background = '#e6ffe6';
+                    logEntry.style.color = '#080';
+                    break;
+                default:
+                    logEntry.style.background = '#e6f3ff';
+                    logEntry.style.color = '#006';
+            }
+            
+            logEntry.innerHTML = `<strong>[${timestamp}]</strong> ${message}`;
+            debugLog.appendChild(logEntry);
+            console.log(`[${timestamp}] ${message}`);
+        }
+
+        function formatDate(dateString) {
+            try {
+                return new Date(dateString).toLocaleString('cs-CZ');
+            } catch (e) {
+                return dateString;
+            }
+        }
+
+        async function loadDocuments() {
+            const statusEl = document.getElementById('status');
+            const documentsEl = document.getElementById('documents');
+            
+            try {
+                log('🔄 Začínám načítání dokumentů...');
+                log('📡 Volám API: http://localhost:8000/documents');
+                
+                const response = await fetch('http://localhost:8000/documents');
+                log(`📊 Response status: ${response.status} ${response.statusText}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                log(`📄 Získána data: ${JSON.stringify(data, null, 2)}`, 'success');
+                
+                // Transform data exactly like frontend does
+                const transformedDocs = data.map((doc) => {
+                    log(`🔄 Transformuji dokument: ${doc.filename || doc.file_name}`);
+                    
+                    const transformed = {
+                        id: doc.id.toString(),
+                        name: doc.file_name || doc.filename || doc.name || 'Unknown',
+                        type: doc.type === 'application/pdf' ? 'pdf' : 'image',
+                        status: doc.status === 'completed' ? 'completed' :
+                               doc.status === 'processing' ? 'processing' :
+                               doc.status === 'failed' ? 'error' : 'error',
+                        accuracy: typeof doc.accuracy === 'string' 
+                            ? parseFloat(doc.accuracy.replace('%', '') || '0')
+                            : parseFloat(doc.accuracy?.toString() || '0'),
+                        processedAt: formatDate(doc.processed_at || doc.created_at || new Date().toISOString()),
+                        size: doc.size || '0 MB',
+                        pages: doc.pages || 1,
+                        extractedData: doc.extracted_data || doc.extracted_text,
+                        errorMessage: doc.error_message
+                    };
+                    
+                    log(`✅ Transformován dokument: ${JSON.stringify(transformed, null, 2)}`, 'success');
+                    return transformed;
+                });
+                
+                log(`📋 Celkem transformováno ${transformedDocs.length} dokumentů`, 'success');
+                
+                statusEl.innerHTML = `<div class="success">✅ Načteno ${transformedDocs.length} dokumentů</div>`;
+                
+                if (transformedDocs.length === 0) {
+                    documentsEl.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #666;">
+                            <h3>Žádné dokumenty</h3>
+                            <p>Zatím nebyly nahrány žádné dokumenty.</p>
+                        </div>
+                    `;
+                } else {
+                    documentsEl.innerHTML = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Název</th>
+                                    <th>Status</th>
+                                    <th>Typ</th>
+                                    <th>Přesnost</th>
+                                    <th>Velikost</th>
+                                    <th>Zpracováno</th>
+                                    <th>Extrahovaná data</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${transformedDocs.map(doc => `
+                                    <tr>
+                                        <td><strong>${doc.name}</strong></td>
+                                        <td><span class="status ${doc.status}">${doc.status}</span></td>
+                                        <td>${doc.type}</td>
+                                        <td>${doc.accuracy}%</td>
+                                        <td>${doc.size}</td>
+                                        <td>${doc.processedAt}</td>
+                                        <td>
+                                            ${doc.extractedData ? `
+                                                <details>
+                                                    <summary>Zobrazit data</summary>
+                                                    <pre style="font-size: 12px; margin: 5px 0;">${JSON.stringify(doc.extractedData, null, 2)}</pre>
+                                                </details>
+                                            ` : 'Žádná data'}
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                }
+                
+            } catch (error) {
+                log(`❌ Chyba při načítání dokumentů: ${error.message}`, 'error');
+                statusEl.innerHTML = `<div class="error">❌ Chyba: ${error.message}</div>`;
+                documentsEl.innerHTML = '';
+            }
+        }
+        
+        // Načti dokumenty při načtení stránky
+        document.addEventListener('DOMContentLoaded', () => {
+            log('🚀 Stránka načtena, spouštím načítání dokumentů...');
+            loadDocuments();
+        });
+        
+        // Přidej tlačítko pro refresh
+        document.addEventListener('DOMContentLoaded', () => {
+            const refreshBtn = document.createElement('button');
+            refreshBtn.textContent = '🔄 Obnovit dokumenty';
+            refreshBtn.style.margin = '10px 0';
+            refreshBtn.style.padding = '10px 20px';
+            refreshBtn.style.background = '#007bff';
+            refreshBtn.style.color = 'white';
+            refreshBtn.style.border = 'none';
+            refreshBtn.style.borderRadius = '4px';
+            refreshBtn.style.cursor = 'pointer';
+            refreshBtn.onclick = () => {
+                debugLog.innerHTML = '';
+                loadDocuments();
+            };
+            document.querySelector('.container').insertBefore(refreshBtn, document.getElementById('status'));
+        });
+    </script>
+</body>
+</html>

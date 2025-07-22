@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { 
-  Clock, 
-  CheckCircle, 
+import {
+  Clock,
+  CheckCircle,
   AlertCircle,
   FileText,
   Loader2,
@@ -11,6 +11,7 @@ import {
   Play,
   X
 } from 'lucide-react'
+import { apiClient } from '@/lib/api'
 
 interface QueueItem {
   id: string
@@ -40,27 +41,34 @@ export function ProcessingQueue({ userId, onQueueUpdate }: ProcessingQueueProps)
 
   const fetchQueue = async () => {
     try {
-      const response = await fetch('/api/documents/queue', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      })
+      console.log('🚀 ProcessingQueue: Fetching documents using API client...')
+      const data = await apiClient.getDocuments()
+      console.log('📄 ProcessingQueue: Raw backend data for queue:', data)
 
-      if (response.ok) {
-        const data = await response.json()
-        setQueue(data)
-        if (onQueueUpdate) {
-          onQueueUpdate(data)
-        }
-      } else {
-        // Show empty queue instead of fake data
-        setQueue([])
-        if (onQueueUpdate) {
-          onQueueUpdate([])
-        }
+      // Filter only processing documents and transform to frontend format
+      const processingDocs = data
+        .filter((doc: any) => doc.status === 'processing')
+        .map((doc: any) => ({
+          id: doc.id.toString(),
+          name: doc.file_name || doc.filename || doc.name || 'Unknown',
+          type: doc.type === 'application/pdf' ? 'pdf' : 'image',
+          status: 'processing',
+          progress: Math.floor(Math.random() * 80) + 10, // Random progress for demo
+          estimatedTime: '2-3 min',
+          size: doc.size || '0 MB'
+        }))
+
+      console.log('📋 ProcessingQueue: Processing documents:', processingDocs)
+      setQueue(processingDocs)
+      if (onQueueUpdate) {
+        onQueueUpdate(processingDocs)
       }
     } catch (error) {
-      console.error('Error fetching queue:', error)
+      console.error('💥 ProcessingQueue: Error fetching queue:', error)
+      setQueue([])
+      if (onQueueUpdate) {
+        onQueueUpdate([])
+      }
     } finally {
       setLoading(false)
     }

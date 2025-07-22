@@ -8,14 +8,14 @@ test.describe('Autentifikace', () => {
     await expect(page).toHaveURL('/auth/login')
 
     // Ověř nadpis
-    await expect(page.getByRole('heading', { name: 'Přihlášení' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Vítejte zpět' })).toBeVisible()
 
     // Ověř popis
-    await expect(page.getByText('Přihlaste se do svého účtu')).toBeVisible()
+    await expect(page.getByText('Přihlaste se do svého účtu Askelio')).toBeVisible()
 
     // Ověř formulářové prvky
-    await expect(page.getByText('E-mail')).toBeVisible()
-    await expect(page.getByText('Heslo')).toBeVisible()
+    await expect(page.getByText('E-mailová adresa')).toBeVisible()
+    await expect(page.getByLabel('Heslo')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Přihlásit se' })).toBeVisible()
 
     // Ověř placeholdery
@@ -23,7 +23,7 @@ test.describe('Autentifikace', () => {
 
     // Ověř odkaz na registraci
     await expect(page.getByText('Nemáte účet?')).toBeVisible()
-    await expect(page.getByRole('link', { name: 'Zaregistrujte se' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Zaregistrujte se zdarma' })).toBeVisible()
   })
 
   test('měla by zobrazit registrační stránku správně', async ({ page }) => {
@@ -33,16 +33,17 @@ test.describe('Autentifikace', () => {
     await expect(page).toHaveURL('/auth/register')
 
     // Ověř nadpis
-    await expect(page.getByRole('heading', { name: 'Registrace' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Začněte zdarma' })).toBeVisible()
 
     // Ověř popis
-    await expect(page.getByText('Vytvořte si nový účet')).toBeVisible()
+    await expect(page.getByText('Vytvořte si účet Askelio během několika sekund')).toBeVisible()
 
     // Ověř formulářové prvky
-    await expect(page.getByText('E-mail')).toBeVisible()
-    await expect(page.getByText('Heslo')).toBeVisible()
-    await expect(page.getByText('Potvrdit heslo')).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Zaregistrovat se' })).toBeVisible()
+    await expect(page.getByText('Celé jméno')).toBeVisible()
+    await expect(page.getByText('E-mailová adresa')).toBeVisible()
+    await expect(page.getByLabel('Heslo').first()).toBeVisible()
+    await expect(page.getByLabel('Potvrdit heslo')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Vytvořit účet zdarma' })).toBeVisible()
 
     // Ověř odkaz na přihlášení
     await expect(page.getByText('Už máte účet?')).toBeVisible()
@@ -54,14 +55,14 @@ test.describe('Autentifikace', () => {
     await page.goto('/auth/login')
 
     // Přejdi na registraci
-    await page.getByRole('link', { name: 'Zaregistrujte se' }).click()
+    await page.getByRole('link', { name: 'Zaregistrujte se zdarma' }).click()
     await expect(page).toHaveURL('/auth/register')
-    await expect(page.getByRole('heading', { name: 'Registrace' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Začněte zdarma' })).toBeVisible()
 
     // Vrať se na přihlášení
     await page.getByRole('link', { name: 'Přihlaste se' }).click()
     await expect(page).toHaveURL('/auth/login')
-    await expect(page.getByRole('heading', { name: 'Přihlášení' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Vítejte zpět' })).toBeVisible()
   })
 
   test('měla by být responsivní na mobilních zařízeních', async ({ page }) => {
@@ -70,9 +71,9 @@ test.describe('Autentifikace', () => {
     await page.goto('/auth/login')
 
     // Ověř, že formulář je viditelný a použitelný
-    await expect(page.getByRole('heading', { name: 'Přihlášení' })).toBeVisible()
-    await expect(page.getByText('E-mail')).toBeVisible()
-    await expect(page.getByText('Heslo')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Vítejte zpět' })).toBeVisible()
+    await expect(page.getByText('E-mailová adresa')).toBeVisible()
+    await expect(page.getByLabel('Heslo')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Přihlásit se' })).toBeVisible()
   })
 })

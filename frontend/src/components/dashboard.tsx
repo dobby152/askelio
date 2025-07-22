@@ -1,25 +1,33 @@
 "use client"
 
-import { useState } from "react"
+import { useState, Suspense } from "react"
 import { Sidebar } from "@/components/sidebar"
 import { Header } from "@/components/header"
 import { StatsCards } from "@/components/stats-cards"
 import { ChartsSection } from "@/components/charts-section"
 import { DocumentWorkspace } from "@/components/document-workspace"
-import { MultilayerOCRStatus } from "@/components/dashboard/MultilayerOCRStatus"
-import { MultilayerOCRTester } from "@/components/dashboard/MultilayerOCRTester"
-
 import { Toaster } from "@/components/ui/toaster"
-// Přidej import pro ExportDialog a export data
 import { ExportDialog } from "@/components/export-dialog"
+import { Card, CardContent } from "@/components/ui/card"
+import { Loader2 } from "lucide-react"
+
+// Loading component for better UX
+function LoadingCard() {
+  return (
+    <Card>
+      <CardContent className="flex items-center justify-center p-6">
+        <Loader2 className="h-6 w-6 animate-spin" />
+        <span className="ml-2">Načítání...</span>
+      </CardContent>
+    </Card>
+  )
+}
 
 export function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
-
-  // Přidej state pro export dialog
   const [exportDialogOpen, setExportDialogOpen] = useState(false)
 
-  // Export data - will be fetched from API
+  // Export data - will be fetched from API in production
   const exportData = {
     documents: [],
     statistics: {
@@ -35,7 +43,7 @@ export function Dashboard() {
 
   return (
     <>
-      <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="flex h-screen bg-gray-50 dark:bg-gray-900" data-testid="dashboard-container">
         {/* Aktualizuj Sidebar komponentu aby předávala onExportClick */}
         <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} onExportClick={() => setExportDialogOpen(true)} />
 
@@ -49,21 +57,21 @@ export function Dashboard() {
                 <p className="text-sm text-gray-500 dark:text-gray-400">Vítejte zpět v Askelio OCR</p>
               </div>
 
-              <StatsCards />
+              <Suspense fallback={<LoadingCard />}>
+                <StatsCards />
+              </Suspense>
 
-              <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                <div className="xl:col-span-2 space-y-6">
+              <div className="grid grid-cols-1 gap-6">
+                <Suspense fallback={<LoadingCard />}>
                   <ChartsSection />
-                </div>
-                <div className="space-y-6">
-                  <MultilayerOCRStatus />
-                  <MultilayerOCRTester />
-                </div>
+                </Suspense>
               </div>
 
               {/* Document Workspace with Preview */}
               <div className="h-[600px]">
-                <DocumentWorkspace />
+                <Suspense fallback={<LoadingCard />}>
+                  <DocumentWorkspace />
+                </Suspense>
               </div>
             </div>
           </main>

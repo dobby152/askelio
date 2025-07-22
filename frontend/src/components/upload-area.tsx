@@ -9,6 +9,7 @@ import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/lib/use-toast"
 import { Upload, FileText, ImageIcon, X, CheckCircle, AlertCircle } from "lucide-react"
+import { apiClient } from "@/lib/api"
 
 interface UploadedFile {
   id: string
@@ -98,44 +99,54 @@ export function UploadArea() {
       const formData = new FormData()
       formData.append('file', file)
 
-      const response = await fetch('http://localhost:8000/documents/upload', {
-        method: 'POST',
-        body: formData
-      })
+      console.log('🚀 UploadArea: Uploading file using API client:', file.name)
+      const result = await apiClient.uploadDocument(file)
+      console.log('✅ UploadArea: Upload successful:', result)
 
-      if (response.ok) {
-        const result = await response.json()
+      // Update to processing status
+      setFiles((prev) =>
+        prev.map((f) =>
+          f.id === fileId
+            ? { ...f, status: "processing", progress: 75 }
+            : f
+        )
+      )
 
-        // Update to processing status
+      // Complete immediately since backend processes synchronously
+      setTimeout(() => {
         setFiles((prev) =>
           prev.map((f) =>
             f.id === fileId
-              ? { ...f, status: "processing", progress: 50 }
+              ? {
+                  ...f,
+                  status: "completed",
+                  progress: 100,
+                  result: result
+                }
               : f
           )
         )
 
-        // Simulate processing time
-        setTimeout(() => {
-          setFiles((prev) =>
-            prev.map((f) =>
-              f.id === fileId
-                ? { ...f, status: "completed", progress: 100 }
-                : f
-            )
-          )
+        const confidenceText = result.confidence ? `s ${(result.confidence * 100).toFixed(1)}% přesností` : ''
 
-          toast({
-            title: "Úspěšně nahráno",
-            description: `Soubor ${file.name} byl úspěšně zpracován.`,
-          })
-        }, 2000)
-
-      } else {
-        throw new Error('Upload failed')
-      }
+        toast({
+          title: "Úspěšně zpracováno",
+          description: `Soubor ${file.name} byl zpracován ${confidenceText}.`,
+        })
+      }, 1000)
     } catch (error) {
       console.error('Upload error:', error)
+
+      let errorMessage = 'Neznámá chyba'
+
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          errorMessage = 'Zpracování trvalo příliš dlouho (timeout)'
+        } else {
+          errorMessage = error.message
+        }
+      }
+
       setFiles((prev) =>
         prev.map((f) =>
           f.id === fileId
@@ -145,8 +156,8 @@ export function UploadArea() {
       )
 
       toast({
-        title: "Chyba při nahrávání",
-        description: `Nepodařilo se nahrát soubor ${file.name}.`,
+        title: "Chyba při zpracování",
+        description: `${file.name}: ${errorMessage}`,
         variant: "destructive",
       })
     }

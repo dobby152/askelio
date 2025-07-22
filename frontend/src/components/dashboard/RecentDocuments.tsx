@@ -1,10 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { 
-  FileText, 
-  CheckCircle, 
-  Clock, 
+import {
+  FileText,
+  CheckCircle,
+  Clock,
   AlertCircle,
   Download,
   Eye,
@@ -12,6 +12,7 @@ import {
   Activity,
   RefreshCw
 } from 'lucide-react'
+import { apiClient } from '@/lib/api'
 
 interface Document {
   id: string
@@ -54,26 +55,36 @@ export function RecentDocuments({ userId, onDocumentUpdate }: RecentDocumentsPro
     else setLoading(true)
 
     try {
-      const response = await fetch('/api/documents?limit=5', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      })
+      console.log('🚀 RecentDocuments: Fetching documents using API client...')
+      const data = await apiClient.getDocuments()
+      console.log('📄 RecentDocuments: Raw backend data:', data)
 
-      if (response.ok) {
-        const data = await response.json()
-        setDocuments(data)
-        
-        // Notify parent component about updates
-        if (onDocumentUpdate && data.length > 0) {
-          onDocumentUpdate(data[0])
-        }
-      } else {
-        // Show empty state instead of fake data
-        setDocuments([])
+      // Transform backend data to frontend format and limit to 5
+      const transformedDocs = data.slice(0, 5).map((doc: any) => ({
+        id: doc.id.toString(),
+        name: doc.file_name || doc.filename || doc.name || 'Unknown',
+        type: doc.type === 'application/pdf' ? 'pdf' : 'image',
+        status: doc.status === 'completed' ? 'completed' :
+               doc.status === 'processing' ? 'processing' :
+               doc.status === 'failed' ? 'error' : 'error',
+        accuracy: parseFloat(doc.accuracy?.toString().replace('%', '') || '0'),
+        processedAt: doc.processed_at || doc.created_at || new Date().toISOString(),
+        size: doc.size || '0 MB',
+        pages: doc.pages || 1,
+        extractedData: doc.extracted_data || doc.extracted_text,
+        errorMessage: doc.error_message
+      }))
+
+      console.log('📋 RecentDocuments: Transformed documents:', transformedDocs)
+      setDocuments(transformedDocs)
+
+      // Notify parent component about updates
+      if (onDocumentUpdate && transformedDocs.length > 0) {
+        onDocumentUpdate(transformedDocs[0])
       }
     } catch (error) {
-      console.error('Error fetching documents:', error)
+      console.error('💥 RecentDocuments: Error fetching documents:', error)
+      setDocuments([])
     } finally {
       setLoading(false)
       setRefreshing(false)

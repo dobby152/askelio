@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 
 import { DocumentsTable } from '@/components/documents-table'
 import { PDFPreview } from '@/components/pdf-preview'
+import { ExtractedDataDetails } from '@/components/extracted-data-details'
 import {
   ChevronLeft,
   ChevronRight,
@@ -16,18 +17,20 @@ import {
   X
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { apiClient } from '@/lib/api'
 
 interface SelectedDocument {
   id: string
   name: string
   fileUrl: string
   extractedData: ExtractedData[]
+  processingDetails?: ProcessingDetails
   status: 'processing' | 'completed' | 'needs_review'
 }
 
 interface ExtractedData {
   id: string
-  type: 'vendor' | 'amount' | 'date' | 'invoice_number' | 'item'
+  type: 'vendor' | 'amount' | 'date' | 'invoice_number' | 'item' | 'tax' | 'subtotal' | 'due_date' | 'payment_method'
   label: string
   value: string
   confidence: number
@@ -39,6 +42,32 @@ interface ExtractedData {
     page: number
   }
   editable: boolean
+  source_provider?: string
+  raw_text?: string
+  alternatives?: Array<{
+    value: string
+    confidence: number
+    provider: string
+  }>
+}
+
+interface ProcessingDetails {
+  total_processing_time: number
+  ocr_results: Array<{
+    provider: string
+    confidence: number
+    processing_time: number
+    success: boolean
+    text_length: number
+  }>
+  gemini_decision: {
+    selected_provider: string
+    confidence_score: number
+    reasoning: string
+    processing_time: number
+  }
+  final_confidence: number
+  status: 'completed' | 'processing' | 'needs_review' | 'error'
 }
 
 interface DocumentWorkspaceProps {
@@ -54,66 +83,68 @@ export function DocumentWorkspace({ className }: DocumentWorkspaceProps) {
 
   const handleDocumentSelect = useCallback(async (documentId: string) => {
     try {
+      console.log('🚀 DocumentWorkspace: Fetching document using API client:', documentId)
       // Fetch real document data from API
-      const response = await fetch(`http://localhost:8000/documents/${documentId}`)
-      if (!response.ok) {
-        throw new Error('Failed to fetch document')
-      }
-
-      const documentData = await response.json()
+      const documentData = await apiClient.getDocument(documentId)
+      console.log('📄 DocumentWorkspace: Document data:', documentData)
 
       // Convert backend data to frontend format
       const extractedData: ExtractedData[] = []
 
       if (documentData.extracted_data) {
         const data = documentData.extracted_data
+        let idCounter = 1
 
-        if (data.vendor) {
-          extractedData.push({
-            id: '1',
-            type: 'vendor',
-            label: 'Dodavatel',
-            value: data.vendor,
-            confidence: documentData.confidence || 0.95,
-            position: { x: 100, y: 150, width: 200, height: 25, page: 1 },
-            editable: true
-          })
+        // Helper function to add extracted data item
+        const addDataItem = (type: string, label: string, value: string, confidence?: number, provider?: string, alternatives?: any[]) => {
+          if (value) {
+            extractedData.push({
+              id: idCounter.toString(),
+              type: type as any,
+              label,
+              value,
+              confidence: confidence || documentData.confidence || 0.95,
+              position: { x: 100 + (idCounter * 50), y: 150 + (idCounter * 30), width: 200, height: 25, page: 1 },
+              editable: true,
+              source_provider: provider,
+              alternatives: alternatives || []
+            })
+            idCounter++
+          }
         }
 
-        if (data.amount) {
-          extractedData.push({
-            id: '2',
-            type: 'amount',
-            label: 'Celková částka',
-            value: `${data.amount} ${data.currency || 'CZK'}`,
-            confidence: documentData.confidence || 0.98,
-            position: { x: 400, y: 500, width: 120, height: 20, page: 1 },
-            editable: true
+        // Extract all available data fields
+        addDataItem('vendor', 'Dodavatel', data.vendor, data.vendor_confidence, data.vendor_provider, data.vendor_alternatives)
+        addDataItem('amount', 'Celková částka', data.amount ? `${data.amount} ${data.currency || 'CZK'}` : '', data.amount_confidence, data.amount_provider, data.amount_alternatives)
+        addDataItem('subtotal', 'Částka bez DPH', data.subtotal ? `${data.subtotal} ${data.currency || 'CZK'}` : '', data.subtotal_confidence)
+        addDataItem('tax', 'DPH', data.tax ? `${data.tax} ${data.currency || 'CZK'}` : '', data.tax_confidence)
+        addDataItem('date', 'Datum vystavení', data.date, data.date_confidence, data.date_provider, data.date_alternatives)
+        addDataItem('due_date', 'Datum splatnosti', data.due_date, data.due_date_confidence)
+        addDataItem('invoice_number', 'Číslo faktury', data.invoice_number, data.invoice_number_confidence, data.invoice_number_provider, data.invoice_number_alternatives)
+        addDataItem('payment_method', 'Způsob platby', data.payment_method, data.payment_method_confidence)
+
+        // Add items if available
+        if (data.items && Array.isArray(data.items)) {
+          data.items.forEach((item: any, index: number) => {
+            addDataItem('item', `Položka ${index + 1}`, `${item.description || ''} - ${item.quantity || ''} × ${item.unit_price || ''} ${data.currency || 'CZK'}`, item.confidence)
           })
         }
+      }
 
-        if (data.date) {
-          extractedData.push({
-            id: '3',
-            type: 'date',
-            label: 'Datum vystavení',
-            value: data.date,
-            confidence: documentData.confidence || 0.92,
-            position: { x: 450, y: 200, width: 80, height: 18, page: 1 },
-            editable: true
-          })
-        }
-
-        if (data.invoice_number) {
-          extractedData.push({
-            id: '4',
-            type: 'invoice_number',
-            label: 'Číslo faktury',
-            value: data.invoice_number,
-            confidence: documentData.confidence || 0.89,
-            position: { x: 450, y: 180, width: 60, height: 18, page: 1 },
-            editable: true
-          })
+      // Process processing details if available
+      let processingDetails: ProcessingDetails | undefined
+      if (documentData.processing_details) {
+        processingDetails = {
+          total_processing_time: documentData.processing_details.total_processing_time || 0,
+          ocr_results: documentData.processing_details.ocr_results || [],
+          gemini_decision: documentData.processing_details.gemini_decision || {
+            selected_provider: 'unknown',
+            confidence_score: 0,
+            reasoning: 'Není k dispozici',
+            processing_time: 0
+          },
+          final_confidence: documentData.processing_details.final_confidence || documentData.confidence || 0,
+          status: documentData.status || 'completed'
         }
       }
 
@@ -122,6 +153,7 @@ export function DocumentWorkspace({ className }: DocumentWorkspaceProps) {
         name: documentData.filename,
         fileUrl: `http://localhost:8000/documents/${documentId}/preview`,
         extractedData: extractedData,
+        processingDetails: processingDetails,
         status: documentData.status === 'completed' ? 'needs_review' : 'processing'
       }
 
@@ -233,40 +265,64 @@ export function DocumentWorkspace({ className }: DocumentWorkspaceProps) {
           </PanelResizeHandle>
         )}
 
-        {/* Right Panel - Preview */}
+        {/* Right Panel - Preview and Details */}
         {!previewCollapsed && (
           <Panel defaultSize={50} minSize={30}>
             <div className="h-full p-6 pl-0">
-              <div className="h-full relative">
-                {/* Preview Controls */}
-                <div className="absolute top-0 right-0 z-10 flex space-x-2 p-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsFullscreen(true)}
-                    disabled={!selectedDocument}
-                  >
-                    <Maximize2 className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPreviewCollapsed(true)}
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </Button>
-                </div>
+              <PanelGroup direction="vertical" className="h-full">
+                {/* PDF Preview Panel */}
+                <Panel defaultSize={60} minSize={30}>
+                  <div className="h-full relative">
+                    {/* Preview Controls */}
+                    <div className="absolute top-0 right-0 z-10 flex space-x-2 p-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setIsFullscreen(true)}
+                        disabled={!selectedDocument}
+                      >
+                        <Maximize2 className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setPreviewCollapsed(true)}
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </Button>
+                    </div>
 
-                <PDFPreview
-                  fileUrl={selectedDocument?.fileUrl}
-                  fileName={selectedDocument?.name}
-                  extractedData={selectedDocument?.extractedData}
-                  onDataEdit={handleDataEdit}
-                  onApprove={handleApprove}
-                  onReject={handleReject}
-                  className="h-full"
-                />
-              </div>
+                    <PDFPreview
+                      fileUrl={selectedDocument?.fileUrl}
+                      fileName={selectedDocument?.name}
+                      extractedData={selectedDocument?.extractedData}
+                      onDataEdit={handleDataEdit}
+                      onApprove={handleApprove}
+                      onReject={handleReject}
+                      className="h-full"
+                    />
+                  </div>
+                </Panel>
+
+                {/* Vertical Resize Handle */}
+                <PanelResizeHandle className="h-2 bg-gray-200 hover:bg-gray-300 transition-colors relative group">
+                  <div className="absolute inset-x-0 top-1/2 transform -translate-y-1/2 h-1 bg-gray-400 group-hover:bg-gray-500 transition-colors" />
+                </PanelResizeHandle>
+
+                {/* Extracted Data Details Panel */}
+                <Panel defaultSize={40} minSize={20}>
+                  <div className="h-full pt-2">
+                    <ExtractedDataDetails
+                      extractedData={selectedDocument?.extractedData || []}
+                      processingDetails={selectedDocument?.processingDetails}
+                      onDataEdit={handleDataEdit}
+                      onApprove={handleApprove}
+                      onReject={handleReject}
+                      className="h-full"
+                    />
+                  </div>
+                </Panel>
+              </PanelGroup>
             </div>
           </Panel>
         )}

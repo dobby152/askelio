@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:production": "node scripts/build-production.js",
     "start": "next start",
     "lint": "next lint",
     "test": "playwright test",

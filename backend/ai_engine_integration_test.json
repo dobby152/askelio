@@ -1,0 +1,82 @@
+{
+  "test_timestamp": "2025-07-21 13:47:58",
+  "system_performance": {
+    "ocr_providers_available": 5,
+    "ocr_providers_successful": 4,
+    "ai_engine_available": true,
+    "ai_decision_success": true,
+    "ai_quality_score": 0.95,
+    "total_processing_time": 21.587339639663696,
+    "final_confidence": 0.95,
+    "system_ready": true
+  },
+  "ocr_results": [
+    {
+      "provider": "google_vision",
+      "success": true,
+      "confidence": 0.95,
+      "processing_time": 0.22954154014587402,
+      "text_length": 321,
+      "error_message": null
+    },
+    {
+      "provider": "azure_computer_vision",
+      "success": false,
+      "confidence": 0.0,
+      "processing_time": 4.812395334243774,
+      "text_length": 0,
+      "error_message": "Error occurred in request., ConnectionError: HTTPSConnectionPool(host='askelio-ocr-demo.cognitiveservices.azure.com', port=443): Max retries exceeded with url: /vision/v3.2/read/analyze?model-version=latest&readingOrder=basic (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x000001CEF76FCF50>: Failed to resolve 'askelio-ocr-demo.cognitiveservices.azure.com' ([Errno 11001] getaddrinfo failed)\"))"
+    },
+    {
+      "provider": "tesseract",
+      "success": true,
+      "confidence": 0.9064583333333333,
+      "processing_time": 0.715202808380127,
+      "text_length": 331,
+      "error_message": null
+    },
+    {
+      "provider": "easy_ocr",
+      "success": true,
+      "confidence": 0.8758133470247894,
+      "processing_time": 3.946260452270508,
+      "text_length": 318,
+      "error_message": null
+    },
+    {
+      "provider": "paddle_ocr",
+      "success": true,
+      "confidence": 0.0,
+      "processing_time": 8.215991020202637,
+      "text_length": 0,
+      "error_message": null
+    }
+  ],
+  "ai_decision": {
+    "selected_provider": "google_vision",
+    "confidence_score": 0.95,
+    "reasoning": "Google Vision provides the highest confidence score (0.95) and a good preview of the text, indicating a higher likelihood of accurate extraction.  While the other providers also show promising results, Google Vision's text preview demonstrates better formatting and  preservation of crucial invoice details like line breaks, suggesting a more structured output.  Tesseract's result is slightly lower in confidence and has some formatting irregularities. Easy OCR, despite a decent preview, has a lower confidence score and potentially missing data given the shorter text length. Paddle OCR completely failed, returning no text.",
+    "quality_analysis": {
+      "text_completeness": 0.95,
+      "structure_quality": 0.9,
+      "key_information_presence": 0.95,
+      "overall_quality": 0.93
+    },
+    "success": true,
+    "processing_time": 4.937524795532227
+  },
+  "final_result": {
+    "success": true,
+    "confidence": 0.95,
+    "processing_time": 21.58732318878174,
+    "structured_data": {
+      "raw_text": "FAKTURA/INVOICE\nAskelio s.r.o.\nTechnologická 123, Praha 6\nČíslo faktury: FAK-2024-001\nDatum vystavení: 21.07.2024\nDatum splatnosti: 04.08.2024\nOdběratel:\nTest Company Ltd.\nBusiness Street 456\n10000 Praha\nPoložky:\n1x Software License OCR Pro\n2x Konzultace Al implementace\nCelkem k úhradě: 45 678,90 Kč\nDPH 21%: 7 956,90 Kč",
+      "extraction_timestamp": "2025-07-21T13:47:58.310611",
+      "fields": {
+        "invoice_number": "Askelio",
+        "total_amount": "45"
+      },
+      "extraction_confidence": 0.5
+    }
+  }
+}

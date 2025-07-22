@@ -1,0 +1,96 @@
+{
+  "test_timestamp": "2025-07-21 12:59:48",
+  "available_providers": [
+    "google_vision",
+    "azure_computer_vision",
+    "tesseract",
+    "easy_ocr",
+    "paddle_ocr"
+  ],
+  "provider_status": {
+    "google_vision": true,
+    "azure_computer_vision": true,
+    "tesseract": true,
+    "easy_ocr": true,
+    "paddle_ocr": true
+  },
+  "individual_results": {
+    "google_vision": {
+      "success": true,
+      "text": "Test Invoice\nInvoice Number: INV-2024-001\nDate: 2024-07-21\nAmount: $1,234.56\nCustomer: Test Company Ltd.\nDescription: Software License",
+      "confidence": 0.95,
+      "processing_time": 0.23122739791870117,
+      "error_message": null
+    },
+    "azure_computer_vision": {
+      "success": true,
+      "text": "Test Invoice\n\nInvoice Number: INV-2024-001\nDate: 2024-07-21\n\nAmount: $1,234.56\n\nCustomer: Test Company Ltd.\nDescription: Software License",
+      "confidence": 0.88,
+      "processing_time": 0.2790412902832031,
+      "error_message": null
+    },
+    "tesseract": {
+      "success": true,
+      "text": "Test Invoice\n\nInvoice Number: INV-2024-001\nDate: 2024-07-21\n\nAmount: $1,234.56\n\nCustomer: Test Company Ltd.\nDescription: Software License",
+      "confidence": 0.953125,
+      "processing_time": 0.5116422176361084,
+      "error_message": null
+    },
+    "easy_ocr": {
+      "success": true,
+      "text": "Test Invoice Invoice Number: INV-2024-001 Date: 2024-07-21 Amount: $1,234.56 Customer: Test Company Ltd. Description: Software License",
+      "confidence": 0.8392096813423017,
+      "processing_time": 2.8350040912628174,
+      "error_message": null
+    },
+    "paddle_ocr": {
+      "success": false,
+      "text": "",
+      "confidence": 0.0,
+      "processing_time": 5.665949583053589,
+      "error_message": "string index out of range"
+    }
+  },
+  "sequential_results": [
+    {
+      "provider": "google_vision",
+      "success": true,
+      "confidence": 0.95,
+      "processing_time": 0.14066576957702637,
+      "text_length": 134,
+      "error_message": null
+    },
+    {
+      "provider": "azure_computer_vision",
+      "success": true,
+      "confidence": 0.88,
+      "processing_time": 0.26434850692749023,
+      "text_length": 137,
+      "error_message": null
+    },
+    {
+      "provider": "tesseract",
+      "success": true,
+      "confidence": 0.953125,
+      "processing_time": 0.5301644802093506,
+      "text_length": 137,
+      "error_message": null
+    },
+    {
+      "provider": "easy_ocr",
+      "success": true,
+      "confidence": 0.8392096813423017,
+      "processing_time": 3.9881904125213623,
+      "text_length": 134,
+      "error_message": null
+    },
+    {
+      "provider": "paddle_ocr",
+      "success": false,
+      "confidence": 0.0,
+      "processing_time": 4.361703872680664,
+      "text_length": 0,
+      "error_message": "string index out of range"
+    }
+  ]
+}

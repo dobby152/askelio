@@ -8,6 +8,7 @@ import { ExportDialog } from "@/components/export-dialog"
 import { Button } from "@/components/ui/button"
 import { Download } from "lucide-react"
 import { useEffect, useState } from "react"
+import { apiClient } from "@/lib/api"
 
 interface StatsData {
   processedDocuments: number
@@ -41,13 +42,14 @@ export function StatsCards() {
     const fetchStats = async () => {
       try {
         // Fetch documents and credits from API
-        const [documentsResponse, creditsResponse] = await Promise.all([
-          fetch('http://localhost:8000/documents'),
-          fetch('http://localhost:8000/credits')
+        console.log('🚀 StatsCards: Fetching stats using API client...')
+        const [documents, credits] = await Promise.all([
+          apiClient.getDocuments(),
+          apiClient.getCreditBalance()
         ])
 
-        const documents = documentsResponse.ok ? await documentsResponse.json() : []
-        const credits = creditsResponse.ok ? await creditsResponse.json() : { credits: 0 }
+        console.log('📄 StatsCards: Documents:', documents)
+        console.log('💳 StatsCards: Credits:', credits)
 
         // Calculate stats from real data
         const processedDocs = documents.length
@@ -62,7 +64,7 @@ export function StatsCards() {
           processedDocuments: processedDocs,
           timeSaved: processedDocs * 0.5, // Estimate 30 minutes saved per document
           accuracy: avgAccuracy,
-          remainingCredits: credits.credits || 0,
+          remainingCredits: credits,
           trends: {
             documents: 12.5,
             timeSaved: 8.1,

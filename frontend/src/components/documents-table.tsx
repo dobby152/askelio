@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import {
   Search,
   MoreHorizontal,
@@ -24,7 +26,7 @@ import {
 
 // Přidej import pro ExportDialog
 import { ExportDialog } from "@/components/export-dialog"
-import { apiClient } from "@/lib/api"
+import { apiClient } from "@/lib/api-complete"
 import { cn } from "@/lib/utils"
 
 interface Document {
@@ -43,6 +45,7 @@ interface Document {
     date?: string
     invoice_number?: string
   }
+  errorMessage?: string
 }
 
 
@@ -64,32 +67,57 @@ export function DocumentsTable({
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [typeFilter, setTypeFilter] = useState<string>("all")
 
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString)
+      return date.toLocaleString('cs-CZ', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    } catch {
+      return 'Neznámé datum'
+    }
+  }
+
   useEffect(() => {
     const fetchDocuments = async () => {
       try {
-        const response = await fetch('http://localhost:8000/documents')
-        if (response.ok) {
-          const data = await response.json()
-          // Transform backend data to frontend format
-          const transformedDocs = data.map((doc: any) => ({
+        console.log('🚀 DocumentsTable: Starting to fetch documents using API client...')
+        const data = await apiClient.getDocuments()
+        console.log('📄 DocumentsTable: Raw backend data:', data)
+
+        // Transform backend data to frontend format
+        const transformedDocs = data.map((doc: any) => {
+          console.log('🔄 DocumentsTable: Transforming document:', doc)
+
+          const transformed = {
             id: doc.id.toString(),
-            name: doc.filename || doc.name || 'Unknown',
+            name: doc.file_name || doc.filename || doc.name || 'Unknown',
             type: doc.type === 'application/pdf' ? 'pdf' : 'image',
             status: doc.status === 'completed' ? 'completed' :
-                   doc.status === 'processing' ? 'processing' : 'error',
-            accuracy: doc.accuracy || 0,
-            processedAt: doc.processed_at || doc.created_at || new Date().toISOString(),
+                   doc.status === 'processing' ? 'processing' :
+                   doc.status === 'failed' ? 'error' : 'error',
+            accuracy: typeof doc.accuracy === 'string'
+              ? parseFloat(doc.accuracy.replace('%', '') || '0')
+              : parseFloat(doc.accuracy?.toString() || '0'),
+            processedAt: formatDate(doc.processed_at || doc.created_at || new Date().toISOString()),
             size: doc.size || '0 MB',
             pages: doc.pages || 1,
-            extractedData: doc.extracted_data
-          }))
-          setDocuments(transformedDocs)
-        } else {
-          console.error('Failed to fetch documents')
-          setDocuments([])
-        }
+            extractedData: doc.extracted_data || doc.extracted_text,
+            errorMessage: doc.error_message
+          }
+
+          console.log('✅ DocumentsTable: Transformed document:', transformed)
+          return transformed
+        })
+
+        console.log('📋 DocumentsTable: Final documents array:', transformedDocs)
+        setDocuments(transformedDocs)
       } catch (error) {
-        console.error('Error fetching documents:', error)
+        console.error('💥 DocumentsTable: Error fetching documents:', error)
         setDocuments([])
       } finally {
         setLoading(false)
@@ -103,10 +131,25 @@ export function DocumentsTable({
     const matchesSearch = doc.name.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = statusFilter === "all" || doc.status === statusFilter
     const matchesType = typeFilter === "all" || doc.type === typeFilter
+
+    console.log(`🔍 Filtering document ${doc.name}:`, {
+      searchTerm,
+      statusFilter,
+      typeFilter,
+      docStatus: doc.status,
+      docType: doc.type,
+      matchesSearch,
+      matchesStatus,
+      matchesType,
+      finalResult: matchesSearch && matchesStatus && matchesType
+    })
+
     return matchesSearch && matchesStatus && matchesType
   })
 
-  const getStatusBadge = (status: string) => {
+  console.log(`📊 Filtered documents: ${filteredDocuments.length}/${documents.length}`, filteredDocuments)
+
+  const getStatusBadge = (status: string, errorMessage?: string) => {
     switch (status) {
       case "completed":
         return (
@@ -123,12 +166,119 @@ export function DocumentsTable({
           </Badge>
         )
       case "error":
-        return (
-          <Badge variant="destructive">
-            <AlertCircle className="w-3 h-3 mr-1" />
-            Chyba
-          </Badge>
-        )
+        if (errorMessage) {
+          return (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Badge
+                        variant="destructive"
+                        className="cursor-pointer hover:bg-red-600 transition-colors"
+                      >
+                        <AlertCircle className="w-3 h-3 mr-1" />
+                        Chyba
+                      </Badge>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-md">
+                      <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                          <AlertCircle className="w-5 h-5 text-red-500" />
+                          Detaily chyby
+                        </DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <h4 className="font-medium text-sm text-gray-700 dark:text-gray-300 mb-2">
+                            Chybová zpráva:
+                          </h4>
+                          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-3">
+                            <code className="text-sm text-red-800 dark:text-red-200 break-words">
+                              {errorMessage}
+                            </code>
+                          </div>
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-sm text-gray-700 dark:text-gray-300 mb-2">
+                            Možné příčiny:
+                          </h4>
+                          <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                            {errorMessage.includes('Bad image data') && (
+                              <>
+                                <li>• PDF soubor obsahuje neplatná nebo poškozená data</li>
+                                <li>• Soubor může být chráněn heslem</li>
+                                <li>• PDF může obsahovat pouze naskenované obrázky špatné kvality</li>
+                                <li>• Soubor může být poškozen při nahrávání</li>
+                              </>
+                            )}
+                            {errorMessage.includes('cannot identify image file') && (
+                              <>
+                                <li>• PDF soubor nelze zpracovat pomocí Tesseract OCR</li>
+                                <li>• Použijte Google Vision API pro PDF soubory</li>
+                              </>
+                            )}
+                            {errorMessage.includes('timeout') && (
+                              <li>• Zpracování trvalo příliš dlouho</li>
+                            )}
+                            {errorMessage.includes('API') && (
+                              <li>• Problém s připojením k OCR službě</li>
+                            )}
+                            {!errorMessage.includes('Bad image data') &&
+                             !errorMessage.includes('cannot identify image file') &&
+                             !errorMessage.includes('timeout') &&
+                             !errorMessage.includes('API') && (
+                              <li>• Soubor může být poškozen nebo v nepodporovaném formátu</li>
+                            )}
+                          </ul>
+                        </div>
+
+                        <div>
+                          <h4 className="font-medium text-sm text-gray-700 dark:text-gray-300 mb-2">
+                            Doporučené řešení:
+                          </h4>
+                          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md p-3">
+                            {errorMessage.includes('Bad image data') && (
+                              <div className="text-sm text-blue-800 dark:text-blue-200">
+                                <p className="font-medium mb-2">Zkuste následující kroky:</p>
+                                <ol className="list-decimal list-inside space-y-1">
+                                  <li>Zkontrolujte, zda PDF není chráněn heslem</li>
+                                  <li>Exportujte PDF znovu z původního zdroje</li>
+                                  <li>Zkuste konvertovat PDF na obrázek (PNG/JPG) a nahrajte znovu</li>
+                                  <li>Použijte jiný OCR provider (Tesseract pro obrázky)</li>
+                                </ol>
+                              </div>
+                            )}
+                            {errorMessage.includes('cannot identify image file') && (
+                              <div className="text-sm text-blue-800 dark:text-blue-200">
+                                <p className="font-medium">Nahrajte soubor znovu - systém automaticky použije Google Vision API pro PDF soubory.</p>
+                              </div>
+                            )}
+                            {!errorMessage.includes('Bad image data') && !errorMessage.includes('cannot identify image file') && (
+                              <div className="text-sm text-blue-800 dark:text-blue-200">
+                                <p className="font-medium">Zkuste nahrát soubor znovu nebo použijte jiný formát.</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Klikněte pro zobrazení detailů chyby</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )
+        } else {
+          return (
+            <Badge variant="destructive">
+              <AlertCircle className="w-3 h-3 mr-1" />
+              Chyba
+            </Badge>
+          )
+        }
       default:
         return null
     }
@@ -210,7 +360,9 @@ export function DocumentsTable({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredDocuments.map((document) => (
+              {filteredDocuments.map((document) => {
+                console.log(`🔄 Rendering table row for: ${document.name}`)
+                return (
                 <TableRow
                   key={document.id}
                   className={`hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors ${
@@ -227,7 +379,7 @@ export function DocumentsTable({
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell>{getStatusBadge(document.status)}</TableCell>
+                  <TableCell>{getStatusBadge(document.status, document.errorMessage)}</TableCell>
                   <TableCell>
                     {document.status === "completed" ? (
                       <span className="font-medium text-green-600 dark:text-green-400">{document.accuracy}%</span>
@@ -284,6 +436,15 @@ export function DocumentsTable({
                           <Download className="w-4 h-4 mr-2" />
                           Stáhnout
                         </DropdownMenuItem>
+                        <ExportDialog
+                          data={{ documents: [document] }}
+                          trigger={
+                            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                              <FileText className="w-4 h-4 mr-2" />
+                              Exportovat data
+                            </DropdownMenuItem>
+                          }
+                        />
                         <DropdownMenuItem className="text-red-600">
                           <Trash2 className="w-4 h-4 mr-2" />
                           Smazat
@@ -292,12 +453,21 @@ export function DocumentsTable({
                     </DropdownMenu>
                   </TableCell>
                 </TableRow>
-              ))}
+                )
+              })}
             </TableBody>
           </Table>
         </div>
 
-        {filteredDocuments.length === 0 && (
+        {loading && (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Načítání dokumentů...</h3>
+
+          </div>
+        )}
+
+        {!loading && filteredDocuments.length === 0 && (
           <div className="text-center py-8">
             <FileText className="mx-auto h-12 w-12 text-gray-400 mb-4" />
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Žádné dokumenty</h3>

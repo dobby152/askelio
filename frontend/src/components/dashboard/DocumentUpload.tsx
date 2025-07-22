@@ -1,15 +1,16 @@
 'use client'
 
 import { useState, useRef, useCallback } from 'react'
-import { 
-  Upload, 
-  FileText, 
-  Image, 
-  X, 
+import {
+  Upload,
+  FileText,
+  Image,
+  X,
   CheckCircle,
   AlertCircle,
   Loader2
 } from 'lucide-react'
+import { apiClient } from '@/lib/api'
 
 interface UploadFile {
   file: File
@@ -110,40 +111,29 @@ export function DocumentUpload({
   }
 
   const uploadFile = async (uploadFile: UploadFile): Promise<void> => {
-    const formData = new FormData()
-    formData.append('file', uploadFile.file)
-
     try {
-      setFiles(prev => prev.map(f => 
-        f.id === uploadFile.id 
+      setFiles(prev => prev.map(f =>
+        f.id === uploadFile.id
           ? { ...f, status: 'uploading', progress: 0 }
           : f
       ))
 
-      const response = await fetch('/api/documents/upload', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: formData
-      })
+      console.log('🚀 DocumentUpload: Uploading file using API client:', uploadFile.file.name)
+      const result = await apiClient.uploadDocument(uploadFile.file)
+      console.log('✅ DocumentUpload: Upload successful:', result)
 
-      if (response.ok) {
-        setFiles(prev => prev.map(f => 
-          f.id === uploadFile.id 
-            ? { ...f, status: 'success', progress: 100 }
-            : f
-        ))
-      } else {
-        const errorData = await response.json()
-        throw new Error(errorData.detail || 'Chyba při nahrávání')
-      }
+      setFiles(prev => prev.map(f =>
+        f.id === uploadFile.id
+          ? { ...f, status: 'success', progress: 100 }
+          : f
+      ))
     } catch (error) {
-      setFiles(prev => prev.map(f => 
-        f.id === uploadFile.id 
-          ? { 
-              ...f, 
-              status: 'error', 
+      console.error('💥 DocumentUpload: Upload failed:', error)
+      setFiles(prev => prev.map(f =>
+        f.id === uploadFile.id
+          ? {
+              ...f,
+              status: 'error',
               progress: 0,
               error: error instanceof Error ? error.message : 'Neznámá chyba'
             }
