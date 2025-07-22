@@ -1,61 +1,114 @@
-// Complete API client with mock functionality for demo
+// Complete API client with unified backend integration
 import { supabase } from './supabase'
+import AskelioSDK from './askelio-sdk.js'
+import type {
+  ProcessingOptions,
+  ApiResponse,
+  ProcessDocumentResponse,
+  SystemStatus,
+  CostStatistics,
+  HealthStatus,
+  ProcessingProgress
+} from './askelio-types'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8009'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'
 
 class ApiClient {
+  private sdk: AskelioSDK
+
+  constructor() {
+    this.sdk = new AskelioSDK(API_BASE_URL, {
+      timeout: 30000,
+      retries: 3,
+      retryDelay: 1000
+    })
+  }
+
   private async getAuthHeaders() {
     return {}
   }
 
-  async uploadDocument(file: File): Promise<any> {
-    console.log('🚀 API Client: Uploading document to backend:', file.name)
+  /**
+   * Upload and process document using unified endpoint
+   * @param file - File to process
+   * @param options - Processing options
+   * @param onProgress - Progress callback
+   * @returns Processing result
+   */
+  async uploadDocument(file: File, options: ProcessingOptions = {}, onProgress?: (progress: ProcessingProgress) => void): Promise<ApiResponse<ProcessDocumentResponse>> {
+    console.log('🚀 API Client: Processing document with unified endpoint:', file.name)
 
-    const formData = new FormData()
-    formData.append('file', file)
+    // Validate file first
+    const validation = this.sdk.validateFile(file)
+    if (!validation.valid) {
+      throw new Error(validation.errors.join(', '))
+    }
+
+    // Show warnings if any
+    if (validation.warnings.length > 0) {
+      console.warn('⚠️ File validation warnings:', validation.warnings)
+    }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/documents/upload`, {
-        method: 'POST',
-        body: formData
-      })
-
-      console.log('📡 API Client: Upload response received:', response.status, response.statusText)
-
-      if (!response.ok) {
-        console.error('❌ API Client: Upload failed:', response.status, response.statusText)
-        throw new Error(`Upload failed: ${response.statusText}`)
-      }
-
-      const data = await response.json()
-      console.log('📄 API Client: Upload response data:', data)
-
-      return data
+      // Use SDK with progress tracking
+      const result = await this.sdk.processDocumentWithProgress(file, options, onProgress)
+      console.log('✅ API Client: Document processed successfully:', result)
+      return result
     } catch (error) {
-      console.error('💥 API Client: Upload error:', error)
+      console.error('💥 API Client: Processing error:', error)
       throw error
     }
   }
 
+  /**
+   * Estimate processing cost before upload
+   */
+  async estimateCost(file: File, options: ProcessingOptions = {}): Promise<any> {
+    return this.sdk.estimateCost(file, options)
+  }
+
+  /**
+   * Batch process multiple documents
+   */
+  async batchProcessDocuments(files: File[], options: ProcessingOptions = {}, onProgress?: (progress: ProcessingProgress) => void): Promise<any[]> {
+    return this.sdk.batchProcessDocuments(files, options, onProgress)
+  }
+
+  /**
+   * Get system status and health information
+   */
+  async getSystemStatus(): Promise<SystemStatus> {
+    return this.sdk.getSystemStatus()
+  }
+
+  /**
+   * Get cost statistics and usage metrics
+   */
+  async getCostStatistics(): Promise<CostStatistics> {
+    return this.sdk.getCostStatistics()
+  }
+
+  /**
+   * Get health status of all components
+   */
+  async getHealthStatus(): Promise<HealthStatus> {
+    return this.sdk.getHealthStatus()
+  }
+
   async getDocuments(): Promise<any[]> {
-    console.log('🚀 API Client: Fetching documents from backend:', `${API_BASE_URL}/documents`)
+    console.log('🚀 API Client: Fetching documents from backend (legacy endpoint)')
 
     try {
-      const response = await fetch(`${API_BASE_URL}/documents`)
-      console.log('📡 API Client: Response received:', response.status, response.statusText)
-
-      if (!response.ok) {
-        console.error('❌ API Client: Response not OK:', response.status, response.statusText)
-        throw new Error(`Failed to fetch documents: ${response.statusText}`)
-      }
-
-      const data = await response.json()
-      console.log('📄 API Client: Data received from backend:', data)
-
+      const data = await this.sdk.getDocuments()
+      console.log('📄 API Client: Documents received:', data)
       return data
     } catch (error) {
-      console.error('💥 API Client: Error fetching documents:', error)
-      throw error
+      console.error('💥 API Client: Backend connection failed:', error)
+      console.error('🔧 Make sure backend is running on port 8001')
+      console.error('🔧 Run: cd backend && python main.py')
+
+      // Return empty array instead of throwing to prevent UI crash
+      return []
     }
   }
 
@@ -63,17 +116,8 @@ class ApiClient {
     console.log('🚀 API Client: Getting document details for ID:', id)
 
     try {
-      const response = await fetch(`${API_BASE_URL}/documents/${id}`)
-      console.log('📡 API Client: Document response received:', response.status, response.statusText)
-
-      if (!response.ok) {
-        console.error('❌ API Client: Document response not OK:', response.status, response.statusText)
-        throw new Error(`Failed to fetch document: ${response.statusText}`)
-      }
-
-      const data = await response.json()
+      const data = await this.sdk.getDocument(id)
       console.log('📄 API Client: Document data received:', data)
-
       return data
     } catch (error) {
       console.error('💥 API Client: Error fetching document:', error)

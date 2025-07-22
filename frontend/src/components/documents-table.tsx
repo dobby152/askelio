@@ -118,6 +118,7 @@ export function DocumentsTable({
         setDocuments(transformedDocs)
       } catch (error) {
         console.error('💥 DocumentsTable: Error fetching documents:', error)
+        console.error('🔧 Backend connection failed. Make sure Flask backend is running on port 8009')
         setDocuments([])
       } finally {
         setLoading(false)
@@ -471,11 +472,26 @@ export function DocumentsTable({
           <div className="text-center py-8">
             <FileText className="mx-auto h-12 w-12 text-gray-400 mb-4" />
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Žádné dokumenty</h3>
-            <p className="text-gray-500 dark:text-gray-400">
+            <p className="text-gray-500 dark:text-gray-400 mb-4">
               {searchTerm || statusFilter !== "all" || typeFilter !== "all"
                 ? "Žádné dokumenty neodpovídají vašim filtrům."
                 : "Zatím jste nenahrali žádné dokumenty."}
             </p>
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 max-w-md mx-auto">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                    <strong>Backend není dostupný.</strong><br />
+                    Spusťte Flask server: <code className="bg-yellow-100 dark:bg-yellow-800 px-1 rounded">cd backend && python flask_backend.py</code>
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </CardContent>

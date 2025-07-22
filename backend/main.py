@@ -7,121 +7,37 @@ import uvicorn
 import os
 import tempfile
 import time
+import logging
 from datetime import datetime
 from typing import List, Dict, Any
 from dotenv import load_dotenv
 from sqlalchemy.orm import Session
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
 from invoice_processor import InvoiceProcessor
 from database_sqlite import get_db, init_db
 from models_sqlite import Document, ExtractedField
+from cost_effective_llm_engine import CostEffectiveLLMEngine
+from unified_document_processor import UnifiedDocumentProcessor, ProcessingOptions, ProcessingMode
 
 # Load environment variables
 load_dotenv()
 
-# Initialize Invoice Processor (handles 5 OCR sources + Gemini AI)
+# Initialize Invoice Processor (handles OCR sources + Cost-Effective LLM)
 invoice_processor = InvoiceProcessor()
+
+# Initialize Cost-Effective LLM Engine (GPT-4o-mini + Claude hybrid)
+cost_effective_llm = CostEffectiveLLMEngine()
+
+# Initialize Unified Document Processor (Main Orchestrator)
+unified_processor = UnifiedDocumentProcessor()
 
 # Initialize SQLite database
 init_db()
 
-def init_demo_data():
-    """Initialize demo data if database is empty"""
-    from database_sqlite import SessionLocal
-    db = SessionLocal()
-    try:
-        # Check if we already have documents
-        existing_count = db.query(Document).count()
-        if existing_count > 0:
-            print(f"📊 Database already has {existing_count} documents, skipping demo data")
-            return
-
-        print("📊 Initializing demo data...")
-
-        # Create demo documents
-        demo_docs = [
-            {
-                "filename": "Zálohová_faktura_250800001.pdf",
-                "status": "completed",
-                "type": "application/pdf",
-                "size": "1.2 MB",
-                "pages": 2,
-                "accuracy": "95%",
-                "confidence": 0.95,
-                "extracted_text": "ZÁLOHOVÁ FAKTURA č. 250800001\nDatum: 21.07.2024\nCelkem k úhradě: 25 678,90 Kč",
-                "provider_used": "google_vision",
-                "data_source": "gemini",
-                "processing_time": 2.45,
-                "processed_at": datetime.now()
-            },
-            {
-                "filename": "sample_invoice.pdf",
-                "status": "completed",
-                "type": "application/pdf",
-                "size": "0.8 MB",
-                "pages": 1,
-                "accuracy": "98.5%",
-                "confidence": 0.985,
-                "extracted_text": "FAKTURA č. 2024-001\nDatum: 21.07.2024\nCelkem k úhradě: 15 678,90 Kč",
-                "provider_used": "google_vision",
-                "data_source": "gemini",
-                "processing_time": 1.85,
-                "processed_at": datetime.now()
-            },
-            {
-                "filename": "receipt_grocery.jpg",
-                "status": "completed",
-                "type": "image/jpeg",
-                "size": "0.5 MB",
-                "pages": 1,
-                "accuracy": "94.2%",
-                "confidence": 0.942,
-                "extracted_text": "TESCO\nDatum: 21.07.2024\nCelkem: 456,78 Kč",
-                "provider_used": "google_vision",
-                "data_source": "basic",
-                "processing_time": 1.23,
-                "processed_at": datetime.now()
-            }
-        ]
-
-        for doc_data in demo_docs:
-            document = Document(**doc_data)
-            db.add(document)
-            db.commit()
-            db.refresh(document)
-
-            # Add some demo extracted fields
-            if "faktura" in doc_data["filename"].lower():
-                demo_fields = [
-                    {"field_name": "document_type", "field_value": "faktura", "confidence": 0.95, "data_type": "string"},
-                    {"field_name": "vendor", "field_value": "Demo Dodavatel s.r.o.", "confidence": 0.92, "data_type": "string"},
-                    {"field_name": "amount", "field_value": "25678.90", "confidence": 0.98, "data_type": "float"},
-                    {"field_name": "currency", "field_value": "CZK", "confidence": 0.99, "data_type": "string"},
-                    {"field_name": "date", "field_value": "2024-07-21", "confidence": 0.95, "data_type": "string"},
-                    {"field_name": "invoice_number", "field_value": "250800001", "confidence": 0.97, "data_type": "string"},
-                ]
-            else:
-                demo_fields = [
-                    {"field_name": "document_type", "field_value": "účtenka", "confidence": 0.90, "data_type": "string"},
-                    {"field_name": "vendor", "field_value": "TESCO", "confidence": 0.95, "data_type": "string"},
-                    {"field_name": "amount", "field_value": "456.78", "confidence": 0.92, "data_type": "float"},
-                    {"field_name": "currency", "field_value": "CZK", "confidence": 0.99, "data_type": "string"},
-                    {"field_name": "date", "field_value": "2024-07-21", "confidence": 0.88, "data_type": "string"},
-                ]
-
-            for field_data in demo_fields:
-                field = ExtractedField(document_id=document.id, **field_data)
-                db.add(field)
-
-            db.commit()
-
-        print(f"📊 Created {len(demo_docs)} demo documents with extracted fields")
-
-    finally:
-        db.close()
-
-# Initialize demo data
-init_demo_data()
+# Demo data initialization removed - ready for production use
 
 
 
@@ -144,18 +60,174 @@ app.add_middleware(
 @app.get("/")
 async def root():
     return {
-        "message": "Askelio Invoice Processing API v2.0.0",
-        "description": "Clean API with 5 OCR sources + Gemini AI decision making",
+        "message": "Askelio Invoice Processing API v2.1.0",
+        "description": "Cost-Effective API with OCR + Hybrid LLM (GPT-4o-mini + Claude)",
         "endpoints": {
-            "POST /process-invoice": "Main endpoint for invoice/receipt processing",
+            "POST /api/v1/documents/process": "🎯 NEW: Unified document processing endpoint",
+            "POST /process-invoice": "Legacy: Invoice processing",
             "GET /health": "Health check",
-            "GET /system-status": "System status and available providers"
+            "GET /api/v1/system/status": "🎯 NEW: Comprehensive system status"
         }
     }
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy", "version": "2.0.0"}
+    return {"status": "healthy", "version": "2.1.0"}
+
+@app.post("/api/v1/documents/process")
+async def process_document_unified(
+    file: UploadFile = File(...),
+    mode: str = "cost_optimized",
+    max_cost_czk: float = 1.0,
+    min_confidence: float = 0.8,
+    enable_fallbacks: bool = True,
+    return_raw_text: bool = False
+):
+    """
+    🎯 UNIFIED DOCUMENT PROCESSING ENDPOINT
+
+    Simple, robust, and cost-effective document processing with intelligent routing.
+
+    Parameters:
+    - mode: cost_optimized (default), accuracy_first, speed_first, budget_strict
+    - max_cost_czk: Maximum cost per document in CZK (default: 1.0)
+    - min_confidence: Minimum acceptable confidence (default: 0.8)
+    - enable_fallbacks: Enable fallback providers (default: true)
+    - return_raw_text: Include raw OCR text in response (default: false)
+
+    Returns consistent format:
+    {
+        "success": boolean,
+        "data": {...},
+        "meta": {...},
+        "error": null | {...}
+    }
+    """
+
+    if not file.filename:
+        return {
+            "success": False,
+            "data": None,
+            "meta": {"processing_time": 0.0, "cost_czk": 0.0},
+            "error": {"code": "NO_FILE", "message": "No file provided"}
+        }
+
+    # Validate file type
+    allowed_types = [
+        "application/pdf",
+        "image/jpeg", "image/jpg", "image/png",
+        "image/gif", "image/bmp", "image/tiff"
+    ]
+
+    if file.content_type not in allowed_types:
+        return {
+            "success": False,
+            "data": None,
+            "meta": {"processing_time": 0.0, "cost_czk": 0.0},
+            "error": {
+                "code": "UNSUPPORTED_FILE_TYPE",
+                "message": f"Unsupported file type: {file.content_type}",
+                "supported_types": allowed_types
+            }
+        }
+
+    # Validate file size (10MB limit)
+    if file.size and file.size > 10 * 1024 * 1024:
+        return {
+            "success": False,
+            "data": None,
+            "meta": {"processing_time": 0.0, "cost_czk": 0.0},
+            "error": {
+                "code": "FILE_TOO_LARGE",
+                "message": "File too large (max 10MB)",
+                "file_size_mb": round(file.size / (1024*1024), 2)
+            }
+        }
+
+    # Save file temporarily
+    with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(file.filename)[1]) as temp_file:
+        content = await file.read()
+        temp_file.write(content)
+        temp_file_path = temp_file.name
+
+    try:
+        # Parse processing mode
+        try:
+            processing_mode = ProcessingMode(mode)
+        except ValueError:
+            processing_mode = ProcessingMode.COST_OPTIMIZED
+
+        # Create processing options
+        options = ProcessingOptions(
+            mode=processing_mode,
+            max_cost_czk=max_cost_czk,
+            min_confidence=min_confidence,
+            enable_fallbacks=enable_fallbacks,
+            store_in_db=True,
+            return_raw_text=return_raw_text
+        )
+
+        # Process document with unified processor
+        result = unified_processor.process_document(temp_file_path, file.filename, options)
+
+        # Clean up temp file
+        os.unlink(temp_file_path)
+
+        # Build consistent response
+        if result.success:
+            response_data = {
+                "document_id": result.document_id,
+                "document_type": result.document_type.value,
+                "structured_data": result.structured_data,
+                "confidence": result.confidence
+            }
+
+            if return_raw_text:
+                response_data["raw_text"] = result.raw_text
+
+            return {
+                "success": True,
+                "data": response_data,
+                "meta": {
+                    "processing_time": result.processing_time,
+                    "cost_czk": result.cost_czk,
+                    "provider_used": result.provider_used,
+                    "fallbacks_used": result.fallbacks_used,
+                    "validation_notes": result.validation_notes
+                },
+                "error": None
+            }
+        else:
+            return {
+                "success": False,
+                "data": None,
+                "meta": {
+                    "processing_time": result.processing_time,
+                    "cost_czk": result.cost_czk,
+                    "provider_used": result.provider_used,
+                    "fallbacks_used": result.fallbacks_used
+                },
+                "error": {
+                    "code": "PROCESSING_FAILED",
+                    "message": result.error_message or "Document processing failed"
+                }
+            }
+
+    except Exception as e:
+        # Clean up temp file on error
+        if os.path.exists(temp_file_path):
+            os.unlink(temp_file_path)
+
+        logger.error(f"❌ Unified processing error: {e}")
+        return {
+            "success": False,
+            "data": None,
+            "meta": {"processing_time": 0.0, "cost_czk": 0.0},
+            "error": {
+                "code": "INTERNAL_ERROR",
+                "message": f"Internal processing error: {str(e)}"
+            }
+        }
 
 @app.post("/process-invoice")
 async def process_invoice(file: UploadFile = File(...)):
@@ -458,8 +530,8 @@ async def upload_document(file: UploadFile = File(...), db: Session = Depends(ge
         )
 
 @app.post("/documents/upload-fast")
-async def upload_document_fast(file: UploadFile = File(...)):
-    """Ultra-fast upload with Tesseract only (no network calls)"""
+async def upload_document_fast(file: UploadFile = File(...), db: Session = Depends(get_db)):
+    """Fast upload with Google Vision OCR (optimized for speed)"""
     if not file.filename:
         raise HTTPException(status_code=400, detail="No file provided")
 
@@ -476,11 +548,11 @@ async def upload_document_fast(file: UploadFile = File(...)):
             detail=f"Unsupported file type: {file.content_type}"
         )
 
-    # Skip PDF files for fast endpoint (Tesseract can't handle PDFs directly)
-    if file.content_type == "application/pdf":
+    # Validate file size (10MB limit)
+    if file.size and file.size > 10 * 1024 * 1024:
         raise HTTPException(
             status_code=400,
-            detail="PDF files not supported in fast mode. Use regular upload endpoint."
+            detail="File too large (max 10MB)"
         )
 
     # Save file temporarily and process
@@ -490,54 +562,68 @@ async def upload_document_fast(file: UploadFile = File(...)):
         temp_file_path = temp_file.name
 
     try:
-        # Use simplified Google Vision + Gemini processing
+        # Use fast Google Vision processing only
         ocr_manager = invoice_processor.ocr_manager
-
         start_time = time.time()
+
+        # Process with Google Vision only for speed
         result = ocr_manager.process_image_with_structuring(temp_file_path, "invoice")
         processing_time = time.time() - start_time
 
         # Clean up temp file
         os.unlink(temp_file_path)
 
-        # Create document record
-        doc_id = f"doc_{datetime.now().strftime('%Y%m%d_%H%M%S_%f')}"
-        document = {
-            "id": doc_id,
-            "file_name": file.filename,
-            "status": "completed" if result["success"] else "failed",
-            "type": file.content_type,
-            "size": f"{file.size / (1024*1024):.1f} MB" if file.size else "0 MB",
-            "pages": 1,
-            "accuracy": f"{result['confidence'] * 100:.1f}%" if result["success"] else "0%",
-            "created_at": datetime.now().isoformat(),
-            "processed_at": datetime.now().isoformat(),
-            "processing_time": processing_time,
-            "confidence": result["confidence"],
-            "extracted_text": result["raw_text"] if result["success"] else "",
-            "provider_used": result.get("provider", "google_vision"),
-            "structured_data": result.get("structured_data"),
-            "structuring_confidence": result.get("structuring_confidence", 0.0),
-            "fields_extracted": result.get("fields_extracted", []),
-            "error_message": result.get("error") if not result["success"] else None
-        }
+        if not result.get("success", False):
+            raise HTTPException(
+                status_code=500,
+                detail=f"OCR processing failed: {result.get('error', 'Unknown error')}"
+            )
 
-        # Store document in memory
-        documents_storage.append(document)
+        # Create document record in database
+        document = Document(
+            filename=file.filename,
+            status="completed",
+            type=file.content_type,
+            size=f"{file.size / (1024*1024):.1f} MB" if file.size else "0 MB",
+            pages=1,
+            accuracy=f"{result.get('confidence', 0.0) * 100:.1f}%",
+            processed_at=datetime.now(),
+            processing_time=processing_time,
+            confidence=result.get("confidence", 0.0),
+            extracted_text=result.get("raw_text", ""),
+            provider_used=result.get("provider", "google_vision"),
+            data_source="basic"
+        )
 
-        # Keep only last 50 documents to prevent memory issues
-        if len(documents_storage) > 50:
-            documents_storage.pop(0)
+        db.add(document)
+        db.commit()
+        db.refresh(document)
+
+        # Store extracted fields if available
+        structured_data = result.get("structured_data", {})
+        if structured_data and isinstance(structured_data, dict):
+            for field_name, field_value in structured_data.items():
+                if field_value is not None:
+                    extracted_field = ExtractedField(
+                        document_id=document.id,
+                        field_name=field_name,
+                        field_value=str(field_value),
+                        confidence=result.get("confidence", 0.0),
+                        data_type=type(field_value).__name__
+                    )
+                    db.add(extracted_field)
+            db.commit()
 
         return {
-            "status": "success" if result.success else "error",
-            "id": doc_id,
+            "status": "success",
+            "id": document.id,
             "file_name": file.filename,
             "processing_time": processing_time,
-            "confidence": result.confidence,
-            "extracted_text": result.text[:500] + "..." if len(result.text) > 500 else result.text,
-            "provider_used": "tesseract",
-            "message": "Document processed with Tesseract OCR"
+            "confidence": result.get("confidence", 0.0),
+            "extracted_text": result.get("raw_text", "")[:500] + "..." if len(result.get("raw_text", "")) > 500 else result.get("raw_text", ""),
+            "provider_used": result.get("provider", "google_vision"),
+            "structured_data": structured_data,
+            "message": "Document processed successfully with fast OCR"
         }
 
     except Exception as e:
@@ -608,10 +694,9 @@ async def get_document_preview(document_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Document not found")
 
     # Check if document has a file_path
-    file_path = document.file_path
+    file_path = getattr(document, 'file_path', None)
     if not file_path or not os.path.exists(file_path):
-        # For demo purposes, return a placeholder response
-        raise HTTPException(status_code=404, detail="Document file not found - demo mode")
+        raise HTTPException(status_code=404, detail="Document file not found")
 
     # Read and return the file
     with open(file_path, "rb") as file:
@@ -630,13 +715,15 @@ async def get_document_preview(document_id: int, db: Session = Depends(get_db)):
 
 @app.get("/credits")
 async def get_credits():
-    """Get user credit information"""
-    # Mock data for now - in real app would fetch from database
+    """Get user credit information - requires implementation with user management"""
+    # TODO: Implement user management and credit system
+    # For now, return basic structure that frontend expects
     return {
-        "remaining_credits": 2450,
-        "total_credits": 5000,
-        "used_credits": 2550,
-        "plan": "Pro"
+        "remaining_credits": 0,
+        "total_credits": 0,
+        "used_credits": 0,
+        "plan": "Free",
+        "message": "Credit system not yet implemented"
     }
 
 @app.get("/ocr/status")
@@ -813,6 +900,226 @@ async def test_gemini_structuring(text: str = Form(...)):
         return {
             "status": "error",
             "message": str(e)
+        }
+
+@app.post("/documents/upload-cost-effective")
+async def upload_document_cost_effective(file: UploadFile = File(...), db: Session = Depends(get_db)):
+    """Cost-effective upload with hybrid LLM (GPT-4o-mini + Claude fallback)"""
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="No file provided")
+
+    # Validate file type
+    allowed_types = [
+        "application/pdf",
+        "image/jpeg", "image/jpg", "image/png",
+        "image/gif", "image/bmp", "image/tiff"
+    ]
+
+    if file.content_type not in allowed_types:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unsupported file type: {file.content_type}"
+        )
+
+    # Validate file size (10MB limit)
+    if file.size and file.size > 10 * 1024 * 1024:
+        raise HTTPException(
+            status_code=400,
+            detail="File too large (max 10MB)"
+        )
+
+    # Save file temporarily and process
+    with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(file.filename)[1]) as temp_file:
+        content = await file.read()
+        temp_file.write(content)
+        temp_file_path = temp_file.name
+
+    try:
+        # Step 1: OCR processing
+        ocr_manager = invoice_processor.ocr_manager
+        start_time = time.time()
+
+        ocr_result = ocr_manager.process_image_with_structuring(temp_file_path, "invoice")
+
+        if not ocr_result.get("success", False):
+            raise HTTPException(
+                status_code=500,
+                detail=f"OCR processing failed: {ocr_result.get('error', 'Unknown error')}"
+            )
+
+        # Step 2: Cost-effective LLM processing
+        llm_result = cost_effective_llm.structure_invoice_data(
+            ocr_result.get("raw_text", ""),
+            file.filename
+        )
+
+        processing_time = time.time() - start_time
+
+        # Clean up temp file
+        os.unlink(temp_file_path)
+
+        # Create document record in database
+        document = Document(
+            filename=file.filename,
+            status="completed" if llm_result.success else "failed",
+            type=file.content_type,
+            size=f"{file.size / (1024*1024):.1f} MB" if file.size else "0 MB",
+            pages=1,
+            accuracy=f"{llm_result.confidence_score * 100:.1f}%" if llm_result.success else "0%",
+            processed_at=datetime.now(),
+            processing_time=processing_time,
+            confidence=llm_result.confidence_score,
+            extracted_text=ocr_result.get("raw_text", ""),
+            provider_used=f"ocr:{ocr_result.get('provider', 'google_vision')}, llm:{llm_result.provider_used}",
+            data_source="cost_effective_llm"
+        )
+
+        db.add(document)
+        db.commit()
+        db.refresh(document)
+
+        # Store extracted fields if available
+        if llm_result.success and llm_result.structured_data:
+            for field_name, field_value in llm_result.structured_data.items():
+                if field_value is not None and field_name != "items":  # Skip complex nested items for now
+                    extracted_field = ExtractedField(
+                        document_id=document.id,
+                        field_name=field_name,
+                        field_value=str(field_value),
+                        confidence=llm_result.confidence_score,
+                        data_type=type(field_value).__name__
+                    )
+                    db.add(extracted_field)
+            db.commit()
+
+        if llm_result.success:
+            return {
+                "status": "success",
+                "id": document.id,
+                "file_name": file.filename,
+                "processing_time": processing_time,
+                "confidence": llm_result.confidence_score,
+                "extracted_text": ocr_result.get("raw_text", "")[:500] + "..." if len(ocr_result.get("raw_text", "")) > 500 else ocr_result.get("raw_text", ""),
+                "provider_used": llm_result.provider_used,
+                "structured_data": llm_result.structured_data,
+                "cost_info": {
+                    "cost_estimate_usd": llm_result.cost_estimate,
+                    "cost_estimate_czk": round(llm_result.cost_estimate * 24, 3),
+                    "reasoning": llm_result.reasoning
+                },
+                "message": f"Document processed successfully with {llm_result.provider_used}"
+            }
+        else:
+            return {
+                "status": "error",
+                "id": document.id,
+                "file_name": file.filename,
+                "processing_time": processing_time,
+                "confidence": 0.0,
+                "error_message": llm_result.error_message,
+                "cost_info": {
+                    "cost_estimate_usd": llm_result.cost_estimate,
+                    "cost_estimate_czk": round(llm_result.cost_estimate * 24, 3)
+                },
+                "message": "Processing failed"
+            }
+
+    except Exception as e:
+        # Clean up temp file on error
+        if os.path.exists(temp_file_path):
+            os.unlink(temp_file_path)
+
+        raise HTTPException(
+            status_code=500,
+            detail=f"Processing failed: {str(e)}"
+        )
+
+@app.get("/llm/statistics")
+async def get_llm_statistics():
+    """Get LLM usage and cost statistics"""
+    try:
+        stats = cost_effective_llm.get_statistics()
+        return {
+            "status": "success",
+            "statistics": stats,
+            "message": "LLM statistics retrieved successfully"
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": f"Failed to get statistics: {str(e)}"
+        }
+
+@app.get("/llm/status")
+async def get_llm_status():
+    """Get LLM system status and capabilities"""
+    try:
+        status = cost_effective_llm.get_system_status()
+        return {
+            "status": "success",
+            "llm_system": status,
+            "message": "LLM system status retrieved successfully"
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": f"Failed to get LLM status: {str(e)}"
+        }
+
+@app.get("/api/v1/system/status")
+async def get_system_status_unified():
+    """🎯 UNIFIED SYSTEM STATUS - Comprehensive system status with all components"""
+    try:
+        unified_status = unified_processor.get_system_status()
+        llm_status = cost_effective_llm.get_system_status()
+
+        return {
+            "success": True,
+            "data": {
+                "system_ready": unified_status["system_ready"],
+                "version": "2.1.0",
+                "components": unified_status["components"],
+                "capabilities": unified_status["capabilities"],
+                "llm_system": llm_status,
+                "statistics": unified_status["statistics"]
+            },
+            "meta": {"timestamp": datetime.now().isoformat()},
+            "error": None
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "data": None,
+            "meta": {"timestamp": datetime.now().isoformat()},
+            "error": {"code": "STATUS_ERROR", "message": f"Failed to get system status: {str(e)}"}
+        }
+
+@app.get("/api/v1/system/costs")
+async def get_cost_statistics():
+    """💰 COST STATISTICS - Real-time cost tracking and usage statistics"""
+    try:
+        unified_stats = unified_processor.get_statistics()
+        llm_stats = cost_effective_llm.get_statistics()
+
+        return {
+            "success": True,
+            "data": {
+                "processing_costs": unified_stats["cost_stats"],
+                "llm_costs": llm_stats["costs"],
+                "efficiency_metrics": {
+                    "success_rate": unified_stats["processing_stats"]["success_rate_percent"],
+                    "average_processing_time": unified_stats["performance_stats"]["average_processing_time"]
+                }
+            },
+            "meta": {"timestamp": datetime.now().isoformat(), "currency": "CZK"},
+            "error": None
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "data": None,
+            "meta": {"timestamp": datetime.now().isoformat()},
+            "error": {"code": "STATS_ERROR", "message": f"Failed to get cost statistics: {str(e)}"}
         }
 
 

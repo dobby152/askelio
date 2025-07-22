@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Askelio Frontend Integration Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        input[type="file"] {
+            margin: 10px 0;
+            padding: 5px;
+        }
+        select {
+            margin: 5px;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Askelio Frontend Integration Test</h1>
+        <p>Testing the new unified API integration with cost-effective LLM processing.</p>
+
+        <!-- System Status Test -->
+        <div class="test-section info">
+            <h3>1. System Status Check</h3>
+            <button onclick="testSystemStatus()">Test System Status</button>
+            <div id="status-result" class="log"></div>
+        </div>
+
+        <!-- Cost Statistics Test -->
+        <div class="test-section info">
+            <h3>2. Cost Statistics</h3>
+            <button onclick="testCostStats()">Get Cost Statistics</button>
+            <div id="cost-result" class="log"></div>
+        </div>
+
+        <!-- File Upload Test -->
+        <div class="test-section info">
+            <h3>3. Document Processing Test</h3>
+            <div>
+                <label>Processing Mode:</label>
+                <select id="processing-mode">
+                    <option value="cost_optimized">Cost Optimized (0.043 Kč)</option>
+                    <option value="accuracy_first">Accuracy First (0.30 Kč)</option>
+                    <option value="speed_first">Speed First (0.014 Kč)</option>
+                    <option value="budget_strict">Budget Strict (0.007 Kč)</option>
+                </select>
+            </div>
+            <div>
+                <label>Max Cost (CZK):</label>
+                <input type="number" id="max-cost" value="1.0" step="0.1" min="0.1" max="5.0">
+            </div>
+            <input type="file" id="file-input" accept=".pdf,.jpg,.jpeg,.png,.gif,.bmp,.tiff">
+            <button onclick="testFileUpload()">Process Document</button>
+            <div id="upload-result" class="log"></div>
+        </div>
+
+        <!-- Health Check Test -->
+        <div class="test-section info">
+            <h3>4. Health Check</h3>
+            <button onclick="testHealthCheck()">Check Health</button>
+            <div id="health-result" class="log"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Import the SDK
+        import AskelioSDK from './frontend/src/lib/askelio-sdk.js';
+
+        // Initialize SDK
+        const sdk = new AskelioSDK('http://localhost:8001');
+        window.sdk = sdk;
+
+        // Test functions
+        window.testSystemStatus = async function() {
+            const resultDiv = document.getElementById('status-result');
+            resultDiv.textContent = 'Testing system status...';
+            
+            try {
+                const status = await sdk.getSystemStatus();
+                resultDiv.textContent = JSON.stringify(status, null, 2);
+                resultDiv.parentElement.className = 'test-section success';
+            } catch (error) {
+                resultDiv.textContent = `Error: ${error.message}`;
+                resultDiv.parentElement.className = 'test-section error';
+            }
+        };
+
+        window.testCostStats = async function() {
+            const resultDiv = document.getElementById('cost-result');
+            resultDiv.textContent = 'Getting cost statistics...';
+            
+            try {
+                const stats = await sdk.getCostStatistics();
+                resultDiv.textContent = JSON.stringify(stats, null, 2);
+                resultDiv.parentElement.className = 'test-section success';
+            } catch (error) {
+                resultDiv.textContent = `Error: ${error.message}`;
+                resultDiv.parentElement.className = 'test-section error';
+            }
+        };
+
+        window.testHealthCheck = async function() {
+            const resultDiv = document.getElementById('health-result');
+            resultDiv.textContent = 'Checking health...';
+            
+            try {
+                const health = await sdk.getHealthStatus();
+                resultDiv.textContent = JSON.stringify(health, null, 2);
+                resultDiv.parentElement.className = 'test-section success';
+            } catch (error) {
+                resultDiv.textContent = `Error: ${error.message}`;
+                resultDiv.parentElement.className = 'test-section error';
+            }
+        };
+
+        window.testFileUpload = async function() {
+            const fileInput = document.getElementById('file-input');
+            const resultDiv = document.getElementById('upload-result');
+            const modeSelect = document.getElementById('processing-mode');
+            const maxCostInput = document.getElementById('max-cost');
+            
+            if (!fileInput.files[0]) {
+                resultDiv.textContent = 'Please select a file first.';
+                resultDiv.parentElement.className = 'test-section error';
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const options = {
+                mode: modeSelect.value,
+                max_cost_czk: parseFloat(maxCostInput.value),
+                min_confidence: 0.8,
+                enable_fallbacks: true,
+                return_raw_text: false
+            };
+
+            resultDiv.textContent = `Processing ${file.name} with options: ${JSON.stringify(options, null, 2)}\n\n`;
+            
+            try {
+                // First validate the file
+                const validation = sdk.validateFile(file);
+                if (!validation.valid) {
+                    throw new Error(`File validation failed: ${validation.errors.join(', ')}`);
+                }
+
+                // Show cost estimate
+                const costEstimate = await sdk.estimateCost(file, options);
+                resultDiv.textContent += `Cost estimate: ${JSON.stringify(costEstimate, null, 2)}\n\n`;
+
+                // Process with progress tracking
+                const result = await sdk.processDocumentWithProgress(file, options, (progress) => {
+                    resultDiv.textContent += `Progress: ${progress.stage} - ${progress.message} (${progress.percentage}%)\n`;
+                });
+
+                resultDiv.textContent += `\nFinal result:\n${JSON.stringify(result, null, 2)}`;
+                resultDiv.parentElement.className = 'test-section success';
+            } catch (error) {
+                resultDiv.textContent += `\nError: ${error.message}`;
+                resultDiv.parentElement.className = 'test-section error';
+            }
+        };
+
+        // Auto-run system status on load
+        window.addEventListener('load', () => {
+            setTimeout(testSystemStatus, 1000);
+        });
+    </script>
+</body>
+</html>

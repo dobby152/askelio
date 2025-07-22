@@ -44,8 +44,12 @@ easyocr==1.7.0
 paddlepaddle==2.5.2
 paddleocr==2.7.3
 
-# Google Gemini AI for decision making
+# Google Gemini AI for decision making (legacy support)
 google-generativeai==0.3.2
+
+# Cost-Effective LLM Providers
+openai==1.54.3                # GPT-4o-mini (primary)
+anthropic==0.40.0             # Claude 3.5 Sonnet (fallback)
 
 # Payment and External Services
 stripe==7.8.0
