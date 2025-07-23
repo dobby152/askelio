@@ -91,61 +91,116 @@ export function DocumentWorkspace({ className }: DocumentWorkspaceProps) {
       // Convert backend data to frontend format
       const extractedData: ExtractedData[] = []
 
-      if (documentData.extracted_data) {
-        const data = documentData.extracted_data
-        let idCounter = 1
+      // Process extracted_fields from backend
+      if (documentData.extracted_fields && Array.isArray(documentData.extracted_fields)) {
+        console.log('🔄 Processing extracted_fields:', documentData.extracted_fields)
 
-        // Helper function to add extracted data item
-        const addDataItem = (type: string, label: string, value: string, confidence?: number, provider?: string, alternatives?: any[]) => {
-          if (value) {
+        documentData.extracted_fields.forEach((field: any, index: number) => {
+          // Skip metadata fields
+          if (field.field_name === 'extracted_at' || field.field_name === 'extraction_method') {
+            return
+          }
+
+          // Map field names to types and labels
+          const fieldMapping: Record<string, { type: string, label: string }> = {
+            'document_type': { type: 'item', label: 'Typ dokumentu' },
+            'invoice_number': { type: 'invoice_number', label: 'Číslo faktury' },
+            'date': { type: 'date', label: 'Datum vystavení' },
+            'due_date': { type: 'due_date', label: 'Datum splatnosti' },
+            'amount': { type: 'amount', label: 'Celková částka' },
+            'vendor': { type: 'vendor', label: 'Dodavatel' },
+            'customer': { type: 'vendor', label: 'Odběratel' },
+            'tax': { type: 'tax', label: 'DPH' },
+            'subtotal': { type: 'subtotal', label: 'Částka bez DPH' },
+            'payment_method': { type: 'payment_method', label: 'Způsob platby' }
+          }
+
+          const mapping = fieldMapping[field.field_name] || { type: 'item', label: field.field_name }
+
+          if (field.field_value && field.field_value.trim()) {
+            extractedData.push({
+              id: (index + 1).toString(),
+              type: mapping.type as any,
+              label: mapping.label,
+              value: field.field_value,
+              confidence: field.confidence || documentData.confidence || 0.6,
+              position: {
+                x: 100 + (index * 50),
+                y: 150 + (index * 30),
+                width: 200,
+                height: 25,
+                page: 1
+              },
+              editable: true,
+              source_provider: documentData.provider_used || 'unknown'
+            })
+          }
+        })
+      }
+
+      // Also process structured_data if available
+      if (documentData.structured_data && Object.keys(documentData.structured_data).length > 0) {
+        console.log('🔄 Processing structured_data:', documentData.structured_data)
+
+        const structuredData = documentData.structured_data
+        let idCounter = extractedData.length + 1
+
+        // Helper function to add structured data item
+        const addStructuredItem = (type: string, label: string, value: string, confidence?: number) => {
+          if (value && value.trim() && !extractedData.some(item => item.value === value)) {
             extractedData.push({
               id: idCounter.toString(),
               type: type as any,
               label,
               value,
-              confidence: confidence || documentData.confidence || 0.95,
-              position: { x: 100 + (idCounter * 50), y: 150 + (idCounter * 30), width: 200, height: 25, page: 1 },
+              confidence: confidence || documentData.confidence || 0.6,
+              position: {
+                x: 100 + (idCounter * 50),
+                y: 150 + (idCounter * 30),
+                width: 200,
+                height: 25,
+                page: 1
+              },
               editable: true,
-              source_provider: provider,
-              alternatives: alternatives || []
+              source_provider: documentData.provider_used || 'structured_data'
             })
             idCounter++
           }
         }
 
-        // Extract all available data fields
-        addDataItem('vendor', 'Dodavatel', data.vendor, data.vendor_confidence, data.vendor_provider, data.vendor_alternatives)
-        addDataItem('amount', 'Celková částka', data.amount ? `${data.amount} ${data.currency || 'CZK'}` : '', data.amount_confidence, data.amount_provider, data.amount_alternatives)
-        addDataItem('subtotal', 'Částka bez DPH', data.subtotal ? `${data.subtotal} ${data.currency || 'CZK'}` : '', data.subtotal_confidence)
-        addDataItem('tax', 'DPH', data.tax ? `${data.tax} ${data.currency || 'CZK'}` : '', data.tax_confidence)
-        addDataItem('date', 'Datum vystavení', data.date, data.date_confidence, data.date_provider, data.date_alternatives)
-        addDataItem('due_date', 'Datum splatnosti', data.due_date, data.due_date_confidence)
-        addDataItem('invoice_number', 'Číslo faktury', data.invoice_number, data.invoice_number_confidence, data.invoice_number_provider, data.invoice_number_alternatives)
-        addDataItem('payment_method', 'Způsob platby', data.payment_method, data.payment_method_confidence)
-
-        // Add items if available
-        if (data.items && Array.isArray(data.items)) {
-          data.items.forEach((item: any, index: number) => {
-            addDataItem('item', `Položka ${index + 1}`, `${item.description || ''} - ${item.quantity || ''} × ${item.unit_price || ''} ${data.currency || 'CZK'}`, item.confidence)
-          })
+        // Extract structured data fields
+        if (structuredData.invoice_number) addStructuredItem('invoice_number', 'Číslo faktury', structuredData.invoice_number)
+        if (structuredData.date) addStructuredItem('date', 'Datum vystavení', structuredData.date)
+        if (structuredData.due_date) addStructuredItem('due_date', 'Datum splatnosti', structuredData.due_date)
+        if (structuredData.total_amount) {
+          const amount = typeof structuredData.total_amount === 'object'
+            ? `${structuredData.total_amount.value} ${structuredData.total_amount.currency || 'CZK'}`
+            : structuredData.total_amount
+          addStructuredItem('amount', 'Celková částka', amount)
         }
+        if (structuredData.vendor?.name) addStructuredItem('vendor', 'Dodavatel', structuredData.vendor.name)
+        if (structuredData.customer?.name) addStructuredItem('vendor', 'Odběratel', structuredData.customer.name)
       }
 
-      // Process processing details if available
+      console.log('✅ Transformed extracted data:', extractedData)
+
+      // Process processing details - create them even if not in response
       let processingDetails: ProcessingDetails | undefined
-      if (documentData.processing_details) {
-        processingDetails = {
-          total_processing_time: documentData.processing_details.total_processing_time || 0,
-          ocr_results: documentData.processing_details.ocr_results || [],
-          gemini_decision: documentData.processing_details.gemini_decision || {
-            selected_provider: 'unknown',
-            confidence_score: 0,
-            reasoning: 'Není k dispozici',
-            processing_time: 0
-          },
-          final_confidence: documentData.processing_details.final_confidence || documentData.confidence || 0,
-          status: documentData.status || 'completed'
-        }
+      processingDetails = {
+        total_processing_time: documentData.processing_details?.total_processing_time || documentData.processing_time || 0,
+        ocr_results: documentData.processing_details?.ocr_results || [],
+        gemini_decision: documentData.processing_details?.gemini_decision || {
+          selected_provider: documentData.provider_used || 'unknown',
+          confidence_score: documentData.confidence || 0,
+          reasoning: 'Není k dispozici',
+          processing_time: documentData.processing_time || 0
+        },
+        final_confidence: documentData.processing_details?.final_confidence || documentData.confidence || 0,
+        status: documentData.status || 'completed',
+        // 🔍 DEBUG: Add raw data for debugging - check all possible locations
+        raw_google_vision_text: documentData.extracted_text || documentData.raw_text || documentData.data?.raw_text || documentData.meta?.raw_google_vision_text || 'No raw text available',
+        provider_used: documentData.provider_used || 'unknown',
+        cost_czk: documentData.cost_czk || 0
       }
 
       const selectedDoc: SelectedDocument = {

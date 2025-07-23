@@ -182,10 +182,11 @@ export function ExtractedDataDetails({
       <CardContent className="p-0">
         <Tabs defaultValue="data" className="h-full">
           <div className="px-6 pb-0">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="data">Data ({extractedData.length})</TabsTrigger>
               <TabsTrigger value="processing">Zpracování</TabsTrigger>
               <TabsTrigger value="quality">Kvalita</TabsTrigger>
+              <TabsTrigger value="raw">🔍 Raw OCR</TabsTrigger>
             </TabsList>
           </div>
 
@@ -431,6 +432,65 @@ export function ExtractedDataDetails({
                         </div>
                       </div>
                     )}
+                  </div>
+                </div>
+              </div>
+            </ScrollArea>
+          </TabsContent>
+
+          {/* 🔍 NEW: Raw OCR Data Tab for Debugging */}
+          <TabsContent value="raw" className="mt-0 h-full">
+            <ScrollArea className="h-[400px] px-6">
+              <div className="space-y-4 py-4">
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-medium text-gray-900">🔍 Raw Google Vision OCR Text</h4>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const rawText = (processingDetails as any)?.raw_google_vision_text || 'No raw text available'
+                        navigator.clipboard.writeText(rawText)
+                      }}
+                    >
+                      <Copy className="w-4 h-4 mr-2" />
+                      Kopírovat
+                    </Button>
+                  </div>
+                  <div className="bg-white p-3 rounded border text-sm font-mono whitespace-pre-wrap max-h-60 overflow-y-auto">
+                    {(processingDetails as any)?.raw_google_vision_text || 'Raw OCR text není k dispozici'}
+                  </div>
+                </div>
+
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <h4 className="font-medium text-blue-900 mb-3">🤖 LLM Processing Info</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-blue-700">Model použitý:</span>
+                      <span className="font-mono">{(processingDetails as any)?.provider_used || 'N/A'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-blue-700">Náklady:</span>
+                      <span className="font-mono">{(processingDetails as any)?.cost_czk?.toFixed(4) || '0'} Kč</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-blue-700">Cache hit:</span>
+                      <span className="font-mono">
+                        {(processingDetails as any)?.provider_used?.includes('cached:') ? '✅ Ano' : '❌ Ne'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-yellow-50 p-4 rounded-lg">
+                  <h4 className="font-medium text-yellow-900 mb-3">⚠️ Debug Info</h4>
+                  <div className="text-sm text-yellow-800">
+                    <p>Pokud vidíte "regex fallback" místo LLM výsledků:</p>
+                    <ul className="list-disc list-inside mt-2 space-y-1">
+                      <li>Zkontrolujte OPENROUTER_API_KEY v .env</li>
+                      <li>Ověřte kredit na OpenRouter účtu</li>
+                      <li>Zkontrolujte logy backendu pro chyby</li>
+                    </ul>
                   </div>
                 </div>
               </div>

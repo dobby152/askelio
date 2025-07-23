@@ -26,7 +26,7 @@ import {
 
 // Přidej import pro ExportDialog
 import { ExportDialog } from "@/components/export-dialog"
-import { apiClient } from "@/lib/api-complete"
+import { apiClient } from "@/lib/api"
 import { cn } from "@/lib/utils"
 
 interface Document {

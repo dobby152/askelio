@@ -1,3 +1,0 @@
-Test soubor pro upload
-Toto je testovací dokument pro ověření funkčnosti uploadu.
-Datum: 2025-01-18

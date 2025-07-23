@@ -66,18 +66,20 @@ export interface ProcessDocumentResponse {
   structured_data: StructuredData;
   confidence: number;
   raw_text?: string;
+  raw_google_vision_text?: string; // 🔍 DEBUG: Raw Google Vision OCR text
 }
 
 export interface StructuredData {
   document_type: string;
-  
+
   // Invoice/Receipt fields
   invoice_number?: string;
   receipt_number?: string;
   date?: string;
   due_date?: string;
+  completion_date?: string;  // Datum uskutečnění plnění
   time?: string;
-  
+
   // Vendor information
   vendor?: {
     name?: string;
@@ -86,21 +88,24 @@ export interface StructuredData {
     dic?: string;      // Czech tax ID
     tax_id?: string;   // General tax ID
   };
-  
+
   // Customer information
   customer?: {
     name?: string;
     address?: string;
+    ico?: string;      // Customer Czech company ID
+    dic?: string;      // Customer Czech tax ID
   };
-  
+
   // Financial information
   items?: Array<{
     description: string;
     quantity: number;
     unit_price: number;
     total_price: number;
+    vat_rate?: number; // DPH sazba pro položku
   }>;
-  
+
   totals?: {
     subtotal: number;
     vat_rate?: number;
@@ -108,13 +113,18 @@ export interface StructuredData {
     tax_rate?: number;
     tax_amount?: number;
     total: number;
+    advance_payment?: number;  // Záloha
+    amount_due?: number;       // Částka k úhradě
   };
-  
+
   // Payment information
   currency?: string;
   payment_method?: string;
   bank_account?: string;
-  
+  variable_symbol?: string;   // Variabilní symbol
+  constant_symbol?: string;   // Konstantní symbol
+  specific_symbol?: string;   // Specifický symbol
+
   // Metadata
   extracted_at?: string;
   validated_at?: string;
@@ -263,7 +273,7 @@ export const MAX_FILE_SIZE_MB = 10;
 
 export const DEFAULT_PROCESSING_OPTIONS: ProcessingOptions = {
   mode: "cost_optimized",
-  max_cost_czk: 1.0,
+  max_cost_czk: 5.0,  // 🚀 Increased for powerful models (Claude, GPT-4o)
   min_confidence: 0.8,
   enable_fallbacks: true,
   return_raw_text: false

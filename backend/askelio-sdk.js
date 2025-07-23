@@ -4,7 +4,7 @@
  */
 
 class AskelioSDK {
-  constructor(baseUrl = 'http://localhost:8001', options = {}) {
+  constructor(baseUrl = 'http://localhost:8000', options = {}) {
     this.baseUrl = baseUrl.replace(/\/$/, ''); // Remove trailing slash
     this.options = {
       timeout: 30000, // 30 seconds default timeout

@@ -10,7 +10,7 @@ import {
   AlertCircle,
   Loader2
 } from 'lucide-react'
-import { apiClient } from '@/lib/api-complete'
+import { apiClient } from '@/lib/api'
 
 interface UploadFile {
   file: File

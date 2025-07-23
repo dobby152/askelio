@@ -47,9 +47,8 @@ paddleocr==2.7.3
 # Google Gemini AI for decision making (legacy support)
 google-generativeai==0.3.2
 
-# Cost-Effective LLM Providers
-openai==1.54.3                # GPT-4o-mini (primary)
-anthropic==0.40.0             # Claude 3.5 Sonnet (fallback)
+# OpenRouter API - Unified LLM Access (90% FREE processing)
+requests==2.31.0             # For OpenRouter API calls
 
 # Payment and External Services
 stripe==7.8.0

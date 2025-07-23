@@ -12,7 +12,7 @@ import {
   Activity,
   RefreshCw
 } from 'lucide-react'
-import { apiClient } from '@/lib/api-complete'
+import { apiClient } from '@/lib/api'
 
 interface Document {
   id: string

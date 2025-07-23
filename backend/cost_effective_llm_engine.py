@@ -213,54 +213,37 @@ class CostEffectiveLLMEngine:
             )
     
     def _create_invoice_prompt(self, text: str) -> str:
-        """Create optimized prompt for invoice processing"""
-        return f"""Analyzuj následující OCR text z faktury a extrahuj strukturovaná data ve formátu JSON.
+        """Create robust prompt for Czech invoice processing - optimized for valid JSON"""
+        # Truncate text to prevent token overflow and parsing issues
+        truncated_text = text[:2000] if len(text) > 2000 else text
 
-INSTRUKCE:
-- Vrať pouze validní JSON bez dalšího textu
-- Pokud informace není k dispozici, použij null
-- Částky jako čísla (float), datumy jako YYYY-MM-DD
-- Buď přesný a konzistentní
+        return f"""Extract data from Czech invoice. Return ONLY valid JSON:
 
-POŽADOVANÁ STRUKTURA:
 {{
   "document_type": "faktura",
-  "invoice_number": "číslo faktury",
-  "date": "datum vystavení",
-  "due_date": "datum splatnosti",
+  "invoice_number": null,
+  "date": null,
+  "due_date": null,
   "vendor": {{
-    "name": "název dodavatele",
-    "address": "adresa",
-    "ico": "IČO",
-    "dic": "DIČ"
+    "name": null,
+    "ico": null,
+    "dic": null
   }},
   "customer": {{
-    "name": "název odběratele",
-    "address": "adresa"
+    "name": null
   }},
-  "items": [
-    {{
-      "description": "popis položky",
-      "quantity": 1.0,
-      "unit_price": 100.0,
-      "total_price": 100.0
-    }}
-  ],
   "totals": {{
-    "subtotal": 100.0,
-    "vat_rate": 21.0,
-    "vat_amount": 21.0,
-    "total": 121.0
+    "total": 0.0,
+    "vat_amount": 0.0
   }},
   "currency": "CZK",
-  "payment_method": "způsob platby",
-  "bank_account": "číslo účtu"
+  "variable_symbol": null,
+  "bank_account": null
 }}
 
-OCR TEXT:
-{text}
+Text: {truncated_text}
 
-JSON:"""
+Return valid JSON only:"""
     
     def _process_with_gpt4o_mini(self, text: str) -> LLMResult:
         """Process with GPT-4o-mini (cost-effective primary choice)"""

@@ -272,11 +272,18 @@ class AskelioSDK {
         clearTimeout(timeoutId);
 
         if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          const errorText = await response.text();
+          throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorText}`);
         }
 
-        const data = await response.json();
-        return data;
+        // Handle empty responses
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const text = await response.text();
+          return text ? JSON.parse(text) : {};
+        } else {
+          return await response.text();
+        }
 
       } catch (error) {
         lastError = error;

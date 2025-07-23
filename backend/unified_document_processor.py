@@ -92,13 +92,28 @@ class UnifiedDocumentProcessor:
             self.ocr_manager = None
         
         try:
-            # Cost-Effective LLM Engine
-            from cost_effective_llm_engine import CostEffectiveLLMEngine
-            self.llm_engine = CostEffectiveLLMEngine()
-            logger.info("✅ LLM Engine initialized")
+            # OpenRouter LLM Engine (SPEED-OPTIMIZED with Cache)
+            from openrouter_llm_engine import OpenRouterLLMEngine
+            self.llm_engine = OpenRouterLLMEngine()
+            logger.info("✅ OpenRouter LLM Engine initialized (Speed-Optimized v3.0)")
         except Exception as e:
-            logger.error(f"❌ Failed to initialize LLM Engine: {e}")
+            logger.error(f"❌ Failed to initialize OpenRouter LLM Engine: {e}")
             self.llm_engine = None
+
+        # 🎯 Gemini Decision Engine (Optional - only for accuracy_first mode)
+        self.gemini_engine = None
+        gemini_enabled = os.getenv('ENABLE_GEMINI', 'false').lower() == 'true'
+
+        if gemini_enabled:
+            try:
+                from gemini_decision_engine import GeminiDecisionEngine
+                self.gemini_engine = GeminiDecisionEngine()
+                logger.info("✅ Gemini Decision Engine initialized (optional)")
+            except Exception as e:
+                logger.warning(f"⚠️ Gemini Decision Engine not available: {e}")
+                self.gemini_engine = None
+        else:
+            logger.info("ℹ️ Gemini Decision Engine disabled (set ENABLE_GEMINI=true to enable)")
         
         try:
             # Database components
@@ -144,7 +159,7 @@ class UnifiedDocumentProcessor:
             )
             
             # Step 4: Data Validation
-            validated_data = self._validate_data(llm_result.structured_data, doc_type)
+            validated_data = self._validate_data(llm_result.extracted_data, doc_type)
             
             # Step 5: Database Storage (if enabled)
             document_id = None
@@ -165,8 +180,8 @@ class UnifiedDocumentProcessor:
                 raw_text=ocr_result["text"] if options.return_raw_text else None,
                 confidence=llm_result.confidence_score,
                 processing_time=time.time() - start_time,
-                cost_czk=llm_result.cost_estimate * 24,  # USD to CZK conversion
-                provider_used=f"ocr:{ocr_result['provider']}, llm:{llm_result.provider_used}",
+                cost_czk=llm_result.cost_usd * 23.5,  # USD to CZK conversion (fixed)
+                provider_used=f"ocr:{ocr_result['provider']}, llm:{llm_result.model_used}",
                 fallbacks_used=ocr_result.get("fallbacks_used", []),
                 validation_notes=llm_result.validation_notes
             )
@@ -226,32 +241,115 @@ class UnifiedDocumentProcessor:
             logger.error(f"❌ OCR processing error: {e}")
             return {"success": False, "error": str(e)}
     
-    def _process_llm(self, text: str, filename: str, doc_type: DocumentType, 
+    def _process_llm(self, text: str, filename: str, doc_type: DocumentType,
                     options: ProcessingOptions):
-        """Process with LLM using intelligent routing"""
-        if not self.llm_engine:
-            # Fallback to basic regex parsing
-            return self._basic_data_extraction(text, doc_type)
-        
+        """Process with appropriate AI engine based on processing mode"""
+
+        logger.info(f"🔍 Processing mode: {options.mode} (type: {type(options.mode)})")
+        logger.info(f"🔍 Comparing with ACCURACY_FIRST: {ProcessingMode.ACCURACY_FIRST} (type: {type(ProcessingMode.ACCURACY_FIRST)})")
+        logger.info(f"🔍 Mode comparison result: {options.mode == ProcessingMode.ACCURACY_FIRST}")
+
+        # Select AI engine based on processing mode
+        if options.mode == ProcessingMode.ACCURACY_FIRST:
+            logger.info("🎯 Selected: Gemini AI (accuracy_first mode)")
+            return self._process_with_gemini(text, filename, doc_type, options)
+        else:
+            logger.info("🚀 Selected: OpenRouter LLM (cost-effective mode)")
+            return self._process_with_openrouter(text, filename, doc_type, options)
+
+    def _process_with_gemini(self, text: str, filename: str, doc_type: DocumentType,
+                           options: ProcessingOptions):
+        """Process with Gemini AI for highest accuracy"""
+        if not self.gemini_engine or not self.gemini_engine.is_available:
+            logger.warning("⚠️ Gemini engine not available, falling back to OpenRouter...")
+            return self._process_with_openrouter(text, filename, doc_type, options)
+
         try:
-            # Use cost-effective LLM engine
-            result = self.llm_engine.structure_invoice_data(text, filename)
-            
+            logger.info("🤖 Using Gemini AI for accuracy_first mode")
+
+            # Use Gemini for data structuring
+            gemini_result = self.gemini_engine.structure_and_validate_data(
+                text, None, doc_type.value
+            )
+
+            # Convert Gemini result to standard LLM result format
+            result = self._convert_gemini_to_llm_result(gemini_result)
+
+            if result.success and result.confidence_score >= options.min_confidence:
+                logger.info(f"✅ Gemini processing successful (confidence: {result.confidence_score:.2f})")
+                return result
+            elif result.success:
+                logger.warning(f"⚠️ Gemini confidence ({result.confidence_score:.2f}) below minimum ({options.min_confidence})")
+                if options.enable_fallbacks:
+                    logger.info("🔄 Trying OpenRouter fallback...")
+                    return self._process_with_openrouter(text, filename, doc_type, options)
+                return result
+            else:
+                logger.error("❌ Gemini processing failed")
+                if options.enable_fallbacks:
+                    logger.info("🔄 Trying OpenRouter fallback...")
+                    return self._process_with_openrouter(text, filename, doc_type, options)
+                return self._basic_data_extraction(text, doc_type)
+
+        except Exception as e:
+            logger.error(f"❌ Gemini processing error: {e}")
+            if options.enable_fallbacks:
+                logger.info("🔄 Trying OpenRouter fallback...")
+                return self._process_with_openrouter(text, filename, doc_type, options)
+            return self._basic_data_extraction(text, doc_type)
+
+    def _process_with_openrouter(self, text: str, filename: str, doc_type: DocumentType,
+                               options: ProcessingOptions):
+        """Process with OpenRouter LLM for cost-effective processing"""
+        if not self.llm_engine:
+            logger.warning("⚠️ OpenRouter engine not available, using regex fallback...")
+            return self._basic_data_extraction(text, doc_type)
+
+        try:
+            logger.info("🚀 Using OpenRouter LLM for cost-effective processing")
+
+            # 🧠 INTELLIGENT COMPLEXITY ASSESSMENT (auto-detection)
+            # Let the LLM engine determine complexity automatically
+            complexity = "auto"  # Engine will auto-detect based on content
+
+            # Use OpenRouter LLM engine with intelligent processing
+            result = self.llm_engine.structure_invoice_data(
+                text,
+                filename,
+                complexity=complexity,
+                max_cost_usd=options.max_cost_czk / 23.5  # Convert CZK to USD (allow powerful models)
+            )
+
             # Check if result meets minimum confidence
             if result.confidence_score < options.min_confidence and options.enable_fallbacks:
-                logger.warning(f"⚠️ Low confidence ({result.confidence_score:.2f}), "
-                             f"minimum required: {options.min_confidence}")
-                # Could implement additional fallback logic here
-            
+                logger.warning(f"⚠️ OpenRouter confidence ({result.confidence_score:.2f}) below minimum ({options.min_confidence})")
+                # OpenRouter engine already handles internal fallbacks
+
             return result
-            
+
         except Exception as e:
-            logger.error(f"❌ LLM processing error: {e}")
+            logger.error(f"❌ OpenRouter LLM processing error: {e}")
             return self._basic_data_extraction(text, doc_type)
-    
+
+    def _convert_gemini_to_llm_result(self, gemini_result):
+        """Convert GeminiStructuredData to LLMResult format"""
+        from openrouter_llm_engine import LLMResult
+
+        return LLMResult(
+            success=gemini_result.success,
+            extracted_data=gemini_result.structured_data,  # Fixed: extracted_data not structured_data
+            confidence_score=gemini_result.confidence_score,
+            model_used="gemini_ai",  # Fixed: model_used not provider_used
+            processing_time=gemini_result.processing_time,
+            cost_usd=0.01,  # Fixed: cost_usd not cost_estimate
+            reasoning=f"Gemini AI processing: {gemini_result.validation_notes}",
+            validation_notes=[gemini_result.validation_notes] if isinstance(gemini_result.validation_notes, str) else gemini_result.validation_notes,
+            error_message=gemini_result.error_message
+        )
+
     def _basic_data_extraction(self, text: str, doc_type: DocumentType):
         """Basic regex-based data extraction as ultimate fallback"""
-        from cost_effective_llm_engine import LLMResult
+        from openrouter_llm_engine import LLMResult
         import re
         
         basic_data = {
@@ -274,11 +372,11 @@ class UnifiedDocumentProcessor:
         
         return LLMResult(
             success=True,
-            structured_data=basic_data,
+            extracted_data=basic_data,  # Fixed: extracted_data not structured_data
             confidence_score=0.6,  # Lower confidence for regex
-            provider_used="regex_fallback",
+            model_used="regex_fallback",  # Fixed: model_used not provider_used
             processing_time=0.1,
-            cost_estimate=0.0,
+            cost_usd=0.0,  # Fixed: cost_usd not cost_estimate
             reasoning="Basic regex extraction used as fallback",
             validation_notes=["Low confidence - regex fallback used"]
         )
@@ -331,7 +429,7 @@ class UnifiedDocumentProcessor:
                 processing_time=llm_result.processing_time,
                 confidence=llm_result.confidence_score,
                 extracted_text=ocr_result.get("text", ""),
-                provider_used=llm_result.provider_used,
+                provider_used=llm_result.model_used,
                 data_source="unified_processor"
             )
 
@@ -371,14 +469,14 @@ class UnifiedDocumentProcessor:
         else:
             self.stats["failed"] += 1
 
-        self.stats["total_cost_czk"] += llm_result.cost_estimate * 24
+        self.stats["total_cost_czk"] += llm_result.cost_usd * 23.5  # Fixed: cost_usd not cost_estimate
 
         # Update average processing time
         total_time = self.stats["avg_processing_time"] * (self.stats["total_processed"] - 1)
         self.stats["avg_processing_time"] = (total_time + processing_time) / self.stats["total_processed"]
 
         # Update provider usage
-        provider = llm_result.provider_used
+        provider = llm_result.model_used  # Fixed: model_used not provider_used
         self.stats["provider_usage"][provider] = self.stats["provider_usage"].get(provider, 0) + 1
 
     def _create_error_result(self, doc_type: DocumentType, start_time: float,

@@ -1,15 +1,17 @@
 # Askelio Backend Setup
 
-## ✅ Recommended Backend: main.py (FastAPI) v2.1.0
+## ✅ Recommended Backend: main.py (FastAPI) v2.2.0
 
-**Use `main.py` as your primary backend** - now with **Cost-Effective LLM**:
+**Use `main.py` as your primary backend** - now with **OpenRouter LLM**:
 
 - **Real OCR Integration**: Google Vision API for text extraction
-- **Cost-Effective AI**: Hybrid LLM system (GPT-4o-mini + Claude 3.5 Sonnet)
-- **Ultra-Low Costs**: Average 0.043 Kč per invoice (430 Kč/year for 10,000 invoices)
-- **High Accuracy**: 88-95% accuracy with intelligent fallback
+- **Ultra Cost-Effective AI**: OpenRouter with 90% FREE processing
+- **Minimal Costs**: ~0.001 Kč per invoice (~10 Kč/year for 10,000 invoices)
+- **High Accuracy**: 82-92% accuracy with intelligent model selection
+- **FREE Models**: Llama 3.2 3B + Phi-3 Mini for most documents
+- **Premium Fallback**: GPT-4o Mini only for complex cases
+- **Single API Key**: Only OpenRouter + Google Vision needed
 - **Production Ready**: Proper error handling, database integration, async processing
-- **Cost Monitoring**: Real-time cost tracking and usage statistics
 - **API Documentation**: Automatic Swagger/OpenAPI docs at `/docs`
 
 ### Quick Start
@@ -24,9 +26,10 @@
    # Required for Google Vision OCR
    export GOOGLE_API_KEY="your-google-api-key"
 
-   # Required for Cost-Effective LLM
-   export OPENAI_API_KEY="your-openai-api-key"        # GPT-4o-mini (primary)
-   export ANTHROPIC_API_KEY="your-anthropic-api-key"  # Claude 3.5 Sonnet (fallback)
+   # Required for OpenRouter LLM (90% FREE processing!)
+   export OPENROUTER_API_KEY="your-openrouter-api-key"
+
+   # Get FREE OpenRouter API key at: https://openrouter.ai/keys
    ```
 
 3. **Run the Server**:

@@ -9,7 +9,7 @@ import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/lib/use-toast"
 import { Upload, FileText, ImageIcon, X, CheckCircle, AlertCircle, DollarSign, Clock } from "lucide-react"
-import { apiClient } from "@/lib/api-complete"
+import { apiClient } from "@/lib/api"
 import type {
   ProcessingOptions,
   ProcessingProgress,
@@ -36,7 +36,7 @@ export function UploadArea() {
   const [files, setFiles] = useState<UploadedFile[]>([])
   const [isDragOver, setIsDragOver] = useState(false)
   const [processingMode, setProcessingMode] = useState<ProcessingMode>("cost_optimized")
-  const [maxCost, setMaxCost] = useState<number>(1.0)
+  const [maxCost, setMaxCost] = useState<number>(5.0)  // 🚀 Increased for powerful models
   const { toast } = useToast()
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -139,7 +139,7 @@ export function UploadArea() {
         max_cost_czk: maxCost,
         min_confidence: 0.8,
         enable_fallbacks: true,
-        return_raw_text: false
+        return_raw_text: true
       }
 
       console.log('🚀 UploadArea: Processing document with unified API:', file.name, options)
