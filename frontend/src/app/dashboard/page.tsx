@@ -1,7 +1,7 @@
 'use client'
 
 import { useAuth } from '@/components/AuthProvider'
-import { Dashboard } from '@/components/dashboard'
+import { Dashboard } from '@/components/new-dashboard'
 
 export default function DashboardPage() {
   const { user } = useAuth()

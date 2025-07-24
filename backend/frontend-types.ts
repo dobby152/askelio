@@ -24,6 +24,7 @@ export interface ProcessingOptions {
   min_confidence?: number;      // Minimum acceptable confidence (0-1)
   enable_fallbacks?: boolean;   // Enable fallback providers
   return_raw_text?: boolean;    // Include raw OCR text in response
+  enable_ares_enrichment?: boolean; // Enable ARES company data enrichment
 }
 
 // ===== API RESPONSE TYPES =====
@@ -86,6 +87,10 @@ export interface StructuredData {
     ico?: string;      // Czech company ID
     dic?: string;      // Czech tax ID
     tax_id?: string;   // General tax ID
+    // ARES enrichment metadata
+    _ares_enriched?: boolean;
+    _ares_active?: boolean;
+    _ares_vat_payer?: boolean;
   };
 
   // Customer information
@@ -94,6 +99,10 @@ export interface StructuredData {
     address?: string;
     ico?: string;      // Customer Czech company ID
     dic?: string;      // Customer Czech tax ID
+    // ARES enrichment metadata
+    _ares_enriched?: boolean;
+    _ares_active?: boolean;
+    _ares_vat_payer?: boolean;
   };
 
   // Financial information
@@ -129,6 +138,14 @@ export interface StructuredData {
   validated_at?: string;
   extraction_method?: string;
   amount?: number;  // Simple amount for receipts
+
+  // ARES enrichment metadata
+  _ares_enrichment?: {
+    enriched_at: string;
+    notes: string[];
+    success: boolean;
+    error?: string;
+  };
 }
 
 // ===== SYSTEM STATUS =====
@@ -290,7 +307,8 @@ export const DEFAULT_PROCESSING_OPTIONS: ProcessingOptions = {
   max_cost_czk: 1.0,
   min_confidence: 0.8,
   enable_fallbacks: true,
-  return_raw_text: false
+  return_raw_text: false,
+  enable_ares_enrichment: true
 };
 
 // ===== EXAMPLE USAGE =====

@@ -38,6 +38,7 @@ class ProcessingOptions:
     enable_fallbacks: bool = True
     store_in_db: bool = True
     return_raw_text: bool = False
+    enable_ares_enrichment: bool = True  # Enable ARES company data enrichment
 
 @dataclass
 class ProcessingResult:
@@ -126,6 +127,15 @@ class UnifiedDocumentProcessor:
         except Exception as e:
             logger.error(f"❌ Failed to initialize database: {e}")
             self.SessionLocal = None
+
+        # 🏢 ARES Client for Czech company data enrichment
+        try:
+            from ares_client import ares_client
+            self.ares_client = ares_client
+            logger.info("✅ ARES Client initialized for company data enrichment")
+        except Exception as e:
+            logger.warning(f"⚠️ ARES Client not available: {e}")
+            self.ares_client = None
     
     def process_document(self, file_path: str, filename: str, 
                         options: ProcessingOptions = None) -> ProcessingResult:
@@ -160,12 +170,15 @@ class UnifiedDocumentProcessor:
             
             # Step 4: Data Validation
             validated_data = self._validate_data(llm_result.extracted_data, doc_type)
-            
+
+            # Step 4.5: ARES Enrichment (Czech company data)
+            enriched_data = self._enrich_with_ares(validated_data, options)
+
             # Step 5: Database Storage (if enabled)
             document_id = None
             if options.store_in_db and self.SessionLocal:
                 document_id = self._store_in_database(
-                    filename, ocr_result, llm_result, validated_data
+                    filename, ocr_result, llm_result, enriched_data
                 )
             
             # Step 6: Update Statistics
@@ -176,7 +189,7 @@ class UnifiedDocumentProcessor:
                 success=llm_result.success,
                 document_id=document_id,
                 document_type=doc_type,
-                structured_data=validated_data,
+                structured_data=enriched_data,
                 raw_text=ocr_result["text"] if options.return_raw_text else None,
                 confidence=llm_result.confidence_score,
                 processing_time=time.time() - start_time,
@@ -409,6 +422,76 @@ class UnifiedDocumentProcessor:
 
         return validated
 
+    def _enrich_with_ares(self, data: Dict[str, Any], options: ProcessingOptions) -> Dict[str, Any]:
+        """
+        Obohacuje strukturovaná data o údaje z ARES na základě IČO
+        Automaticky doplňuje chybějící údaje o dodavateli a odběrateli
+        """
+        if not data or not self.ares_client or not options.enable_ares_enrichment:
+            if not options.enable_ares_enrichment:
+                logger.debug("ℹ️ ARES enrichment disabled in options")
+            return data
+
+        enriched = data.copy()
+        enrichment_notes = []
+
+        try:
+            # Obohacení údajů o dodavateli (vendor)
+            if "vendor" in enriched and isinstance(enriched["vendor"], dict):
+                original_vendor = enriched["vendor"].copy()
+                enriched_vendor = self.ares_client.enrich_subject_data(enriched["vendor"])
+
+                if enriched_vendor != original_vendor:
+                    enriched["vendor"] = enriched_vendor
+                    enrichment_notes.append(f"✅ Vendor data enriched from ARES (IČO: {enriched_vendor.get('ico', 'N/A')})")
+
+                    # Log what was enriched
+                    if enriched_vendor.get("name") and not original_vendor.get("name"):
+                        logger.info(f"📝 Vendor name enriched: {enriched_vendor['name']}")
+                    if enriched_vendor.get("dic") and not original_vendor.get("dic"):
+                        logger.info(f"📝 Vendor DIČ enriched: {enriched_vendor['dic']}")
+                    if enriched_vendor.get("address") and not original_vendor.get("address"):
+                        logger.info(f"📝 Vendor address enriched: {enriched_vendor['address']}")
+
+            # Obohacení údajů o odběrateli (customer)
+            if "customer" in enriched and isinstance(enriched["customer"], dict):
+                original_customer = enriched["customer"].copy()
+                enriched_customer = self.ares_client.enrich_subject_data(enriched["customer"])
+
+                if enriched_customer != original_customer:
+                    enriched["customer"] = enriched_customer
+                    enrichment_notes.append(f"✅ Customer data enriched from ARES (IČO: {enriched_customer.get('ico', 'N/A')})")
+
+                    # Log what was enriched
+                    if enriched_customer.get("name") and not original_customer.get("name"):
+                        logger.info(f"📝 Customer name enriched: {enriched_customer['name']}")
+                    if enriched_customer.get("dic") and not original_customer.get("dic"):
+                        logger.info(f"📝 Customer DIČ enriched: {enriched_customer['dic']}")
+                    if enriched_customer.get("address") and not original_customer.get("address"):
+                        logger.info(f"📝 Customer address enriched: {enriched_customer['address']}")
+
+            # Přidej metadata o obohacení
+            if enrichment_notes:
+                enriched["_ares_enrichment"] = {
+                    "enriched_at": datetime.now().isoformat(),
+                    "notes": enrichment_notes,
+                    "success": True
+                }
+                logger.info(f"🏢 ARES enrichment completed: {len(enrichment_notes)} subjects enriched")
+            else:
+                logger.debug("ℹ️ No ARES enrichment needed (no IČO found or data already complete)")
+
+        except Exception as e:
+            logger.error(f"❌ ARES enrichment failed: {e}")
+            # Add error metadata but don't fail the whole process
+            enriched["_ares_enrichment"] = {
+                "enriched_at": datetime.now().isoformat(),
+                "error": str(e),
+                "success": False
+            }
+
+        return enriched
+
     def _store_in_database(self, filename: str, ocr_result: Dict,
                           llm_result, validated_data: Dict) -> Optional[int]:
         """Store processing results in database"""
@@ -430,7 +513,8 @@ class UnifiedDocumentProcessor:
                 confidence=llm_result.confidence_score,
                 extracted_text=ocr_result.get("text", ""),
                 provider_used=llm_result.model_used,
-                data_source="unified_processor"
+                data_source="unified_processor",
+                ares_enriched=validated_data.get("_ares_enrichment")  # Store ARES metadata
             )
 
             db.add(document)

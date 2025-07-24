@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API Client Fix</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .loading { background-color: #fff3cd; border-color: #ffeaa7; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; font-size: 12px; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        .progress-bar { 
+            width: 100%; 
+            height: 20px; 
+            background: #f0f0f0; 
+            border-radius: 10px; 
+            overflow: hidden; 
+            margin: 10px 0;
+        }
+        .progress-fill { 
+            height: 100%; 
+            background: #007bff; 
+            transition: width 0.3s ease;
+        }
+        .progress-text { 
+            text-align: center; 
+            margin: 5px 0; 
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Test API Client Fix</h1>
+    
+    <div class="test-section">
+        <h2>1. Test API Client Methods</h2>
+        <button onclick="testApiClientMethods()">Test Available Methods</button>
+        <div id="methods-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Test uploadDocument Method</h2>
+        <input type="file" id="file-input" accept=".pdf,.jpg,.jpeg,.png">
+        <button onclick="testUploadDocument()">Test uploadDocument()</button>
+        <div id="upload-progress">
+            <div class="progress-text" id="progress-text">Připraveno k uploadu</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+            </div>
+        </div>
+        <div id="upload-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Test Field Conversion</h2>
+        <button onclick="testFieldConversion()">Test convertResponseToFields</button>
+        <div id="conversion-result"></div>
+    </div>
+
+    <script>
+        // Simulate API Client (simplified version)
+        class TestApiClient {
+            constructor() {
+                this.baseUrl = 'http://localhost:8001';
+            }
+
+            async uploadDocument(file, options = {}, onProgress) {
+                console.log('🚀 Testing uploadDocument with:', file.name, options);
+                
+                // Simulate progress
+                if (onProgress) {
+                    onProgress({ stage: 'upload', percentage: 10, message: 'Nahrávání souboru...' });
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
+                    onProgress({ stage: 'ocr', percentage: 30, message: 'OCR zpracování...' });
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    onProgress({ stage: 'extraction', percentage: 70, message: 'Extrakce dat...' });
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    onProgress({ stage: 'ares', percentage: 90, message: 'ARES validace...' });
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+
+                // Make actual API call
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const params = new URLSearchParams();
+                if (options.mode) params.append('mode', options.mode);
+                if (options.max_cost_czk) params.append('max_cost_czk', options.max_cost_czk);
+                if (options.enable_ares_enrichment !== undefined) params.append('enable_ares_enrichment', options.enable_ares_enrichment);
+
+                const response = await fetch(`${this.baseUrl}/api/v1/documents/process?${params.toString()}`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                
+                if (onProgress) {
+                    onProgress({ stage: 'complete', percentage: 100, message: 'Dokončeno!' });
+                }
+
+                return result;
+            }
+
+            validateFile(file) {
+                const supportedTypes = [
+                    'application/pdf',
+                    'image/jpeg',
+                    'image/jpg', 
+                    'image/png',
+                    'image/gif',
+                    'image/bmp',
+                    'image/tiff'
+                ];
+
+                const maxSizeMB = 10;
+                const fileSizeMB = file.size / (1024 * 1024);
+
+                const validation = {
+                    valid: true,
+                    errors: [],
+                    warnings: []
+                };
+
+                if (!supportedTypes.includes(file.type)) {
+                    validation.valid = false;
+                    validation.errors.push(`Unsupported file type: ${file.type}`);
+                }
+
+                if (fileSizeMB > maxSizeMB) {
+                    validation.valid = false;
+                    validation.errors.push(`File too large: ${fileSizeMB.toFixed(1)}MB (max: ${maxSizeMB}MB)`);
+                }
+
+                return validation;
+            }
+        }
+
+        const testApiClient = new TestApiClient();
+
+        // Simulate convertResponseToFields function
+        function convertResponseToFields(data) {
+            const fields = []
+            let fieldId = 1
+
+            // Convert all simple fields first
+            const simpleFields = ['document_type', 'invoice_number', 'date', 'due_date', 'currency', 'variable_symbol', 'bank_account']
+            simpleFields.forEach(fieldName => {
+                if (data[fieldName]) {
+                    fields.push({
+                        id: `${fieldName}_${fieldId++}`,
+                        field: fieldName,
+                        value: String(data[fieldName]),
+                        confidence: 0.95,
+                        validated: false
+                    })
+                }
+            })
+
+            // Convert vendor data
+            if (data.vendor && typeof data.vendor === 'object') {
+                Object.entries(data.vendor).forEach(([key, value]) => {
+                    if (value && !key.startsWith('_')) {
+                        fields.push({
+                            id: `vendor_${key}_${fieldId++}`,
+                            field: `vendor.${key}`,
+                            value: String(value),
+                            confidence: 0.9,
+                            validated: false,
+                            aresEnriched: data.vendor._ares_enriched && (key === 'name' || key === 'address' || key === 'dic')
+                        })
+                    }
+                })
+            }
+
+            // Convert customer data
+            if (data.customer && typeof data.customer === 'object') {
+                Object.entries(data.customer).forEach(([key, value]) => {
+                    if (value && !key.startsWith('_')) {
+                        fields.push({
+                            id: `customer_${key}_${fieldId++}`,
+                            field: `customer.${key}`,
+                            value: String(value),
+                            confidence: 0.9,
+                            validated: false,
+                            aresEnriched: data.customer._ares_enriched && (key === 'name' || key === 'address' || key === 'dic')
+                        })
+                    }
+                })
+            }
+
+            // Convert totals data
+            if (data.totals && typeof data.totals === 'object') {
+                Object.entries(data.totals).forEach(([key, value]) => {
+                    if (value !== null && value !== undefined) {
+                        fields.push({
+                            id: `totals_${key}_${fieldId++}`,
+                            field: `totals.${key}`,
+                            value: String(value),
+                            confidence: 0.95,
+                            validated: false
+                        })
+                    }
+                })
+            }
+
+            return fields
+        }
+
+        async function testApiClientMethods() {
+            const resultDiv = document.getElementById('methods-result');
+            resultDiv.className = 'loading';
+            resultDiv.innerHTML = '<p>🔄 Testování API Client metod...</p>';
+
+            try {
+                const methods = Object.getOwnPropertyNames(Object.getPrototypeOf(testApiClient))
+                    .filter(name => typeof testApiClient[name] === 'function' && name !== 'constructor');
+
+                resultDiv.className = 'success';
+                resultDiv.innerHTML = `
+                    <h3>✅ API Client metody nalezeny!</h3>
+                    <p><strong>Dostupné metody:</strong></p>
+                    <ul>
+                        ${methods.map(method => `<li><code>${method}()</code></li>`).join('')}
+                    </ul>
+                    <p><strong>uploadDocument metoda:</strong> ${methods.includes('uploadDocument') ? '✅ Existuje' : '❌ Neexistuje'}</p>
+                `;
+            } catch (error) {
+                resultDiv.className = 'error';
+                resultDiv.innerHTML = `
+                    <h3>❌ Chyba při testování metod</h3>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+
+        async function testUploadDocument() {
+            const fileInput = document.getElementById('file-input');
+            const resultDiv = document.getElementById('upload-result');
+            const progressText = document.getElementById('progress-text');
+            const progressFill = document.getElementById('progress-fill');
+            
+            if (!fileInput.files[0]) {
+                resultDiv.className = 'error';
+                resultDiv.innerHTML = '<p>❌ Vyberte soubor</p>';
+                return;
+            }
+
+            const file = fileInput.files[0];
+            
+            resultDiv.className = 'loading';
+            resultDiv.innerHTML = '<p>🔄 Testování uploadDocument metody...</p>';
+
+            try {
+                // Test file validation first
+                const validation = testApiClient.validateFile(file);
+                if (!validation.valid) {
+                    throw new Error(validation.errors.join(', '));
+                }
+
+                const options = {
+                    mode: 'cost_optimized',
+                    max_cost_czk: 5.0,
+                    enable_ares_enrichment: true
+                };
+
+                const result = await testApiClient.uploadDocument(file, options, (progress) => {
+                    progressText.textContent = `${progress.stage}: ${progress.message}`;
+                    progressFill.style.width = `${progress.percentage}%`;
+                });
+                
+                if (result.success) {
+                    // Test field conversion
+                    const convertedFields = convertResponseToFields(result.data.structured_data);
+                    
+                    resultDiv.className = 'success';
+                    resultDiv.innerHTML = `
+                        <h3>✅ uploadDocument úspěšný!</h3>
+                        <p><strong>Typ dokumentu:</strong> ${result.data.document_type}</p>
+                        <p><strong>Confidence:</strong> ${Math.round(result.data.confidence * 100)}%</p>
+                        <p><strong>Čas zpracování:</strong> ${result.meta.processing_time.toFixed(2)}s</p>
+                        <p><strong>Počet extrahovaných polí:</strong> ${convertedFields.length}</p>
+                        
+                        <h4>Extrahovaná pole:</h4>
+                        <pre>${JSON.stringify(convertedFields.slice(0, 5), null, 2)}</pre>
+                        ${convertedFields.length > 5 ? `<p>... a ${convertedFields.length - 5} dalších polí</p>` : ''}
+                    `;
+                    
+                    progressText.textContent = 'Dokončeno úspěšně!';
+                } else {
+                    resultDiv.className = 'error';
+                    resultDiv.innerHTML = `
+                        <h3>❌ uploadDocument selhal</h3>
+                        <pre>${JSON.stringify(result, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.className = 'error';
+                resultDiv.innerHTML = `
+                    <h3>❌ Chyba uploadDocument</h3>
+                    <p>${error.message}</p>
+                `;
+                progressText.textContent = 'Chyba při zpracování';
+                progressFill.style.width = '0%';
+            }
+        }
+
+        async function testFieldConversion() {
+            const resultDiv = document.getElementById('conversion-result');
+            resultDiv.className = 'loading';
+            resultDiv.innerHTML = '<p>🔄 Testování field conversion...</p>';
+
+            try {
+                // Get sample data from existing document
+                const response = await fetch('http://localhost:8001/documents/1');
+                const docData = await response.json();
+                
+                // Extract structured data from extracted_fields
+                const structuredData = {};
+                docData.extracted_fields.forEach(field => {
+                    if (field.field_name === 'vendor' || field.field_name === 'customer' || field.field_name === 'totals') {
+                        try {
+                            structuredData[field.field_name] = JSON.parse(field.field_value.replace(/'/g, '"'));
+                        } catch (e) {
+                            structuredData[field.field_name] = field.field_value;
+                        }
+                    } else {
+                        structuredData[field.field_name] = field.field_value;
+                    }
+                });
+
+                const convertedFields = convertResponseToFields(structuredData);
+                
+                resultDiv.className = 'success';
+                resultDiv.innerHTML = `
+                    <h3>✅ Field conversion úspěšná!</h3>
+                    <p><strong>Počet konvertovaných polí:</strong> ${convertedFields.length}</p>
+                    <p><strong>Původní extracted_fields:</strong> ${docData.extracted_fields.length}</p>
+                    
+                    <h4>Konvertovaná pole (první 5):</h4>
+                    <pre>${JSON.stringify(convertedFields.slice(0, 5), null, 2)}</pre>
+                `;
+            } catch (error) {
+                resultDiv.className = 'error';
+                resultDiv.innerHTML = `
+                    <h3>❌ Chyba field conversion</h3>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+
+        // Auto-test methods on load
+        window.addEventListener('load', () => {
+            testApiClientMethods();
+        });
+    </script>
+</body>
+</html>

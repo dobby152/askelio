@@ -125,6 +125,19 @@ class ApiClient {
     }
   }
 
+  async deleteDocument(id: string): Promise<any> {
+    console.log('🗑️ API Client: Deleting document from backend:', id)
+
+    try {
+      const result = await this.sdk.deleteDocument(parseInt(id))
+      console.log('✅ API Client: Document deleted successfully:', result)
+      return result
+    } catch (error) {
+      console.error('💥 API Client: Delete failed:', error)
+      throw error
+    }
+  }
+
 
 
   async getCreditBalance(): Promise<number> {

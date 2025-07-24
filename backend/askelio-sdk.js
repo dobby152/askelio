@@ -31,6 +31,7 @@ class AskelioSDK {
     if (options.min_confidence) params.append('min_confidence', options.min_confidence);
     if (options.enable_fallbacks !== undefined) params.append('enable_fallbacks', options.enable_fallbacks);
     if (options.return_raw_text !== undefined) params.append('return_raw_text', options.return_raw_text);
+    if (options.enable_ares_enrichment !== undefined) params.append('enable_ares_enrichment', options.enable_ares_enrichment);
 
     const url = `${this.baseUrl}/api/v1/documents/process?${params.toString()}`;
     
@@ -79,6 +80,17 @@ class AskelioSDK {
    */
   async getDocument(id) {
     return this._makeRequest(`${this.baseUrl}/documents/${id}`);
+  }
+
+  /**
+   * Delete a document
+   * @param {number} id - Document ID
+   * @returns {Promise<Object>} Deletion result
+   */
+  async deleteDocument(id) {
+    return this._makeRequest(`${this.baseUrl}/documents/${id}`, {
+      method: 'DELETE'
+    });
   }
 
   /**

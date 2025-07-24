@@ -10,6 +10,20 @@ export interface Document {
   processedAt: string
   size: string
   pages: number
+  aresEnriched?: {
+    enriched_at: string
+    notes: string[]
+    success: boolean
+    error?: string
+  }
+  extractedData?: {
+    vendor?: string
+    customer?: string
+    amount?: number
+    currency?: string
+    date?: string
+    invoice_number?: string
+  }
 }
 
 export interface ExportData {
@@ -84,7 +98,7 @@ export const exportToCSV = async (data: ExportData, options: ExportOptions) => {
     }
 
     csvContent.push("## DOKUMENTY")
-    csvContent.push("Název,Typ,Status,Přesnost (%),Zpracováno,Velikost,Stránky")
+    csvContent.push("Název,Typ,Status,Přesnost (%),Zpracováno,Velikost,Stránky,ARES,Dodavatel,Částka")
 
     filteredDocuments.forEach((doc) => {
       const statusMap = {
@@ -92,8 +106,12 @@ export const exportToCSV = async (data: ExportData, options: ExportOptions) => {
         processing: "Zpracovává se",
         error: "Chyba",
       }
+      const aresStatus = doc.aresEnriched?.success ? "Ano" : "Ne"
+      const vendor = doc.extractedData?.vendor || "-"
+      const amount = doc.extractedData?.amount ? `${doc.extractedData.amount} ${doc.extractedData.currency || 'CZK'}` : "-"
+
       csvContent.push(
-        `"${doc.name}",${doc.type.toUpperCase()},${statusMap[doc.status]},${doc.accuracy},${doc.processedAt},"${doc.size}",${doc.pages}`,
+        `"${doc.name}",${doc.type.toUpperCase()},${statusMap[doc.status]},${doc.accuracy},${doc.processedAt},"${doc.size}",${doc.pages},${aresStatus},"${vendor}","${amount}"`,
       )
     })
     csvContent.push("")
@@ -184,7 +202,7 @@ export const exportToExcel = async (data: ExportData, options: ExportOptions) =>
     }
 
     const documentsData = [
-      ["Název", "Typ", "Status", "Přesnost (%)", "Zpracováno", "Velikost", "Stránky"],
+      ["Název", "Typ", "Status", "Přesnost (%)", "Zpracováno", "Velikost", "Stránky", "ARES", "Dodavatel", "Částka"],
       ...filteredDocuments.map((doc) => [
         doc.name,
         doc.type.toUpperCase(),
@@ -193,6 +211,9 @@ export const exportToExcel = async (data: ExportData, options: ExportOptions) =>
         doc.processedAt,
         doc.size,
         doc.pages,
+        doc.aresEnriched?.success ? "Ano" : "Ne",
+        doc.extractedData?.vendor || "-",
+        doc.extractedData?.amount ? `${doc.extractedData.amount} ${doc.extractedData.currency || 'CZK'}` : "-"
       ]),
     ]
 
@@ -207,6 +228,9 @@ export const exportToExcel = async (data: ExportData, options: ExportOptions) =>
       { wch: 18 }, // Zpracováno
       { wch: 12 }, // Velikost
       { wch: 10 }, // Stránky
+      { wch: 8 },  // ARES
+      { wch: 25 }, // Dodavatel
+      { wch: 15 }, // Částka
     ]
     documentsSheet["!cols"] = colWidths
 

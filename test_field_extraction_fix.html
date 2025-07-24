@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Field Extraction Fix</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .loading { background-color: #fff3cd; border-color: #ffeaa7; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; font-size: 12px; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        .field-item { 
+            border: 1px solid #ddd; 
+            padding: 8px; 
+            margin: 5px 0; 
+            border-radius: 3px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+        .field-name { font-weight: bold; color: #333; }
+        .field-value { color: #666; }
+        .confidence { 
+            background: #007bff; 
+            color: white; 
+            padding: 2px 6px; 
+            border-radius: 3px; 
+            font-size: 12px;
+        }
+        .ares-badge { 
+            background: #28a745; 
+            color: white; 
+            padding: 2px 6px; 
+            border-radius: 3px; 
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Test Field Extraction Fix</h1>
+    
+    <div class="test-section">
+        <h2>1. Test Existing Document Data</h2>
+        <button onclick="testExistingDocument()">Test Document ID 1</button>
+        <div id="existing-doc-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Test convertResponseToFields Function</h2>
+        <button onclick="testConvertFunction()">Test Convert Function</button>
+        <div id="convert-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Test Unified Endpoint Response</h2>
+        <input type="file" id="file-input" accept=".pdf,.jpg,.jpeg,.png">
+        <button onclick="testUnifiedEndpoint()">Test Upload & Extract</button>
+        <div id="unified-result"></div>
+    </div>
+
+    <script>
+        // Simulate the convertResponseToFields function from the component
+        function convertResponseToFields(data) {
+            const fields = []
+            let fieldId = 1
+
+            // Convert all simple fields first
+            const simpleFields = ['document_type', 'invoice_number', 'date', 'due_date', 'currency', 'variable_symbol', 'bank_account']
+            simpleFields.forEach(fieldName => {
+                if (data[fieldName]) {
+                    fields.push({
+                        id: `${fieldName}_${fieldId++}`,
+                        field: fieldName,
+                        value: String(data[fieldName]),
+                        confidence: 0.95,
+                        validated: false
+                    })
+                }
+            })
+
+            // Convert vendor data
+            if (data.vendor && typeof data.vendor === 'object') {
+                Object.entries(data.vendor).forEach(([key, value]) => {
+                    if (value && !key.startsWith('_')) { // Skip metadata fields
+                        fields.push({
+                            id: `vendor_${key}_${fieldId++}`,
+                            field: `vendor.${key}`,
+                            value: String(value),
+                            confidence: 0.9,
+                            validated: false,
+                            aresEnriched: data.vendor._ares_enriched && (key === 'name' || key === 'address' || key === 'dic')
+                        })
+                    }
+                })
+            }
+
+            // Convert customer data
+            if (data.customer && typeof data.customer === 'object') {
+                Object.entries(data.customer).forEach(([key, value]) => {
+                    if (value && !key.startsWith('_')) { // Skip metadata fields
+                        fields.push({
+                            id: `customer_${key}_${fieldId++}`,
+                            field: `customer.${key}`,
+                            value: String(value),
+                            confidence: 0.9,
+                            validated: false,
+                            aresEnriched: data.customer._ares_enriched && (key === 'name' || key === 'address' || key === 'dic')
+                        })
+                    }
+                })
+            }
+
+            // Convert totals data
+            if (data.totals && typeof data.totals === 'object') {
+                Object.entries(data.totals).forEach(([key, value]) => {
+                    if (value !== null && value !== undefined) {
+                        fields.push({
+                            id: `totals_${key}_${fieldId++}`,
+                            field: `totals.${key}`,
+                            value: String(value),
+                            confidence: 0.95,
+                            validated: false
+                        })
+                    }
+                })
+            }
+
+            // Convert simple amount for receipts
+            if (data.amount) {
+                fields.push({
+                    id: `amount_${fieldId++}`,
+                    field: 'amount',
+                    value: String(data.amount),
+                    confidence: 0.95,
+                    validated: false
+                })
+            }
+
+            console.log('🔄 Converted response to fields:', fields)
+            return fields
+        }
+
+        function renderFields(fields) {
+            return fields.map(field => `
+                <div class="field-item">
+                    <div>
+                        <span class="field-name">${field.field}:</span>
+                        <span class="field-value">${field.value}</span>
+                    </div>
+                    <div>
+                        <span class="confidence">${Math.round(field.confidence * 100)}%</span>
+                        ${field.aresEnriched ? '<span class="ares-badge">ARES</span>' : ''}
+                    </div>
+                </div>
+            `).join('')
+        }
+
+        async function testExistingDocument() {
+            const resultDiv = document.getElementById('existing-doc-result');
+            resultDiv.className = 'loading';
+            resultDiv.innerHTML = '<p>🔄 Načítání existujícího dokumentu...</p>';
+
+            try {
+                const response = await fetch('http://localhost:8001/documents/1');
+                const docData = await response.json();
+                
+                resultDiv.className = 'success';
+                resultDiv.innerHTML = `
+                    <h3>✅ Dokument načten úspěšně!</h3>
+                    <p><strong>Název:</strong> ${docData.filename}</p>
+                    <p><strong>Počet extracted_fields:</strong> ${docData.extracted_fields.length}</p>
+                    
+                    <h4>Raw extracted_fields z databáze:</h4>
+                    <pre>${JSON.stringify(docData.extracted_fields, null, 2)}</pre>
+                `;
+            } catch (error) {
+                resultDiv.className = 'error';
+                resultDiv.innerHTML = `
+                    <h3>❌ Chyba při načítání dokumentu</h3>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+
+        async function testConvertFunction() {
+            const resultDiv = document.getElementById('convert-result');
+            resultDiv.className = 'loading';
+            resultDiv.innerHTML = '<p>🔄 Testování convert funkce...</p>';
+
+            try {
+                // Get real data from existing document
+                const response = await fetch('http://localhost:8001/documents/1');
+                const docData = await response.json();
+                
+                // Extract structured data from extracted_fields
+                const structuredData = {};
+                docData.extracted_fields.forEach(field => {
+                    if (field.field_name === 'vendor' || field.field_name === 'customer' || field.field_name === 'totals') {
+                        try {
+                            structuredData[field.field_name] = JSON.parse(field.field_value.replace(/'/g, '"'));
+                        } catch (e) {
+                            structuredData[field.field_name] = field.field_value;
+                        }
+                    } else {
+                        structuredData[field.field_name] = field.field_value;
+                    }
+                });
+
+                console.log('Structured data for conversion:', structuredData);
+                
+                // Test convert function
+                const convertedFields = convertResponseToFields(structuredData);
+                
+                resultDiv.className = 'success';
+                resultDiv.innerHTML = `
+                    <h3>✅ Convert funkce úspěšná!</h3>
+                    <p><strong>Počet konvertovaných polí:</strong> ${convertedFields.length}</p>
+                    
+                    <h4>Konvertovaná pole:</h4>
+                    <div>${renderFields(convertedFields)}</div>
+                    
+                    <h4>Raw converted data:</h4>
+                    <pre>${JSON.stringify(convertedFields, null, 2)}</pre>
+                `;
+            } catch (error) {
+                resultDiv.className = 'error';
+                resultDiv.innerHTML = `
+                    <h3>❌ Chyba convert funkce</h3>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+
+        async function testUnifiedEndpoint() {
+            const fileInput = document.getElementById('file-input');
+            const resultDiv = document.getElementById('unified-result');
+            
+            if (!fileInput.files[0]) {
+                resultDiv.className = 'error';
+                resultDiv.innerHTML = '<p>❌ Vyberte soubor</p>';
+                return;
+            }
+
+            const file = fileInput.files[0];
+            
+            resultDiv.className = 'loading';
+            resultDiv.innerHTML = '<p>🔄 Zpracovávání dokumentu... (může trvat 10-30 sekund)</p>';
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch('http://localhost:8001/api/v1/documents/process?enable_ares_enrichment=true', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Test convert function with real API response
+                    const convertedFields = convertResponseToFields(result.data.structured_data);
+                    
+                    resultDiv.className = 'success';
+                    resultDiv.innerHTML = `
+                        <h3>✅ Unified endpoint úspěšný!</h3>
+                        <p><strong>Typ dokumentu:</strong> ${result.data.document_type}</p>
+                        <p><strong>Confidence:</strong> ${Math.round(result.data.confidence * 100)}%</p>
+                        <p><strong>Čas zpracování:</strong> ${result.meta.processing_time.toFixed(2)}s</p>
+                        <p><strong>Počet extrahovaných polí:</strong> ${convertedFields.length}</p>
+                        
+                        <h4>Extrahovaná pole (po konverzi):</h4>
+                        <div>${renderFields(convertedFields)}</div>
+                        
+                        <h4>Raw API response:</h4>
+                        <pre>${JSON.stringify(result, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.className = 'error';
+                    resultDiv.innerHTML = `
+                        <h3>❌ Zpracování selhalo</h3>
+                        <pre>${JSON.stringify(result, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.className = 'error';
+                resultDiv.innerHTML = `
+                    <h3>❌ Chyba unified endpointu</h3>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+
+        // Auto-test existing document on load
+        window.addEventListener('load', () => {
+            testExistingDocument();
+        });
+    </script>
+</body>
+</html>

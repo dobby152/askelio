@@ -68,6 +68,12 @@ interface ProcessingDetails {
   }
   final_confidence: number
   status: 'completed' | 'processing' | 'needs_review' | 'error'
+  ares_enrichment?: {
+    enriched_at: string
+    notes: string[]
+    success: boolean
+    error?: string
+  }
 }
 
 interface DocumentWorkspaceProps {
@@ -178,8 +184,23 @@ export function DocumentWorkspace({ className }: DocumentWorkspaceProps) {
             : structuredData.total_amount
           addStructuredItem('amount', 'Celková částka', amount)
         }
-        if (structuredData.vendor?.name) addStructuredItem('vendor', 'Dodavatel', structuredData.vendor.name)
-        if (structuredData.customer?.name) addStructuredItem('vendor', 'Odběratel', structuredData.customer.name)
+        // Vendor data with ARES enrichment indicators
+        if (structuredData.vendor?.name) {
+          const vendorLabel = structuredData.vendor._ares_enriched ? 'Dodavatel (ARES)' : 'Dodavatel'
+          addStructuredItem('vendor', vendorLabel, structuredData.vendor.name)
+        }
+        if (structuredData.vendor?.ico) addStructuredItem('vendor', 'IČO dodavatele', structuredData.vendor.ico)
+        if (structuredData.vendor?.dic) addStructuredItem('vendor', 'DIČ dodavatele', structuredData.vendor.dic)
+        if (structuredData.vendor?.address) addStructuredItem('vendor', 'Adresa dodavatele', structuredData.vendor.address)
+
+        // Customer data with ARES enrichment indicators
+        if (structuredData.customer?.name) {
+          const customerLabel = structuredData.customer._ares_enriched ? 'Odběratel (ARES)' : 'Odběratel'
+          addStructuredItem('vendor', customerLabel, structuredData.customer.name)
+        }
+        if (structuredData.customer?.ico) addStructuredItem('vendor', 'IČO odběratele', structuredData.customer.ico)
+        if (structuredData.customer?.dic) addStructuredItem('vendor', 'DIČ odběratele', structuredData.customer.dic)
+        if (structuredData.customer?.address) addStructuredItem('vendor', 'Adresa odběratele', structuredData.customer.address)
       }
 
       console.log('✅ Transformed extracted data:', extractedData)
@@ -200,7 +221,9 @@ export function DocumentWorkspace({ className }: DocumentWorkspaceProps) {
         // 🔍 DEBUG: Add raw data for debugging - check all possible locations
         raw_google_vision_text: documentData.extracted_text || documentData.raw_text || documentData.data?.raw_text || documentData.meta?.raw_google_vision_text || 'No raw text available',
         provider_used: documentData.provider_used || 'unknown',
-        cost_czk: documentData.cost_czk || 0
+        cost_czk: documentData.cost_czk || 0,
+        // ARES enrichment info
+        ares_enrichment: documentData.ares_enriched || structuredData._ares_enrichment
       }
 
       const selectedDoc: SelectedDocument = {

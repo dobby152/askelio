@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API Integrace</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .loading { background-color: #fff3cd; border-color: #ffeaa7; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        input[type="file"] { margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test API Integrace - Askelio SDK</h1>
+    
+    <div class="test-section">
+        <h2>1. Test Backend Připojení</h2>
+        <button onclick="testBackendConnection()">Test Backend</button>
+        <div id="backend-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Test ARES API</h2>
+        <input type="text" id="ico-input" placeholder="Zadejte IČO (např. 02445344)" value="02445344">
+        <button onclick="testAresAPI()">Test ARES</button>
+        <div id="ares-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Test SDK Inicializace</h2>
+        <button onclick="testSDKInit()">Test SDK</button>
+        <div id="sdk-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Test Document Processing (s PDF)</h2>
+        <input type="file" id="file-input" accept=".pdf,.jpg,.jpeg,.png">
+        <button onclick="testDocumentProcessing()">Test Processing</button>
+        <div id="processing-result"></div>
+    </div>
+
+    <script src="http://localhost:3000/_next/static/chunks/webpack.js"></script>
+    <script>
+        // Import SDK (simulace)
+        class AskelioSDK {
+            constructor(baseUrl = 'http://localhost:8001', options = {}) {
+                this.baseUrl = baseUrl.replace(/\/$/, '');
+                this.options = {
+                    timeout: 30000,
+                    retries: 3,
+                    retryDelay: 1000,
+                    ...options
+                };
+            }
+
+            async processDocument(file, options = {}) {
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                const params = new URLSearchParams();
+                if (options.mode) params.append('mode', options.mode);
+                if (options.max_cost_czk) params.append('max_cost_czk', options.max_cost_czk);
+                if (options.min_confidence) params.append('min_confidence', options.min_confidence);
+                if (options.enable_fallbacks !== undefined) params.append('enable_fallbacks', options.enable_fallbacks);
+                if (options.return_raw_text !== undefined) params.append('return_raw_text', options.return_raw_text);
+                if (options.enable_ares_enrichment !== undefined) params.append('enable_ares_enrichment', options.enable_ares_enrichment);
+
+                const url = `${this.baseUrl}/api/v1/documents/process?${params.toString()}`;
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                return await response.json();
+            }
+
+            validateFile(file) {
+                const supportedTypes = [
+                    'application/pdf',
+                    'image/jpeg',
+                    'image/jpg', 
+                    'image/png',
+                    'image/gif',
+                    'image/bmp',
+                    'image/tiff'
+                ];
+
+                const maxSizeMB = 10;
+                const fileSizeMB = file.size / (1024 * 1024);
+
+                const validation = {
+                    valid: true,
+                    errors: [],
+                    warnings: []
+                };
+
+                if (!supportedTypes.includes(file.type)) {
+                    validation.valid = false;
+                    validation.errors.push(`Unsupported file type: ${file.type}`);
+                }
+
+                if (fileSizeMB > maxSizeMB) {
+                    validation.valid = false;
+                    validation.errors.push(`File too large: ${fileSizeMB.toFixed(1)}MB (max: ${maxSizeMB}MB)`);
+                }
+
+                return validation;
+            }
+        }
+
+        const sdk = new AskelioSDK();
+
+        async function testBackendConnection() {
+            const resultDiv = document.getElementById('backend-result');
+            resultDiv.className = 'loading';
+            resultDiv.innerHTML = '<p>🔄 Testování připojení k backendu...</p>';
+
+            try {
+                const response = await fetch('http://localhost:8001/');
+                const data = await response.json();
+                
+                resultDiv.className = 'success';
+                resultDiv.innerHTML = `
+                    <h3>✅ Backend připojen úspěšně!</h3>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                resultDiv.className = 'error';
+                resultDiv.innerHTML = `
+                    <h3>❌ Chyba připojení k backendu</h3>
+                    <p>${error.message}</p>
+                    <p>Ujistěte se, že backend běží na portu 8001</p>
+                `;
+            }
+        }
+
+        async function testAresAPI() {
+            const ico = document.getElementById('ico-input').value;
+            const resultDiv = document.getElementById('ares-result');
+            
+            if (!ico) {
+                resultDiv.className = 'error';
+                resultDiv.innerHTML = '<p>❌ Zadejte IČO</p>';
+                return;
+            }
+
+            resultDiv.className = 'loading';
+            resultDiv.innerHTML = '<p>🔄 Testování ARES API...</p>';
+
+            try {
+                const response = await fetch(`http://localhost:8001/api/v1/ares/${ico}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.className = 'success';
+                    resultDiv.innerHTML = `
+                        <h3>✅ ARES API funguje!</h3>
+                        <p><strong>Název:</strong> ${data.name}</p>
+                        <p><strong>DIČ:</strong> ${data.dic || 'N/A'}</p>
+                        <p><strong>Adresa:</strong> ${data.address || 'N/A'}</p>
+                        <p><strong>Aktivní:</strong> ${data.is_active ? 'Ano' : 'Ne'}</p>
+                        <p><strong>DPH plátce:</strong> ${data.is_vat_payer ? 'Ano' : 'Ne'}</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.className = 'error';
+                    resultDiv.innerHTML = `
+                        <h3>⚠️ ARES API odpověděl s chybou</h3>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.className = 'error';
+                resultDiv.innerHTML = `
+                    <h3>❌ Chyba ARES API</h3>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+
+        async function testSDKInit() {
+            const resultDiv = document.getElementById('sdk-result');
+            resultDiv.className = 'loading';
+            resultDiv.innerHTML = '<p>🔄 Testování SDK inicializace...</p>';
+
+            try {
+                // Test file validation
+                const testFile = new File(['test'], 'test.pdf', { type: 'application/pdf' });
+                const validation = sdk.validateFile(testFile);
+                
+                resultDiv.className = 'success';
+                resultDiv.innerHTML = `
+                    <h3>✅ SDK inicializován úspěšně!</h3>
+                    <p><strong>Base URL:</strong> ${sdk.baseUrl}</p>
+                    <p><strong>Timeout:</strong> ${sdk.options.timeout}ms</p>
+                    <p><strong>Retries:</strong> ${sdk.options.retries}</p>
+                    <p><strong>File validation test:</strong> ${validation.valid ? '✅ Funguje' : '❌ Nefunguje'}</p>
+                    <pre>${JSON.stringify(validation, null, 2)}</pre>
+                `;
+            } catch (error) {
+                resultDiv.className = 'error';
+                resultDiv.innerHTML = `
+                    <h3>❌ Chyba SDK inicializace</h3>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+
+        async function testDocumentProcessing() {
+            const fileInput = document.getElementById('file-input');
+            const resultDiv = document.getElementById('processing-result');
+            
+            if (!fileInput.files[0]) {
+                resultDiv.className = 'error';
+                resultDiv.innerHTML = '<p>❌ Vyberte soubor</p>';
+                return;
+            }
+
+            const file = fileInput.files[0];
+            
+            resultDiv.className = 'loading';
+            resultDiv.innerHTML = '<p>🔄 Zpracovávání dokumentu... (může trvat 10-30 sekund)</p>';
+
+            try {
+                // Validate file first
+                const validation = sdk.validateFile(file);
+                if (!validation.valid) {
+                    throw new Error(validation.errors.join(', '));
+                }
+
+                const options = {
+                    mode: 'cost_optimized',
+                    max_cost_czk: 5.0,
+                    enable_ares_enrichment: true
+                };
+
+                const result = await sdk.processDocument(file, options);
+                
+                if (result.success) {
+                    resultDiv.className = 'success';
+                    resultDiv.innerHTML = `
+                        <h3>✅ Dokument zpracován úspěšně!</h3>
+                        <p><strong>Typ dokumentu:</strong> ${result.data.document_type}</p>
+                        <p><strong>Confidence:</strong> ${Math.round(result.data.confidence * 100)}%</p>
+                        <p><strong>Čas zpracování:</strong> ${result.meta.processing_time.toFixed(2)}s</p>
+                        <p><strong>Náklady:</strong> ${result.meta.cost_czk.toFixed(3)} Kč</p>
+                        <p><strong>Provider:</strong> ${result.meta.provider_used}</p>
+                        
+                        <h4>Extrahovaná data:</h4>
+                        <pre>${JSON.stringify(result.data.structured_data, null, 2)}</pre>
+                        
+                        <h4>Metadata:</h4>
+                        <pre>${JSON.stringify(result.meta, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.className = 'error';
+                    resultDiv.innerHTML = `
+                        <h3>❌ Zpracování selhalo</h3>
+                        <pre>${JSON.stringify(result, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.className = 'error';
+                resultDiv.innerHTML = `
+                    <h3>❌ Chyba zpracování</h3>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+
+        // Auto-test backend connection on load
+        window.addEventListener('load', () => {
+            testBackendConnection();
+        });
+    </script>
+</body>
+</html>

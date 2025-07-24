@@ -22,6 +22,7 @@ class Document(Base):
     extracted_text = Column(Text, nullable=True)
     provider_used = Column(String(100), nullable=True)
     data_source = Column(String(50), nullable=True)  # "gemini" or "basic"
+    ares_enriched = Column(JSON, nullable=True)  # ARES enrichment metadata
     
     # Relationships
     extracted_fields = relationship("ExtractedField", back_populates="document", cascade="all, delete-orphan")

@@ -26,6 +26,7 @@ import {
 
 // Přidej import pro ExportDialog
 import { ExportDialog } from "@/components/export-dialog"
+import { AresInfoBadge } from "@/components/ares-info-badge"
 import { apiClient } from "@/lib/api"
 import { cn } from "@/lib/utils"
 
@@ -44,6 +45,12 @@ interface Document {
     currency?: string
     date?: string
     invoice_number?: string
+  }
+  aresEnriched?: {
+    enriched_at: string
+    notes: string[]
+    success: boolean
+    error?: string
   }
   errorMessage?: string
 }
@@ -66,6 +73,7 @@ export function DocumentsTable({
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [typeFilter, setTypeFilter] = useState<string>("all")
+  const [deletingDocumentId, setDeletingDocumentId] = useState<string | null>(null)
 
   const formatDate = (dateString: string) => {
     try {
@@ -127,6 +135,29 @@ export function DocumentsTable({
 
     fetchDocuments()
   }, [])
+
+  const handleDeleteDocument = async (documentId: string, documentName: string) => {
+    if (!confirm(`Opravdu chcete smazat dokument "${documentName}"? Tato akce je nevratná.`)) {
+      return
+    }
+
+    setDeletingDocumentId(documentId)
+
+    try {
+      await apiClient.deleteDocument(documentId)
+
+      // Remove document from local state
+      setDocuments(prev => prev.filter(doc => doc.id !== documentId))
+
+      // Show success message (you can replace with toast notification)
+      alert(`Dokument "${documentName}" byl úspěšně smazán.`)
+    } catch (error) {
+      console.error('Failed to delete document:', error)
+      alert(`Chyba při mazání dokumentu: ${error.message}`)
+    } finally {
+      setDeletingDocumentId(null)
+    }
+  }
 
   const filteredDocuments = documents.filter((doc) => {
     const matchesSearch = doc.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -392,8 +423,17 @@ export function DocumentsTable({
                     {document.extractedData ? (
                       <div className="text-sm space-y-1">
                         {document.extractedData.vendor && (
-                          <div className="text-gray-900 dark:text-white font-medium">
-                            {document.extractedData.vendor}
+                          <div className="flex items-center gap-2">
+                            <div className="text-gray-900 dark:text-white font-medium">
+                              {document.extractedData.vendor}
+                            </div>
+                            {document.aresEnriched && (
+                              <AresInfoBadge
+                                enriched={document.aresEnriched.success}
+                                enrichmentData={document.aresEnriched}
+                                size="sm"
+                              />
+                            )}
                           </div>
                         )}
                         {document.extractedData.amount && (
@@ -446,9 +486,13 @@ export function DocumentsTable({
                             </DropdownMenuItem>
                           }
                         />
-                        <DropdownMenuItem className="text-red-600">
+                        <DropdownMenuItem
+                          className="text-red-600"
+                          onClick={() => handleDeleteDocument(document.id, document.name)}
+                          disabled={deletingDocumentId === document.id}
+                        >
                           <Trash2 className="w-4 h-4 mr-2" />
-                          Smazat
+                          {deletingDocumentId === document.id ? 'Mazání...' : 'Smazat'}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

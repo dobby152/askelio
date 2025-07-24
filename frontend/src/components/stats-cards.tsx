@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { FileText, Clock, Target, CreditCard, TrendingUp, TrendingDown } from "lucide-react"
+import { FileText, Clock, Target, CreditCard, TrendingUp, TrendingDown, DollarSign, PieChart, BarChart3, MessageSquare } from "lucide-react"
 // Přidaj import pro ExportDialog
 import { ExportDialog } from "@/components/export-dialog"
 import { Button } from "@/components/ui/button"
@@ -10,16 +10,43 @@ import { Download } from "lucide-react"
 import { useEffect, useState } from "react"
 import { apiClient } from "@/lib/api"
 
+interface FinancialData {
+  totalRevenue: number
+  totalExpenses: number
+  monthlyRevenue: number
+  monthlyExpenses: number
+  topVendors: Array<{
+    name: string
+    amount: number
+    count: number
+  }>
+  revenueByMonth: Array<{
+    month: string
+    revenue: number
+    expenses: number
+  }>
+  vatSummary: {
+    totalVat: number
+    vatByRate: Array<{
+      rate: number
+      amount: number
+    }>
+  }
+}
+
 interface StatsData {
   processedDocuments: number
   timeSaved: number
   accuracy: number
   remainingCredits: number
+  financialData: FinancialData
   trends: {
     documents: number
     timeSaved: number
     accuracy: number
     credits: number
+    revenue: number
+    expenses: number
   }
 }
 

@@ -1,0 +1,23 @@
+FAKTURA č. 2024001
+
+Dodavatel:
+Skanska Residential a.s.
+IČO: 02445344
+Křižíkova 682/34a
+186 00 Praha 8
+
+Odběratel:
+Alza.cz a.s.
+IČO: 27082440
+
+Datum vystavení: 23.07.2025
+Datum splatnosti: 23.08.2025
+
+Položky:
+1. Stavební práce    1 ks    50000,00 Kč
+   DPH 21%                   10500,00 Kč
+
+Celkem k úhradě: 60500,00 Kč
+
+Variabilní symbol: 2024001
+Číslo účtu: 123456789/0100
