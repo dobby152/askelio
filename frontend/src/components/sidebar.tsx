@@ -34,10 +34,10 @@ const navigation = [
 ]
 
 const quickActions = [
-  { name: "Nový dokument", href: "/documents/new", icon: FileText },
+  { name: "Nový dokument", href: "/scanning", icon: FileText },
   { name: "Správa kreditů", href: "/credits", icon: CreditCard },
   { name: "Nastavení", href: "/settings", icon: Settings },
-  { name: "Export dat", href: "#", icon: Download, onClick: true }, // Přidej onClick: true
+  { name: "Export dat", href: "#", icon: Download, onClick: true },
   { name: "Nápověda", href: "/help", icon: HelpCircle },
 ]
 

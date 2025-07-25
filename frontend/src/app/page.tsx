@@ -47,7 +47,7 @@ export default function Home() {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <Image
-                src="/askelio-logo.png"
+                src="/askelio-logo.svg"
                 alt="Askelio Logo"
                 width={40}
                 height={40}
@@ -905,7 +905,7 @@ export default function Home() {
             <div className="md:col-span-2 lg:col-span-1">
               <div className="flex items-center space-x-3 mb-6 sm:mb-8">
                 <Image
-                  src="/askelio-logo.png"
+                  src="/askelio-logo.svg"
                   alt="Askelio Logo"
                   width={48}
                   height={48}

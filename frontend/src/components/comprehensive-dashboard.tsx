@@ -256,7 +256,7 @@ function AppSidebar({ activeSection, onSectionChange }) {
   )
 }
 
-function DashboardHome() {
+function DashboardHome({ onSectionChange }: { onSectionChange?: (section: string) => void }) {
   const [aiInput, setAiInput] = useState("")
   const [aiMessages, setAiMessages] = useState([
     {
@@ -412,7 +412,11 @@ function DashboardHome() {
             </CardHeader>
             <CardContent>
               <div className="grid md:grid-cols-2 gap-3">
-                <Button className="justify-start h-auto p-4 bg-transparent" variant="outline">
+                <Button
+                  className="justify-start h-auto p-4 bg-transparent"
+                  variant="outline"
+                  onClick={() => onSectionChange?.('scanning')}
+                >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                       <Scan className="w-5 h-5 text-blue-600" />
@@ -425,7 +429,11 @@ function DashboardHome() {
                   <ChevronRight className="w-4 h-4 ml-auto" />
                 </Button>
 
-                <Button className="justify-start h-auto p-4 bg-transparent" variant="outline">
+                <Button
+                  className="justify-start h-auto p-4 bg-transparent"
+                  variant="outline"
+                  onClick={() => onSectionChange?.('approval')}
+                >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                       <FileCheck className="w-5 h-5 text-green-600" />
@@ -438,7 +446,11 @@ function DashboardHome() {
                   <ChevronRight className="w-4 h-4 ml-auto" />
                 </Button>
 
-                <Button className="justify-start h-auto p-4 bg-transparent" variant="outline">
+                <Button
+                  className="justify-start h-auto p-4 bg-transparent"
+                  variant="outline"
+                  onClick={() => onSectionChange?.('statistics')}
+                >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
                       <BarChart className="w-5 h-5 text-purple-600" />
@@ -451,7 +463,11 @@ function DashboardHome() {
                   <ChevronRight className="w-4 h-4 ml-auto" />
                 </Button>
 
-                <Button className="justify-start h-auto p-4 bg-transparent" variant="outline">
+                <Button
+                  className="justify-start h-auto p-4 bg-transparent"
+                  variant="outline"
+                  onClick={() => onSectionChange?.('ai-chat')}
+                >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
                       <Brain className="w-5 h-5 text-orange-600" />
@@ -1297,7 +1313,7 @@ export function ComprehensiveDashboard() {
   const renderContent = () => {
     switch (activeSection) {
       case "dashboard":
-        return <DashboardHome />
+        return <DashboardHome onSectionChange={handleSectionChange} />
       case "documents":
         return <DocumentsPage />
       case "scanning":
@@ -1317,7 +1333,7 @@ export function ComprehensiveDashboard() {
       case "ai-analytics":
         return <AIAssistant />
       default:
-        return <DashboardHome />
+        return <DashboardHome onSectionChange={handleSectionChange} />
     }
   }
 
