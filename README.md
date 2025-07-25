@@ -2,6 +2,80 @@
 
 🚀 **Pokročilý systém pro automatizované zpracování českých faktur pomocí OCR a umělé inteligence.**
 
+## 🏗️ Architektura systému
+
+```mermaid
+graph TB
+    subgraph "Frontend Layer"
+        UI[React/Next.js Dashboard]
+        UPLOAD[Upload Interface]
+        TABLE[Documents Table]
+        STATS[Statistics & Charts]
+        SCAN[Scanning Page]
+    end
+
+    subgraph "API Layer"
+        API[FastAPI Server]
+        AUTH[Authentication]
+        ROUTES[API Routes]
+        HEALTH[Health Endpoints]
+    end
+
+    subgraph "Processing Layer"
+        OCR[OCR Manager]
+        GOOGLE[Google Vision API]
+        LLM[OpenRouter LLM Engine]
+        VALID[Data Validation]
+        ARES[ARES Integration]
+    end
+
+    subgraph "AI Models"
+        CLAUDE[Claude 3.5 Sonnet]
+        GPT4[GPT-4o]
+        HAIKU[Claude 3 Haiku]
+        GEMINI[Gemini Flash]
+        FALLBACK[Intelligent Fallback]
+    end
+
+    subgraph "Data Layer"
+        DB[(SQLite Database)]
+        CACHE[(LLM Cache)]
+        FILES[File Storage]
+    end
+
+    UI --> API
+    UPLOAD --> API
+    TABLE --> API
+    STATS --> API
+    SCAN --> API
+
+    API --> OCR
+    API --> AUTH
+    API --> ROUTES
+    API --> HEALTH
+
+    OCR --> GOOGLE
+    OCR --> LLM
+    LLM --> VALID
+    LLM --> ARES
+
+    LLM --> CLAUDE
+    LLM --> GPT4
+    LLM --> HAIKU
+    LLM --> GEMINI
+    LLM --> FALLBACK
+
+    API --> DB
+    LLM --> CACHE
+    API --> FILES
+
+    style UI fill:#e1f5fe
+    style LLM fill:#f3e5f5
+    style CLAUDE fill:#4caf50
+    style DB fill:#fff3e0
+    style API fill:#e8f5e8
+```
+
 ## ✅ Klíčové funkcionality
 - ✅ **Inteligentní AI extrakce** - Claude 3.5 Sonnet s 98%+ přesností
 - ✅ **Komplexní data mining** - Všechna pole z českých faktur (IČO, DIČ, položky, DPH)
@@ -96,9 +170,35 @@ GOOGLE_APPLICATION_CREDENTIALS=google-credentials.json
 - **🔍 Filtrování** - Hledání a třídění dokumentů
 
 ### AI Processing Flow
-```
-PDF/Obrázek → Google Vision OCR → AI Model Selection →
-Data Extraction → Validation → Database Storage → UI Update
+
+```mermaid
+flowchart LR
+    A[📄 Upload PDF/Image] --> B[🔍 Google Vision OCR]
+    B --> C[🧠 Complexity Assessment]
+    C --> D{Document Type}
+
+    D -->|Simple| E[Claude 3 Haiku]
+    D -->|Medium| F[GPT-4o]
+    D -->|Complex| G[Claude 3.5 Sonnet]
+
+    E --> H[📊 Data Extraction]
+    F --> H
+    G --> H
+
+    H --> I[✅ Validation]
+    I --> J{Valid?}
+
+    J -->|No| K[🔄 Fallback Model]
+    K --> H
+
+    J -->|Yes| L[🏢 ARES Enrichment]
+    L --> M[💾 Database Storage]
+    M --> N[🔄 Real-time UI Update]
+
+    style A fill:#e3f2fd
+    style H fill:#f3e5f5
+    style M fill:#e8f5e8
+    style N fill:#fff3e0
 ```
 
 ### Podporované formáty
@@ -106,6 +206,47 @@ Data Extraction → Validation → Database Storage → UI Update
 - **Obrázky** - JPG, PNG
 - **Jazyky** - Čeština (primární)
 - **Velikost** - Max 10MB na soubor
+
+### Extrahovaná data
+
+```mermaid
+mindmap
+  root((Faktura))
+    Základní údaje
+      Číslo faktury
+      Datum vystavení
+      Datum splatnosti
+      Datum plnění
+    Dodavatel
+      Název firmy
+      Adresa
+      IČO
+      DIČ
+      Registrace
+    Odběratel
+      Název firmy
+      Adresa
+      IČO
+      DIČ
+    Položky
+      Popis služby/zboží
+      Množství
+      Jednotková cena
+      Celková cena
+      DPH sazba
+    Finanční údaje
+      Subtotal
+      DPH celkem
+      Celková částka
+      DPH breakdown
+    Platební údaje
+      Číslo účtu
+      Variabilní symbol
+      Konstantní symbol
+      Specifický symbol
+      IBAN
+      SWIFT
+```
 
 ## 🧪 Testování
 
