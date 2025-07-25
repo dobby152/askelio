@@ -1,8 +1,0 @@
-{
-  "dependencies": {
-    "form-data": "^4.0.4",
-    "node-fetch": "^3.3.2",
-    "pdfjs-dist": "^5.3.93",
-    "react-pdf": "^10.0.1"
-  }
-}
