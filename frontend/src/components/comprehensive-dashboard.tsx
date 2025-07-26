@@ -82,7 +82,6 @@ import {
 } from "recharts"
 import React, { useState, useEffect } from "react"
 import { AIAssistant } from "@/components/ai-assistant"
-import { dashboardAPI } from "@/lib/dashboard-api"
 import type { DashboardStats, RecentActivity, AIInsight } from "@/lib/dashboard-api"
 
 // Navigation structure
