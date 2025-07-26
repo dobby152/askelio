@@ -33,6 +33,8 @@ from services.document_service import document_service
 from unified_document_processor import UnifiedDocumentProcessor, ProcessingOptions, ProcessingMode
 from routers.auth import router as auth_router
 from routers.dashboard import router as dashboard_router
+from routes.company_routes import router as company_router
+from routes.approval_routes import router as approval_router
 from middleware.auth_middleware import get_current_user
 
 
@@ -67,6 +69,8 @@ app.add_middleware(SupabaseAuthMiddleware)
 # Include routers
 app.include_router(auth_router)
 app.include_router(dashboard_router)
+app.include_router(company_router)
+app.include_router(approval_router)
 
 # Test endpoint
 @app.get("/test")
