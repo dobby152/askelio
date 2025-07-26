@@ -229,7 +229,7 @@ export function DocumentWorkspace({ className }: DocumentWorkspaceProps) {
       const selectedDoc: SelectedDocument = {
         id: documentId,
         name: documentData.filename,
-        fileUrl: `http://localhost:8000/documents/${documentId}/preview`,
+        fileUrl: `http://localhost:8001/documents/${documentId}/preview`,
         extractedData: extractedData,
         processingDetails: processingDetails,
         status: documentData.status === 'completed' ? 'needs_review' : 'processing'

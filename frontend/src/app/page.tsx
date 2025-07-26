@@ -24,6 +24,62 @@ import {
   TrendingUp,
   Award,
   Zap,
+  Sparkles,
+  Target,
+  Rocket,
+  Heart,
+  Globe,
+  BarChart3,
+  PieChart,
+  LineChart,
+  DollarSign,
+  Calculator,
+  Briefcase,
+  Building2,
+  Smartphone,
+  Laptop,
+  Cloud,
+  Lock,
+  CheckCircle2,
+  ArrowRight,
+  PlayCircle,
+  MessageCircle,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  Timer,
+  Gauge,
+  Layers,
+  Workflow,
+  FileCheck,
+  Search,
+  Eye,
+  Edit,
+  Trash2,
+  Copy,
+  Share2,
+  RefreshCw,
+  Save,
+  Plus,
+  Menu,
+  Home,
+  User,
+  UserCheck,
+  Users2,
+  Crown,
+  Medal,
+  Trophy,
+  Gift,
+  Percent,
+  Tag,
+  AlertTriangle,
+  AlertCircle,
+  Info,
+  HelpCircle,
+  Lightbulb,
+  ThumbsUp,
+  Smile,
 } from "lucide-react"
 
 export default function Home() {
@@ -125,17 +181,16 @@ export default function Home() {
         <div className="container mx-auto px-4 sm:px-6 relative">
           <div className="max-w-5xl mx-auto text-center">
             <Badge className="mb-6 sm:mb-8 bg-blue-50 text-blue-700 border-blue-200 px-4 py-2 text-sm sm:text-base">
-              🚀 Automatizované zpracování faktur a účtenek s AI
+              ⚡ Konec s přepisováním faktur! Začněte šetřit čas ještě dnes
             </Badge>
 
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 sm:mb-8 lg:mb-10 leading-tight tracking-tight">
-              Ušetřete až <span className="text-blue-600">15 hodin týdně</span> na účetnictví
+              Přestaňte ztrácet čas! Ušetřete <span className="text-blue-600">15 hodin týdně</span> na účetnictví
             </h1>
 
             <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 mb-8 sm:mb-10 lg:mb-12 max-w-4xl mx-auto leading-relaxed font-light px-4 sm:px-0">
-              Askelio automaticky zpracuje vaše faktury a účtenky s{" "}
-              <strong className="font-semibold text-gray-900">99% přesností</strong>. Snižte chyby o 95% a integrujte se
-              s českými ERP systémy během 5 minut.
+              Žádné více přepisování faktur rukou! Askelio za vás udělá nudnou práci s{" "}
+              <strong className="font-semibold text-gray-900">dokonalou přesností</strong>. Propojte se s Pohodou za 5 minut a začněte šetřit čas.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center mb-12 sm:mb-16 px-4 sm:px-0">
@@ -145,14 +200,14 @@ export default function Home() {
                 showArrow
                 asChild
               >
-                <a href="/auth/register">Začít zdarma - bez karty</a>
+                <a href="/auth/register">🚀 Začít šetřit čas ještě dnes</a>
               </LoadingButton>
               <LoadingButton
                 variant="outline"
                 size="lg"
                 className="border-gray-300 text-gray-700 hover:bg-gray-50 text-lg sm:text-xl px-8 sm:px-12 py-4 sm:py-6 bg-transparent h-12 sm:h-auto min-w-[44px] order-2"
               >
-                Sledovat demo (2 min)
+                ▶️ Vidět, jak to funguje (2 min)
               </LoadingButton>
             </div>
 
@@ -179,7 +234,7 @@ export default function Home() {
             {/* Trusted by */}
             <div className="text-center px-4 sm:px-0">
               <p className="text-gray-500 mb-6 sm:mb-8 font-medium text-base sm:text-lg">
-                Důvěřuje nám přes 1200 českých firem
+                💼 Více než 1200 firem už šetří čas s Askelio
               </p>
               <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-8 lg:gap-12 opacity-60">
                 <div className="bg-gray-100 rounded-lg px-4 sm:px-6 lg:px-8 py-2 sm:py-3 lg:py-4 font-bold text-gray-600 text-sm sm:text-base lg:text-lg">
@@ -208,10 +263,10 @@ export default function Home() {
               Jak to funguje
             </Badge>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-6 sm:mb-8 tracking-tight px-4 sm:px-0">
-              Zpracování faktur za <span className="text-blue-600">3 jednoduché kroky</span>
+              Konec s nudným přepisováním za <span className="text-blue-600">3 jednoduché kroky</span>
             </h2>
             <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto font-light px-4 sm:px-0">
-              Naše AI technologie zpracuje vaše dokumenty rychleji než kdy dříve
+              Chytrá technologie udělá nudnou práci za vás - rychleji než kdy dříve
             </p>
           </div>
 
@@ -223,37 +278,35 @@ export default function Home() {
               <div className="bg-blue-100 rounded-full w-8 sm:w-10 h-8 sm:h-10 flex items-center justify-center mx-auto mb-4 sm:mb-6">
                 <span className="text-blue-600 font-bold text-base sm:text-lg">1</span>
               </div>
-              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Nahrajte dokument</h3>
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Prostě nahrajte fakturu</h3>
               <p className="text-gray-600 leading-relaxed text-base sm:text-lg px-4 sm:px-0">
-                Jednoduše přetáhněte fakturu nebo účtenku do našeho systému. Podporujeme PDF, JPG, PNG a další formáty.
+                Přetáhněte fakturu nebo vyfotěte mobilem. Funguje s PDF, fotkami i skenovanými dokumenty.
               </p>
             </div>
 
             <div className="text-center group">
               <div className="w-16 sm:w-20 lg:w-24 h-16 sm:h-20 lg:h-24 bg-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 sm:mb-8 hover:bg-emerald-700 transition-colors">
-                <Brain className="w-8 sm:w-10 lg:w-12 h-8 sm:h-10 lg:h-12 text-white" />
+                <Sparkles className="w-8 sm:w-10 lg:w-12 h-8 sm:h-10 lg:h-12 text-white" />
               </div>
               <div className="bg-emerald-100 rounded-full w-8 sm:w-10 h-8 sm:h-10 flex items-center justify-center mx-auto mb-4 sm:mb-6">
                 <span className="text-emerald-600 font-bold text-base sm:text-lg">2</span>
               </div>
-              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">AI zpracování</h3>
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Magie se děje automaticky</h3>
               <p className="text-gray-600 leading-relaxed text-base sm:text-lg px-4 sm:px-0">
-                Naše hybridní OCR + AI technologie automaticky extrahuje všechna důležitá data s 99% přesností během
-                sekund.
+                Chytrá technologie za vás přečte všechna čísla, jména a částky. Žádné přepisování, žádné chyby - hotovo za pár sekund!
               </p>
             </div>
 
             <div className="text-center group">
               <div className="w-16 sm:w-20 lg:w-24 h-16 sm:h-20 lg:h-24 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 sm:mb-8 hover:bg-blue-700 transition-colors">
-                <Send className="w-8 sm:w-10 lg:w-12 h-8 sm:h-10 lg:h-12 text-white" />
+                <ArrowRight className="w-8 sm:w-10 lg:w-12 h-8 sm:h-10 lg:h-12 text-white" />
               </div>
               <div className="bg-blue-100 rounded-full w-8 sm:w-10 h-8 sm:h-10 flex items-center justify-center mx-auto mb-4 sm:mb-6">
                 <span className="text-blue-600 font-bold text-base sm:text-lg">3</span>
               </div>
-              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Export do ERP</h3>
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Rovnou do Pohody</h3>
               <p className="text-gray-600 leading-relaxed text-base sm:text-lg px-4 sm:px-0">
-                Data se automaticky exportují do vašeho ERP systému (Pohoda, Money S3) nebo si stáhněte v požadovaném
-                formátu.
+                Data se automaticky pošlou do vaší Pohody, Money S3 nebo jiného systému. Nebo si je stáhněte v jakémkoli formátu.
               </p>
             </div>
           </div>
@@ -264,7 +317,7 @@ export default function Home() {
               className="bg-blue-600 hover:bg-blue-700 text-white text-lg sm:text-xl px-8 sm:px-12 py-4 sm:py-6 h-12 sm:h-auto min-w-[44px]"
               showArrow
             >
-              Vyzkoušet proces zdarma
+              🎯 Chci taky šetřit čas!
             </LoadingButton>
           </div>
         </div>
@@ -278,10 +331,10 @@ export default function Home() {
               Pokročilé funkce
             </Badge>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-6 sm:mb-8 tracking-tight px-4 sm:px-0">
-              Vše co potřebujete pro <span className="text-blue-600">moderní účetnictví</span>
+              Proč si <span className="text-blue-600">komplikovat život</span> přepisováním?
             </h2>
             <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto font-light px-4 sm:px-0">
-              Kombinujeme nejlepší OCR technologie s umělou inteligencí pro maximální přesnost a efektivitu
+              Askelio udělá nudnou práci za vás - rychle, přesně a bez chyb
             </p>
           </div>
 
@@ -289,11 +342,11 @@ export default function Home() {
             <Card className="border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 bg-white group">
               <CardHeader className="pb-4 sm:pb-6">
                 <div className="w-12 sm:w-14 lg:w-16 h-12 sm:h-14 lg:h-16 bg-blue-600 rounded-xl flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-blue-700 transition-colors">
-                  <Scan className="w-6 sm:w-7 lg:w-8 h-6 sm:h-7 lg:h-8 text-white" />
+                  <Lightbulb className="w-6 sm:w-7 lg:w-8 h-6 sm:h-7 lg:h-8 text-white" />
                 </div>
-                <CardTitle className="text-lg sm:text-xl mb-2 sm:mb-3">Automatická extrakce dat</CardTitle>
+                <CardTitle className="text-lg sm:text-xl mb-2 sm:mb-3">Žádné přepisování rukou</CardTitle>
                 <CardDescription className="text-sm sm:text-base text-gray-600 leading-relaxed">
-                  Okamžité rozpoznání a extrakce všech důležitých údajů z faktur a účtenek s 99% přesností
+                  Prostě nahrajte fakturu a za pár sekund máte všechna čísla, jména a částky připravené k použití
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -301,11 +354,11 @@ export default function Home() {
             <Card className="border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 bg-white group">
               <CardHeader className="pb-4 sm:pb-6">
                 <div className="w-12 sm:w-14 lg:w-16 h-12 sm:h-14 lg:h-16 bg-emerald-600 rounded-xl flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-emerald-700 transition-colors">
-                  <Brain className="w-6 sm:w-7 lg:w-8 h-6 sm:h-7 lg:h-8 text-white" />
+                  <Heart className="w-6 sm:w-7 lg:w-8 h-6 sm:h-7 lg:h-8 text-white" />
                 </div>
-                <CardTitle className="text-lg sm:text-xl mb-2 sm:mb-3">Hybridní OCR + AI</CardTitle>
+                <CardTitle className="text-lg sm:text-xl mb-2 sm:mb-3">Chytrá technologie, která nikdy nespí</CardTitle>
                 <CardDescription className="text-sm sm:text-base text-gray-600 leading-relaxed">
-                  Kombinace bezplatného Tesseract OCR s prémiovou AI technologií pro maximální přesnost a rychlost
+                  Zpracuje faktury 24/7, nikdy se neunaví a nikdy neudělá chybu. Jako nejlepší účetní, jen rychlejší!
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -313,11 +366,11 @@ export default function Home() {
             <Card className="border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 bg-white group">
               <CardHeader className="pb-4 sm:pb-6">
                 <div className="w-12 sm:w-14 lg:w-16 h-12 sm:h-14 lg:h-16 bg-blue-600 rounded-xl flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-blue-700 transition-colors">
-                  <CreditCard className="w-6 sm:w-7 lg:w-8 h-6 sm:h-7 lg:h-8 text-white" />
+                  <DollarSign className="w-6 sm:w-7 lg:w-8 h-6 sm:h-7 lg:h-8 text-white" />
                 </div>
-                <CardTitle className="text-lg sm:text-xl mb-2 sm:mb-3">Flexibilní kreditový systém</CardTitle>
+                <CardTitle className="text-lg sm:text-xl mb-2 sm:mb-3">Plaťte jen za to, co použijete</CardTitle>
                 <CardDescription className="text-sm sm:text-base text-gray-600 leading-relaxed">
-                  Plaťte pouze za to, co skutečně zpracujete. Žádné měsíční poplatky, žádné závazky
+                  Žádné předplatné, žádné skryté poplatky. Zpracujete 10 faktur? Zaplatíte za 10 faktur. Férově a jednoduše!
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -325,11 +378,11 @@ export default function Home() {
             <Card className="border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 bg-white group">
               <CardHeader className="pb-4 sm:pb-6">
                 <div className="w-12 sm:w-14 lg:w-16 h-12 sm:h-14 lg:h-16 bg-emerald-600 rounded-xl flex items-center justify-center mb-4 sm:mb-6 group-hover:bg-emerald-700 transition-colors">
-                  <Database className="w-6 sm:w-7 lg:w-8 h-6 sm:h-7 lg:h-8 text-white" />
+                  <Building2 className="w-6 sm:w-7 lg:w-8 h-6 sm:h-7 lg:h-8 text-white" />
                 </div>
-                <CardTitle className="text-lg sm:text-xl mb-2 sm:mb-3">České ERP integrace</CardTitle>
+                <CardTitle className="text-lg sm:text-xl mb-2 sm:mb-3">Propojí se s čímkoli</CardTitle>
                 <CardDescription className="text-sm sm:text-base text-gray-600 leading-relaxed">
-                  Přímé propojení s Pohoda, Money S3, Helios a dalšími českými ERP systémy během 5 minut
+                  Pohoda, Money S3, Helios, ABRA... Funguje s tím, co už používáte. Nastavení za 5 minut!
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -498,7 +551,7 @@ export default function Home() {
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="w-4 sm:w-5 h-4 sm:h-5 text-emerald-500 mr-3 sm:mr-4 flex-shrink-0" />
-                    <span className="text-gray-700 text-sm sm:text-base">Základní OCR technologie</span>
+                    <span className="text-gray-700 text-sm sm:text-base">Rychlé zpracování faktur</span>
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="w-4 sm:w-5 h-4 sm:h-5 text-emerald-500 mr-3 sm:mr-4 flex-shrink-0" />
@@ -510,7 +563,7 @@ export default function Home() {
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="w-4 sm:w-5 h-4 sm:h-5 text-emerald-500 mr-3 sm:mr-4 flex-shrink-0" />
-                    <span className="text-gray-700 text-sm sm:text-base">Základní ERP integrace</span>
+                    <span className="text-gray-700 text-sm sm:text-base">Export do Pohody a dalších</span>
                   </li>
                 </ul>
                 <LoadingButton className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 sm:py-4 h-11 sm:h-12 min-w-[44px]">
@@ -544,7 +597,7 @@ export default function Home() {
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="w-4 sm:w-5 h-4 sm:h-5 text-emerald-500 mr-3 sm:mr-4 flex-shrink-0" />
-                    <span className="text-gray-700 text-sm sm:text-base">Hybridní OCR + AI technologie</span>
+                    <span className="text-gray-700 text-sm sm:text-base">Bleskové zpracování s dokonalou přesností</span>
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="w-4 sm:w-5 h-4 sm:h-5 text-emerald-500 mr-3 sm:mr-4 flex-shrink-0" />
@@ -552,7 +605,7 @@ export default function Home() {
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="w-4 sm:w-5 h-4 sm:h-5 text-emerald-500 mr-3 sm:mr-4 flex-shrink-0" />
-                    <span className="text-gray-700 text-sm sm:text-base">Pokročilá ERP integrace</span>
+                    <span className="text-gray-700 text-sm sm:text-base">Automatické propojení s čímkoli</span>
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="w-4 sm:w-5 h-4 sm:h-5 text-emerald-500 mr-3 sm:mr-4 flex-shrink-0" />
@@ -560,7 +613,7 @@ export default function Home() {
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="w-4 sm:w-5 h-4 sm:h-5 text-emerald-500 mr-3 sm:mr-4 flex-shrink-0" />
-                    <span className="text-gray-700 text-sm sm:text-base">API přístup</span>
+                    <span className="text-gray-700 text-sm sm:text-base">Flexibilní propojení pro vývojáře</span>
                   </li>
                 </ul>
                 <LoadingButton className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3 sm:py-4 h-11 sm:h-12 min-w-[44px]">
@@ -591,7 +644,7 @@ export default function Home() {
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="w-4 sm:w-5 h-4 sm:h-5 text-emerald-500 mr-3 sm:mr-4 flex-shrink-0" />
-                    <span className="text-gray-700 text-sm sm:text-base">Prémiová AI technologie</span>
+                    <span className="text-gray-700 text-sm sm:text-base">Nejrychlejší a nejpřesnější zpracování</span>
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="w-4 sm:w-5 h-4 sm:h-5 text-emerald-500 mr-3 sm:mr-4 flex-shrink-0" />
@@ -681,10 +734,10 @@ export default function Home() {
                     <Shield className="w-8 sm:w-9 lg:w-10 h-8 sm:h-9 lg:h-10 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Snižte chyby o 95%</h3>
+                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Konec s chybami v účetnictví!</h3>
                     <p className="text-gray-600 text-base sm:text-lg leading-relaxed">
-                      AI technologie zajišťuje 99% přesnost při rozpoznávání textu a čísel, čímž eliminuje nákladné
-                      chyby v účetnictví. Naši klienti hlásí{" "}
+                      Už žádné překlepy, špatně přečtená čísla nebo zapomenuté faktury! Askelio nikdy neudělá chybu.
+                      Naši klienti hlásí{" "}
                       <strong className="text-emerald-600 font-semibold">95% snížení chyb</strong>.
                     </p>
                   </div>
@@ -697,9 +750,9 @@ export default function Home() {
                   <div>
                     <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4">Integrace za 5 minut</h3>
                     <p className="text-gray-600 text-base sm:text-lg leading-relaxed">
-                      Přímé propojení s českými ERP systémy jako Pohoda a Money S3. Data se automaticky synchronizují
-                      bez manuálních zásahů. Nastavení trvá pouze{" "}
-                      <strong className="text-blue-600 font-semibold">5 minut</strong>.
+                      Propojte se s Pohodou, Money S3 nebo jiným systémem za 5 minut. Data se pak posílají automaticky -
+                      žádné kopírování, žádné přepisování. Prostě{" "}
+                      <strong className="text-blue-600 font-semibold">funguje to samo</strong>.
                     </p>
                   </div>
                 </div>
@@ -782,9 +835,8 @@ export default function Home() {
                       Jak přesné je rozpoznávání textu z faktur?
                     </h3>
                     <p className="text-gray-600 text-base sm:text-lg leading-relaxed">
-                      Naše hybridní OCR + AI technologie dosahuje 99% přesnosti při rozpoznávání textu z faktur a
-                      účtenek. Pro složitější dokumenty používáme pokročilou AI, která dokáže rozpoznat i ručně psaný
-                      text a poškozené dokumenty.
+                      Askelio přečte faktury tak přesně, jako byste je přepisovali ručně - jen mnohem rychleji!
+                      Funguje i s rozmazanými skenovanými dokumenty, fotkama z mobilu nebo ručně psanými účtenkami.
                     </p>
                   </div>
                   <ChevronDown className="w-5 sm:w-6 h-5 sm:h-6 text-gray-400 ml-4 sm:ml-6 flex-shrink-0" />
@@ -797,12 +849,11 @@ export default function Home() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4">
-                      Jak rychle se Askelio integruje s mým ERP systémem?
+                      Jak rychle se Askelio propojí s mým účetním systémem?
                     </h3>
                     <p className="text-gray-600 text-base sm:text-lg leading-relaxed">
-                      Integrace s českými ERP systémy jako Pohoda, Money S3, Helios nebo ABRA trvá průměrně 5 minut.
-                      Stačí zadat přístupové údaje a systém se automaticky propojí. Nabízíme také API pro vlastní
-                      integrace.
+                      Stačí zadat přihlašovací údaje do Pohody (nebo jiného systému) a za 5 minut je hotovo!
+                      Faktury se pak automaticky posílají tam, kam patří. Žádné složité nastavování.
                     </p>
                   </div>
                   <ChevronDown className="w-5 sm:w-6 h-5 sm:h-6 text-gray-400 ml-4 sm:ml-6 flex-shrink-0" />

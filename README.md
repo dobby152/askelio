@@ -138,8 +138,8 @@ npm run dev
 
 ### 4. Otevřete aplikaci
 - **Frontend:** http://localhost:3000/dashboard
-- **Backend API:** http://localhost:8000
-- **API dokumentace:** http://localhost:8000/docs
+- **Backend API:** http://localhost:8001
+- **API dokumentace:** http://localhost:8001/docs
 
 ## 🔧 Konfigurace
 
@@ -254,13 +254,13 @@ mindmap
 ```bash
 cd backend
 # Test health check
-curl http://localhost:8000/health
+curl http://localhost:8001/health
 
 # Test nahrávání dokumentu
-curl -X POST -F "file=@your-invoice.pdf" http://localhost:8000/documents/upload
+curl -X POST -F "file=@your-invoice.pdf" http://localhost:8001/documents/upload
 
 # Test získání dokumentů
-curl http://localhost:8000/documents
+curl http://localhost:8001/documents
 ```
 
 ## 🔌 API Endpointy
@@ -273,7 +273,7 @@ curl http://localhost:8000/documents
 - `GET /statistics` - Statistiky
 
 ### API dokumentace
-Kompletní API dokumentace je dostupná na: http://localhost:8000/docs
+Kompletní API dokumentace je dostupná na: http://localhost:8001/docs
 
 ## 📁 Struktura projektu
 

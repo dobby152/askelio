@@ -37,14 +37,19 @@ export default function RegisterPage() {
     }
 
     try {
-      // Simulace registrace pro demo účely
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      const { signUp } = await import('@/components/AuthProvider')
+      // This is a workaround - in real implementation, use useAuth hook
+      const result = await signUp(email, password, name)
 
-      setSuccess(true)
-      // Redirect after a short delay
-      setTimeout(() => {
-        router.push('/auth/login')
-      }, 3000)
+      if (result.success) {
+        setSuccess(true)
+        // Redirect after a short delay
+        setTimeout(() => {
+          router.push('/auth/login?message=registration_success')
+        }, 3000)
+      } else {
+        setError(result.error || 'Registrace se nezdařila')
+      }
     } catch (err) {
       setError('Došlo k neočekávané chybě')
     } finally {

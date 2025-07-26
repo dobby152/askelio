@@ -41,11 +41,27 @@ class DocumentService(SupabaseService):
                     .eq('user_id', user_id)
                     .order('created_at', desc=True)
                     .range(offset, offset + limit - 1))
-            
-            return await self.execute_query(lambda: query.execute())
+
+            result = await self.execute_query(lambda: query.execute())
+
+            # Handle case where documents table doesn't exist
+            if not result['success'] and 'does not exist' in str(result.get('error', '')):
+                logger.warning("Documents table does not exist, returning empty list")
+                return {
+                    "success": True,
+                    "data": [],
+                    "error": None
+                }
+
+            return result
         except Exception as e:
             logger.error(f"Error getting user documents: {e}")
-            return self._handle_error(e)
+            # Return empty list instead of error to prevent phantom documents
+            return {
+                "success": True,
+                "data": [],
+                "error": None
+            }
     
     async def get_document_by_id(self, document_id: str, user_id: str) -> Dict[str, Any]:
         """Get a specific document by ID for a user"""
@@ -55,11 +71,26 @@ class DocumentService(SupabaseService):
                     .eq('id', document_id)
                     .eq('user_id', user_id)
                     .single())
-            
-            return await self.execute_query(lambda: query.execute())
+
+            result = await self.execute_query(lambda: query.execute())
+
+            # Handle case where documents table doesn't exist
+            if not result['success'] and 'does not exist' in str(result.get('error', '')):
+                logger.warning("Documents table does not exist")
+                return {
+                    "success": False,
+                    "data": None,
+                    "error": "Document not found"
+                }
+
+            return result
         except Exception as e:
             logger.error(f"Error getting document by ID: {e}")
-            return self._handle_error(e)
+            return {
+                "success": False,
+                "data": None,
+                "error": "Document not found"
+            }
     
     async def update_document(self, document_id: str, user_id: str, update_data: Dict[str, Any]) -> Dict[str, Any]:
         """Update a document"""
@@ -102,8 +133,23 @@ class DocumentService(SupabaseService):
                         .execute())
             )
 
-            if not docs_result['success'] or not docs_result['data']:
+            # Handle case where documents table doesn't exist
+            if not docs_result['success']:
+                if 'does not exist' in str(docs_result.get('error', '')):
+                    logger.warning("Documents table does not exist, returning empty list")
+                    return {
+                        "success": True,
+                        "data": [],
+                        "error": None
+                    }
                 return docs_result
+
+            if not docs_result['data']:
+                return {
+                    "success": True,
+                    "data": [],
+                    "error": None
+                }
 
             # Then get extracted fields for each document
             documents = docs_result['data']
@@ -118,7 +164,12 @@ class DocumentService(SupabaseService):
             }
         except Exception as e:
             logger.error(f"Error getting recent documents: {e}")
-            return self._handle_error(e)
+            # Return empty list instead of error
+            return {
+                "success": True,
+                "data": [],
+                "error": None
+            }
     
     async def get_document_statistics(self, user_id: str, days: int = 30) -> Dict[str, Any]:
         """Get document statistics for a user"""

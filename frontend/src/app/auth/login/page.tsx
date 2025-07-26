@@ -4,32 +4,42 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-// import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/components/AuthProvider'
 import { Mail, Lock, AlertCircle, Eye, EyeOff, ArrowLeft } from 'lucide-react'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
+  const { signIn, loading } = useAuth()
+
+  // Test credentials for development
+  const testCredentials = {
+    email: 'premium@askelio.cz',
+    password: 'PremiumTest123!'
+  }
+
+  const fillTestCredentials = () => {
+    setEmail(testCredentials.email)
+    setPassword(testCredentials.password)
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
     setError(null)
 
     try {
-      // Simulace přihlášení pro demo účely
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      const result = await signIn(email, password)
 
-      // Pro demo - přesměruj na dashboard
-      router.push('/dashboard')
+      if (result.success) {
+        router.push('/dashboard')
+      } else {
+        setError(result.error || 'Přihlášení se nezdařilo')
+      }
     } catch (err) {
       setError('Došlo k neočekávané chybě')
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -60,6 +70,28 @@ export default function LoginPage() {
             </div>
           )}
 
+          {/* Test credentials section - only show in development */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-medium text-blue-800 mb-1">Testovací údaje</h3>
+                  <p className="text-xs text-blue-600">
+                    Email: {testCredentials.email}<br />
+                    Heslo: {testCredentials.password}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={fillTestCredentials}
+                  className="px-3 py-1.5 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Vyplnit
+                </button>
+              </div>
+            </div>
+          )}
+
           <form onSubmit={handleLogin} className="space-y-6">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
@@ -73,6 +105,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  data-testid="email-input"
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
                   placeholder="vas@email.cz"
                 />
@@ -91,6 +124,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  data-testid="password-input"
                   className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
                   placeholder="••••••••"
                 />
@@ -117,6 +151,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
+              data-testid="login-button"
               className="w-full bg-blue-600 text-white py-3 px-4 rounded-xl hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
             >
               {loading ? 'Přihlašování...' : 'Přihlásit se'}

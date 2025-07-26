@@ -73,7 +73,7 @@ export function DashboardStats({ userId }: DashboardStatsProps) {
       })
     } catch (error) {
       console.error('💥 DashboardStats: Error fetching stats:', error)
-      // Show error state instead of fake data
+      // Show zero values instead of mock data to reflect real state
       setStats({
         processedDocuments: 0,
         timeSaved: 0,

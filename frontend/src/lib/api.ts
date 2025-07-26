@@ -104,7 +104,7 @@ class ApiClient {
       return data
     } catch (error) {
       console.error('💥 API Client: Backend connection failed:', error)
-      console.error('🔧 Make sure backend is running on port 8000')
+      console.error('🔧 Make sure backend is running on port 8001')
       console.error('🔧 Run: cd backend && python main.py')
 
       // Return empty array instead of throwing to prevent UI crash

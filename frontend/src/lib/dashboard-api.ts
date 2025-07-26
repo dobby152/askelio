@@ -4,6 +4,7 @@
  */
 
 import { apiClient } from './api'
+import { apiClient as authApiClient } from './api-client'
 
 export interface DashboardStats {
   totalIncome: number
@@ -64,40 +65,95 @@ class DashboardAPI {
    */
   async getStats(): Promise<DashboardStats> {
     try {
-      // Get data from new backend endpoint
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'}/api/v1/dashboard/stats`)
+      console.log('🚀 Dashboard API: Starting getStats request...')
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+      // Check if authApiClient has a valid token
+      const hasToken = authApiClient.getAccessToken()
+      console.log('🔐 Dashboard API: Has access token:', !!hasToken)
+      console.log('🔐 Dashboard API: Token value (first 20 chars):', hasToken ? hasToken.substring(0, 20) + '...' : 'null')
+
+      // Check localStorage tokens
+      if (typeof window !== 'undefined') {
+        const localToken = localStorage.getItem('access_token')
+        const refreshToken = localStorage.getItem('refresh_token')
+        const expiresAt = localStorage.getItem('token_expires_at')
+        console.log('🔐 Dashboard API: LocalStorage access_token:', !!localToken)
+        console.log('🔐 Dashboard API: LocalStorage refresh_token:', !!refreshToken)
+        console.log('🔐 Dashboard API: Token expires at:', expiresAt)
+
+        if (expiresAt) {
+          const now = Math.floor(Date.now() / 1000)
+          const expires = parseInt(expiresAt)
+          console.log('🔐 Dashboard API: Token expired?', expires < now)
+          console.log('🔐 Dashboard API: Time until expiry (seconds):', expires - now)
+        }
       }
 
-      const result = await response.json()
+      // Get data from new backend endpoint with authentication
+      const result = await authApiClient.get('/dashboard/stats')
 
-      if (result.success) {
+      console.log('📊 Dashboard API getStats result type:', typeof result)
+      console.log('📊 Dashboard API getStats result keys:', Object.keys(result || {}))
+      console.log('📊 Dashboard API getStats full result:', JSON.stringify(result, null, 2))
+
+      // Handle empty or invalid response
+      if (!result || typeof result !== 'object') {
+        console.error('❌ Dashboard API: Received invalid response type:', typeof result)
+        throw new Error('Invalid response from backend - expected object but got ' + typeof result)
+      }
+
+      // Check for authentication errors
+      if (result.error === 'authentication_required') {
+        console.error('🔐 Dashboard API: Authentication required')
+        throw new Error('Authentication required - please log in again')
+      }
+
+      if (result.success && result.data) {
+        console.log('✅ Dashboard API: Successfully parsed stats data')
         return {
-          totalIncome: result.data.totalIncome,
-          totalExpenses: result.data.totalExpenses,
-          netProfit: result.data.netProfit,
-          remainingCredits: result.data.remainingCredits,
-          trends: result.data.trends
+          totalIncome: result.data.totalIncome || 0,
+          totalExpenses: result.data.totalExpenses || 0,
+          netProfit: result.data.netProfit || 0,
+          remainingCredits: result.data.remainingCredits || 0,
+          trends: result.data.trends || {
+            income: 0,
+            expenses: 0,
+            profit: 0,
+            credits: 0
+          }
         }
       } else {
-        throw new Error('Backend returned unsuccessful response')
+        console.error('❌ Dashboard API getStats failed - invalid response structure:')
+        console.error('   - success:', result.success)
+        console.error('   - data:', result.data)
+        console.error('   - message:', result.message)
+        console.error('   - error:', result.error)
+        console.error('   - status:', result.status)
+
+        const errorMessage = result.message || result.error || 'Unknown error - invalid response structure'
+        throw new Error(`Backend returned unsuccessful response: ${errorMessage}`)
       }
     } catch (error) {
-      console.warn('Failed to fetch dashboard stats from backend, using fallback:', error)
+      console.error('💥 Dashboard API: Exception in getStats:', error)
+      console.error('💥 Dashboard API: Error type:', error.constructor.name)
+      console.error('💥 Dashboard API: Error message:', error.message)
 
-      // Fallback to mock data
+      // If it's a network error, provide specific guidance
+      if (error.message?.includes('fetch') || error.message?.includes('network')) {
+        console.error('🌐 Dashboard API: Network error - check if backend is running on port 8001')
+      }
+
+      // Return zero values instead of mock data to show real state
       return {
-        totalIncome: 245680,
-        totalExpenses: 156420,
-        netProfit: 89260,
-        remainingCredits: 1000,
+        totalIncome: 0,
+        totalExpenses: 0,
+        netProfit: 0,
+        remainingCredits: 0,
         trends: {
-          income: 15.3,
-          expenses: -8.7,
-          profit: 23.8,
-          credits: -5.2
+          income: 0,
+          expenses: 0,
+          profit: 0,
+          credits: 0
         }
       }
     }
@@ -108,54 +164,37 @@ class DashboardAPI {
    */
   async getRecentActivity(): Promise<RecentActivity[]> {
     try {
-      // Get data from new backend endpoint
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'}/api/v1/dashboard/recent-activity`)
+      console.log('🚀 Dashboard API: Starting getRecentActivity request...')
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+      // Get data from new backend endpoint with authentication
+      const result = await authApiClient.get('/dashboard/recent-activity')
+
+      console.log('📋 Dashboard API getRecentActivity result:', JSON.stringify(result, null, 2))
+
+      // Handle empty or invalid response
+      if (!result || typeof result !== 'object') {
+        console.error('❌ Dashboard API: Received invalid response type for recent activity:', typeof result)
+        throw new Error('Invalid response from backend - expected object but got ' + typeof result)
       }
 
-      const result = await response.json()
-
-      if (result.success) {
+      if (result.success && result.data) {
+        console.log('✅ Dashboard API: Successfully parsed recent activity data')
         return result.data
       } else {
-        throw new Error('Backend returned unsuccessful response')
+        console.error('❌ Dashboard API getRecentActivity failed:')
+        console.error('   - success:', result.success)
+        console.error('   - data:', result.data)
+        console.error('   - message:', result.message)
+        console.error('   - error:', result.error)
+
+        const errorMessage = result.message || result.error || 'Unknown error - invalid response structure'
+        throw new Error(`Backend returned unsuccessful response: ${errorMessage}`)
       }
     } catch (error) {
-      console.warn('Failed to fetch recent activity from backend, using fallback:', error)
+      console.error('💥 Dashboard API: Exception in getRecentActivity:', error)
 
-      return [
-        {
-          id: '1',
-          type: 'invoice',
-          title: 'Nová faktura od Askela s.r.o.',
-          description: 'před 2 hodinami',
-          amount: '45,000 CZK',
-          time: 'před 2 hodinami',
-          icon: 'FileText',
-          color: 'blue'
-        },
-        {
-          id: '2',
-          type: 'approval',
-          title: 'Schválena faktura #2024-001',
-          description: 'před 4 hodinami',
-          amount: '23,450 CZK',
-          time: 'před 4 hodinami',
-          icon: 'CheckCircle',
-          color: 'green'
-        },
-        {
-          id: '3',
-          type: 'upload',
-          title: 'Nahráno 5 nových dokumentů',
-          description: 'včera',
-          time: 'včera',
-          icon: 'Upload',
-          color: 'purple'
-        }
-      ]
+      // Return empty array instead of mock data to show real state
+      return []
     }
   }
 
@@ -164,43 +203,36 @@ class DashboardAPI {
    */
   async getAIInsights(): Promise<AIInsight[]> {
     try {
-      // Get data from new backend endpoint
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'}/api/v1/dashboard/ai-insights`)
+      console.log('🚀 Dashboard API: Starting getAIInsights request...')
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+      // Get data from backend endpoint with proper authentication
+      const result = await authApiClient.get('/dashboard/ai-insights')
+      console.log('🤖 Dashboard API getAIInsights result:', JSON.stringify(result, null, 2))
+
+      // Handle empty or invalid response
+      if (!result || typeof result !== 'object') {
+        console.error('❌ Dashboard API: Received invalid response type for AI insights:', typeof result)
+        throw new Error('Invalid response from backend - expected object but got ' + typeof result)
       }
 
-      const result = await response.json()
-
-      if (result.success) {
+      if (result.success && result.data) {
+        console.log('✅ Dashboard API: Successfully parsed AI insights data')
         return result.data
       } else {
-        throw new Error('Backend returned unsuccessful response')
+        console.error('❌ Dashboard API getAIInsights failed:')
+        console.error('   - success:', result.success)
+        console.error('   - data:', result.data)
+        console.error('   - message:', result.message)
+        console.error('   - error:', result.error)
+
+        const errorMessage = result.message || result.error || 'Unknown error - invalid response structure'
+        throw new Error(`Backend returned unsuccessful response: ${errorMessage}`)
       }
     } catch (error) {
-      console.warn('Failed to fetch AI insights from backend, using fallback:', error)
+      console.error('💥 Dashboard API: Exception in getAIInsights:', error)
 
-      return [
-        {
-          type: 'positive',
-          title: 'Pozitivní trend',
-          description: 'Příjmy rostou rychleji než výdaje',
-          icon: 'TrendingUp'
-        },
-        {
-          type: 'warning',
-          title: 'Upozornění',
-          description: '3 faktury s blížící se splatností',
-          icon: 'AlertTriangle'
-        },
-        {
-          type: 'success',
-          title: 'Cíl splněn',
-          description: 'Měsíční cíl na 89%',
-          icon: 'Target'
-        }
-      ]
+      // Return empty array instead of mock data to show real state
+      return []
     }
   }
 
@@ -209,31 +241,19 @@ class DashboardAPI {
    */
   async getMonthlyData(): Promise<MonthlyData[]> {
     try {
-      // Get data from new backend endpoint
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'}/api/v1/dashboard/monthly-data`)
+      // Get data from new backend endpoint with authentication
+      const result = await authApiClient.get('/dashboard/monthly-data')
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-
-      const result = await response.json()
-
-      if (result.success) {
+      if (result.success && result.data) {
         return result.data
       } else {
         throw new Error('Backend returned unsuccessful response')
       }
     } catch (error) {
-      console.warn('Failed to fetch monthly data from backend, using fallback:', error)
+      console.error('Failed to fetch monthly data from backend:', error)
 
-      return [
-        { month: "Led", income: 180000, expenses: 120000, profit: 60000 },
-        { month: "Úno", income: 220000, expenses: 140000, profit: 80000 },
-        { month: "Bře", income: 190000, expenses: 130000, profit: 60000 },
-        { month: "Dub", income: 240000, expenses: 150000, profit: 90000 },
-        { month: "Kvě", income: 260000, expenses: 160000, profit: 100000 },
-        { month: "Čer", income: 245000, expenses: 156000, profit: 89000 },
-      ]
+      // Return empty array instead of mock data to show real state
+      return []
     }
   }
 
@@ -242,29 +262,19 @@ class DashboardAPI {
    */
   async getExpenseCategories(): Promise<ExpenseCategory[]> {
     try {
-      // Get data from new backend endpoint
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'}/api/v1/dashboard/expense-categories`)
+      // Get data from new backend endpoint with authentication
+      const result = await authApiClient.get('/dashboard/expense-categories')
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-
-      const result = await response.json()
-
-      if (result.success) {
+      if (result.success && result.data) {
         return result.data
       } else {
         throw new Error('Backend returned unsuccessful response')
       }
     } catch (error) {
-      console.warn('Failed to fetch expense categories from backend, using fallback:', error)
+      console.error('Failed to fetch expense categories from backend:', error)
 
-      return [
-        { name: "Služby", value: 45, color: "#3b82f6" },
-        { name: "Materiál", value: 30, color: "#10b981" },
-        { name: "Energie", value: 15, color: "#f59e0b" },
-        { name: "Ostatní", value: 10, color: "#ef4444" },
-      ]
+      // Return empty array instead of mock data to show real state
+      return []
     }
   }
 

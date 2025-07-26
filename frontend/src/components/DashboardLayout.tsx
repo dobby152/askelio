@@ -14,42 +14,17 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [exportDialogOpen, setExportDialogOpen] = useState(false)
 
-  // Mock export data
+  // Empty export data - will be populated from real API data
   const exportData = {
-    documents: [
-      {
-        id: "1",
-        name: "Faktura_2024_001.pdf",
-        type: "pdf" as const,
-        status: "completed" as const,
-        accuracy: 98.5,
-        processedAt: "2024-01-15 14:30",
-        size: "2.4 MB",
-        pages: 3,
-      },
-    ],
+    documents: [],
     statistics: {
-      processedDocuments: 2847,
-      timeSaved: 156.2,
-      accuracy: 98.7,
-      remainingCredits: 2450,
+      processedDocuments: 0,
+      timeSaved: 0,
+      accuracy: 0,
+      remainingCredits: 0,
     },
-    monthlyUsage: [
-      { month: "Led", documents: 245 },
-      { month: "Úno", documents: 312 },
-      { month: "Bře", documents: 189 },
-      { month: "Dub", documents: 398 },
-      { month: "Kvě", documents: 456 },
-      { month: "Čer", documents: 523 },
-    ],
-    accuracyTrend: [
-      { month: "Led", accuracy: 96.2 },
-      { month: "Úno", accuracy: 97.1 },
-      { month: "Bře", accuracy: 97.8 },
-      { month: "Dub", accuracy: 98.2 },
-      { month: "Kvě", accuracy: 98.5 },
-      { month: "Čer", accuracy: 98.7 },
-    ],
+    monthlyUsage: [],
+    accuracyTrend: [],
   }
 
   return (

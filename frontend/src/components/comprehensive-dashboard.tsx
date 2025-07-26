@@ -289,7 +289,7 @@ function DashboardHome({ onSectionChange }: { onSectionChange?: (section: string
         setAiInsights(insights)
       } catch (error) {
         console.error('Error loading dashboard data:', error)
-        // Fallback to mock data if API fails
+        // Set empty/zero values instead of mock data to show real state
         setDashboardStats({
           totalIncome: 0,
           totalExpenses: 0,
@@ -877,31 +877,39 @@ function DocumentsPage() {
       </div>
 
       <div className="grid gap-4">
-        {[1, 2, 3].map((i) => (
-          <Card key={i}>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <FileText className="w-8 h-8 text-blue-600" />
-                  <div>
-                    <h4 className="font-medium">Invoice_2024_00{i}.pdf</h4>
-                    <div className="text-sm text-muted-foreground">Askela s.r.o. • 45,000 CZK</div>
-                    <div className="text-xs text-muted-foreground">Nahráno před {i} hodinami</div>
+        {recentActivities.length === 0 ? (
+          <div className="text-center py-8">
+            <FileText className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+            <p className="text-gray-500">Zatím nemáte žádné dokumenty</p>
+            <p className="text-sm text-gray-400 mt-2">Nahrajte svůj první dokument pomocí tlačítka "Nahrát dokument"</p>
+          </div>
+        ) : (
+          recentActivities.map((activity, i) => (
+            <Card key={activity.id || i}>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <FileText className="w-8 h-8 text-blue-600" />
+                    <div>
+                      <h4 className="font-medium">{activity.title}</h4>
+                      <div className="text-sm text-muted-foreground">{activity.description}</div>
+                      <div className="text-xs text-muted-foreground">{activity.timestamp}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge className={activity.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}>
+                      <CheckCircle className="w-3 h-3 mr-1" />
+                      {activity.type === 'success' ? 'Dokončeno' : 'Zpracováno'}
+                    </Badge>
+                    <Button variant="ghost" size="icon">
+                      <MoreHorizontal className="w-4 h-4" />
+                    </Button>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Badge className="bg-green-100 text-green-800">
-                    <CheckCircle className="w-3 h-3 mr-1" />
-                    Schváleno
-                  </Badge>
-                  <Button variant="ghost" size="icon">
-                    <MoreHorizontal className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          ))
+        )}
       </div>
     </div>
   )
@@ -1187,92 +1195,31 @@ function ApprovalPage() {
 
       <div className="flex items-center gap-2 mb-4">
         <Bell className="w-4 h-4" />
-        <span className="font-medium">Čekají na schválení (3)</span>
+        <span className="font-medium">Čekají na schválení (0)</span>
       </div>
 
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex items-start justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <FileText className="w-8 h-8 text-blue-600" />
-              <div>
-                <h4 className="font-medium">Invoice_2024_001.pdf</h4>
-                <div className="text-sm text-muted-foreground">Askela s.r.o. → John Doe</div>
-                <div className="flex items-center gap-4 mt-1">
-                  <span className="font-medium flex items-center gap-1">
-                    <DollarSign className="w-3 h-3" />
-                    45,000 CZK
-                  </span>
-                  <span className="text-sm text-red-600 flex items-center gap-1">
-                    <Calendar className="w-3 h-3" />
-                    Splatnost: 3 dny
-                  </span>
-                </div>
-              </div>
+      <div className="text-center py-12">
+        <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+        <h3 className="text-lg font-medium text-gray-900 mb-2">Žádné dokumenty ke schválení</h3>
+        <p className="text-gray-500 mb-4">
+          Momentálně nemáte žádné dokumenty, které by čekaly na schválení.
+        </p>
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md mx-auto">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              </svg>
             </div>
-            <Badge className="bg-red-100 text-red-800">
-              <Flag className="w-3 h-3 mr-1" />
-              Vysoká
-            </Badge>
-          </div>
-
-          <div className="space-y-2 mb-4">
-            <div className="flex items-center gap-4 text-sm">
-              <span className="flex items-center gap-1">
-                <Target className="w-3 h-3" />
-                Přesnost: 98%
-              </span>
-              <span className="flex items-center gap-1">
-                <CheckCircle className="w-3 h-3 text-green-600" />
-                ARES validováno
-              </span>
-            </div>
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <FileText className="w-3 h-3" />
-                Kategorie: Služby
-              </span>
-              <span className="flex items-center gap-1">
-                <Flag className="w-3 h-3" />
-                Projekt: Web redesign
-              </span>
-            </div>
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <User className="w-3 h-3" />
-                Nahrál: Jan Novák
-              </span>
-              <span className="flex items-center gap-1">
-                <Clock className="w-3 h-3" />
-                Před 2 hodinami
-              </span>
-            </div>
-            <div className="text-sm flex items-center gap-1">
-              <MessageSquare className="w-3 h-3" />
-              Poznámka: "Urgentní platba za redesign"
+            <div className="ml-3">
+              <p className="text-sm text-blue-800">
+                <strong>Systém je připraven.</strong><br />
+                Dokumenty se zde zobrazí po nahrání a zpracování.
+              </p>
             </div>
           </div>
-
-          <div className="flex gap-2">
-            <Button size="sm" className="bg-green-600 hover:bg-green-700">
-              <CheckCircle className="w-4 h-4 mr-2" />
-              Schválit
-            </Button>
-            <Button variant="destructive" size="sm">
-              <X className="w-4 h-4 mr-2" />
-              Zamítnout
-            </Button>
-            <Button variant="outline" size="sm">
-              <Eye className="w-4 h-4 mr-2" />
-              Detail
-            </Button>
-            <Button variant="outline" size="sm">
-              <MessageSquare className="w-4 h-4 mr-2" />
-              Komentář
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       <div className="bg-muted/50 p-4 rounded-lg">
         <h4 className="font-medium mb-2 flex items-center gap-2">

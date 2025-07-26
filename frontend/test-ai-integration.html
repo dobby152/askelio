@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Integration Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .button {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #5855eb;
+        }
+        .button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        .insight {
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .insight.positive {
+            border-color: #10b981;
+            background-color: #f0fdf4;
+        }
+        .insight.warning {
+            border-color: #f59e0b;
+            background-color: #fffbeb;
+        }
+        .insight.info {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+        .loading {
+            color: #6b7280;
+            font-style: italic;
+        }
+        .error {
+            color: #dc2626;
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+            padding: 10px;
+            border-radius: 6px;
+        }
+        .chat-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        .chat-response {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🤖 AI Integration Test</h1>
+    <p>Test skutečných AI funkcí pomocí OpenRouter API</p>
+
+    <!-- AI Insights Test -->
+    <div class="card">
+        <h2>AI Doporučení</h2>
+        <button class="button" onclick="testAIInsights()" id="insightsBtn">
+            Načíst AI Insights
+        </button>
+        <div id="insightsResult"></div>
+    </div>
+
+    <!-- AI Chat Test -->
+    <div class="card">
+        <h2>AI Chat</h2>
+        <input type="text" class="chat-input" id="chatInput" placeholder="Zeptejte se na finance..." />
+        <button class="button" onclick="testAIChat()" id="chatBtn">
+            Odeslat dotaz
+        </button>
+        <div id="chatResult"></div>
+    </div>
+
+    <!-- Quick Test Buttons -->
+    <div class="card">
+        <h2>Rychlé testy</h2>
+        <button class="button" onclick="quickTest('Jaký je můj zisk?')">Zisk</button>
+        <button class="button" onclick="quickTest('Kolik mám příjmů?')">Příjmy</button>
+        <button class="button" onclick="quickTest('Jak si vedu finančně?')">Celkový stav</button>
+    </div>
+
+    <!-- Status -->
+    <div class="card">
+        <h2>Status</h2>
+        <div id="status">Připraveno k testování</div>
+    </div>
+
+    <script type="module">
+        // Import AskelioSDK
+        import AskelioSDK from './src/lib/askelio-sdk.js';
+        
+        const sdk = new AskelioSDK();
+        
+        window.testAIInsights = async function() {
+            const btn = document.getElementById('insightsBtn');
+            const result = document.getElementById('insightsResult');
+            
+            btn.disabled = true;
+            btn.textContent = 'Načítám...';
+            result.innerHTML = '<div class="loading">Generuji AI doporučení...</div>';
+            
+            try {
+                const response = await sdk.getAIInsights();
+                
+                if (response.success && response.data) {
+                    let html = '<h3>✅ AI Insights načteny:</h3>';
+                    
+                    response.data.forEach((insight, index) => {
+                        html += `
+                            <div class="insight ${insight.type}">
+                                <strong>${insight.title}</strong><br>
+                                <span>${insight.description}</span>
+                                <small style="color: #6b7280; display: block; margin-top: 5px;">
+                                    Typ: ${insight.type}
+                                </small>
+                            </div>
+                        `;
+                    });
+                    
+                    result.innerHTML = html;
+                } else {
+                    result.innerHTML = `<div class="error">❌ Chyba: ${response.error || 'Neznámá chyba'}</div>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ Výjimka: ${error.message}</div>`;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Načíst AI Insights';
+            }
+        };
+        
+        window.testAIChat = async function() {
+            const input = document.getElementById('chatInput');
+            const btn = document.getElementById('chatBtn');
+            const result = document.getElementById('chatResult');
+            const message = input.value.trim();
+            
+            if (!message) {
+                alert('Zadejte zprávu');
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.textContent = 'Odesílám...';
+            result.innerHTML = '<div class="loading">AI zpracovává váš dotaz...</div>';
+            
+            try {
+                const response = await sdk.chatWithAI(message);
+                
+                if (response.success && response.data) {
+                    result.innerHTML = `
+                        <div class="chat-response">
+                            <strong>🤖 AI Asistent:</strong><br>
+                            ${response.data.response}
+                            <small style="color: #6b7280; display: block; margin-top: 10px;">
+                                Čas: ${new Date(response.data.timestamp).toLocaleString('cs-CZ')}
+                            </small>
+                        </div>
+                    `;
+                } else {
+                    result.innerHTML = `<div class="error">❌ Chyba: ${response.error || 'Neznámá chyba'}</div>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ Výjimka: ${error.message}</div>`;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Odeslat dotaz';
+                input.value = '';
+            }
+        };
+        
+        window.quickTest = function(message) {
+            document.getElementById('chatInput').value = message;
+            testAIChat();
+        };
+        
+        // Status update
+        document.getElementById('status').innerHTML = '✅ SDK načten, připraveno k testování';
+    </script>
+</body>
+</html>

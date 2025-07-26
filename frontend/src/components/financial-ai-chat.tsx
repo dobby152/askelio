@@ -144,9 +144,31 @@ export function FinancialAIChat({ isOpen, onClose, financialData, documents }: F
   }
 
   const generateAIResponse = async (userMessage: string): Promise<Message> => {
-    // Simulate AI processing
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    try {
+      // Use real AI API
+      const AskelioSDK = (await import('@/lib/askelio-sdk')).default
+      const sdk = new AskelioSDK()
+      const response = await sdk.chatWithAI(userMessage)
 
+      if (response.success) {
+        return {
+          id: Date.now().toString(),
+          type: 'ai',
+          content: response.data.response,
+          timestamp: new Date(),
+          suggestions: [
+            "Jaký je můj celkový zisk?",
+            "Kdo jsou moji největší dodavatelé?",
+            "Kolik platím na DPH?",
+            "Vytvoř mi měsíční přehled"
+          ]
+        }
+      }
+    } catch (error) {
+      console.error('AI chat error:', error)
+    }
+
+    // Fallback to pattern matching
     const lowerMessage = userMessage.toLowerCase()
     
     // Simple pattern matching for demo

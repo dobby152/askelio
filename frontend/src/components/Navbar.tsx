@@ -43,6 +43,7 @@ export function Navbar() {
                   <span className="text-sm text-gray-600">{user.email}</span>
                   <button
                     onClick={signOut}
+                    data-testid="logout-button"
                     className="flex items-center text-gray-700 hover:text-red-600 transition-colors"
                   >
                     <LogOut className="w-4 h-4" />

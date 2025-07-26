@@ -29,6 +29,7 @@ import { ExportDialog } from "@/components/export-dialog"
 import { AresInfoBadge } from "@/components/ares-info-badge"
 import { apiClient } from "@/lib/api"
 import { cn } from "@/lib/utils"
+import { toast } from 'sonner'
 
 interface Document {
   id: string
@@ -97,14 +98,21 @@ export function DocumentsTable({
         const data = await apiClient.getDocuments()
         console.log('📄 DocumentsTable: Raw backend data:', data)
 
+        // Handle empty data gracefully
+        if (!data || !Array.isArray(data)) {
+          console.log('📋 DocumentsTable: No documents found or invalid data format')
+          setDocuments([])
+          return
+        }
+
         // Transform backend data to frontend format
         const transformedDocs = data.map((doc: any) => {
           console.log('🔄 DocumentsTable: Transforming document:', doc)
 
           const transformed = {
-            id: doc.id.toString(),
-            name: doc.file_name || doc.filename || doc.name || 'Unknown',
-            type: doc.type === 'application/pdf' ? 'pdf' : 'image',
+            id: doc.id?.toString() || 'unknown',
+            name: doc.file_name || doc.filename || doc.name || 'Unknown Document',
+            type: doc.type === 'application/pdf' || doc.file_type === 'application/pdf' ? 'pdf' : 'image',
             status: doc.status === 'completed' ? 'completed' :
                    doc.status === 'processing' ? 'processing' :
                    doc.status === 'failed' ? 'error' : 'error',
@@ -112,22 +120,31 @@ export function DocumentsTable({
               ? parseFloat(doc.accuracy.replace('%', '') || '0')
               : parseFloat(doc.accuracy?.toString() || '0'),
             processedAt: formatDate(doc.processed_at || doc.created_at || new Date().toISOString()),
-            size: doc.size || '0 MB',
+            size: doc.size || doc.file_size || '0 MB',
             pages: doc.pages || 1,
-            extractedData: doc.extracted_data || doc.extracted_text,
+            extractedData: doc.extracted_data || doc.extracted_text || doc.structured_data,
             errorMessage: doc.error_message
           }
 
           console.log('✅ DocumentsTable: Transformed document:', transformed)
           return transformed
-        })
+        }).filter(doc => doc.id !== 'unknown') // Filter out invalid documents
 
         console.log('📋 DocumentsTable: Final documents array:', transformedDocs)
         setDocuments(transformedDocs)
+
+        // Show user-friendly message if no documents
+        if (transformedDocs.length === 0) {
+          console.log('📝 DocumentsTable: No documents to display')
+        }
+
       } catch (error) {
         console.error('💥 DocumentsTable: Error fetching documents:', error)
-        console.error('🔧 Backend connection failed. Make sure Flask backend is running on port 8009')
+        console.error('🔧 Backend connection failed. Make sure backend is running on port 8001')
         setDocuments([])
+
+        // Show user-friendly error message
+        toast.error('Nepodařilo se načíst dokumenty. Zkontrolujte připojení k serveru.')
       } finally {
         setLoading(false)
       }
@@ -149,11 +166,11 @@ export function DocumentsTable({
       // Remove document from local state
       setDocuments(prev => prev.filter(doc => doc.id !== documentId))
 
-      // Show success message (you can replace with toast notification)
-      alert(`Dokument "${documentName}" byl úspěšně smazán.`)
+      // Show success message
+      toast.success(`Dokument "${documentName}" byl úspěšně smazán`)
     } catch (error) {
       console.error('Failed to delete document:', error)
-      alert(`Chyba při mazání dokumentu: ${error.message}`)
+      toast.error(`Chyba při mazání dokumentu: ${error instanceof Error ? error.message : 'Neznámá chyba'}`)
     } finally {
       setDeletingDocumentId(null)
     }
@@ -472,7 +489,7 @@ export function DocumentsTable({
                           Zobrazit
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => {
-                          window.open(`http://localhost:8000/documents/${document.id}/preview`, '_blank')
+                          window.open(`http://localhost:8001/documents/${document.id}/preview`, '_blank')
                         }}>
                           <Download className="w-4 h-4 mr-2" />
                           Stáhnout
@@ -521,16 +538,23 @@ export function DocumentsTable({
                 ? "Žádné dokumenty neodpovídají vašim filtrům."
                 : "Zatím jste nenahrali žádné dokumenty."}
             </p>
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 max-w-md mx-auto">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                  </svg>
+            {!searchTerm && statusFilter === "all" && typeFilter === "all" && (
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 max-w-md mx-auto">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-blue-800 dark:text-blue-200">
+                      <strong>Systém je připraven.</strong><br />
+                      Nahrajte svůj první dokument pomocí tlačítka "Nahrát dokument" výše.
+                    </p>
+                  </div>
                 </div>
-                <div className="ml-3">
-                  <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                    <strong>Backend není dostupný.</strong><br />
+              </div>
+            )}
                     Spusťte Flask server: <code className="bg-yellow-100 dark:bg-yellow-800 px-1 rounded">cd backend && python flask_backend.py</code>
                   </p>
                 </div>

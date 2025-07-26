@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Token Persistence Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background-color: #0056b3; }
+        button:disabled { background-color: #6c757d; cursor: not-allowed; }
+        .token-display {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+            margin: 10px 0;
+        }
+        .log {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔐 Token Persistence Demo</h1>
+    
+    <div class="container">
+        <h2>Authentication Status</h2>
+        <div id="authStatus" class="status info">Not authenticated</div>
+        
+        <h3>Actions</h3>
+        <button onclick="simulateLogin()">Simulate Login</button>
+        <button onclick="checkTokens()">Check Tokens</button>
+        <button onclick="simulateTokenRefresh()">Simulate Token Refresh</button>
+        <button onclick="testApiCall()">Test API Call</button>
+        <button onclick="clearTokens()">Clear Tokens</button>
+        <button onclick="simulateExpiredToken()">Simulate Expired Token</button>
+    </div>
+    
+    <div class="container">
+        <h2>Token Information</h2>
+        <div>
+            <strong>Access Token:</strong>
+            <div id="accessToken" class="token-display">None</div>
+        </div>
+        <div>
+            <strong>Refresh Token:</strong>
+            <div id="refreshToken" class="token-display">None</div>
+        </div>
+        <div>
+            <strong>Expires At:</strong>
+            <div id="expiresAt" class="token-display">None</div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <h2>Activity Log</h2>
+        <div id="log" class="log"></div>
+        <button onclick="clearLog()">Clear Log</button>
+    </div>
+
+    <script type="module">
+        import AskelioSDK from './frontend/src/lib/askelio-sdk.js';
+        
+        // Initialize SDK
+        const sdk = new AskelioSDK('http://localhost:8001');
+        
+        // Set up token refresh callback
+        sdk.setTokenRefreshCallback((session, error) => {
+            if (session) {
+                log('✅ Token refreshed automatically', 'success');
+                updateTokenDisplay();
+            } else if (error) {
+                log(`❌ Token refresh failed: ${error.message}`, 'error');
+            }
+        });
+        
+        // Global functions for demo
+        window.simulateLogin = function() {
+            const mockSession = {
+                access_token: 'mock_access_token_' + Date.now(),
+                refresh_token: 'mock_refresh_token_' + Date.now(),
+                expires_at: Math.floor(Date.now() / 1000) + 3600 // 1 hour from now
+            };
+            
+            sdk.setAuthTokens(mockSession);
+            log('🔑 Simulated login with mock tokens', 'success');
+            updateAuthStatus();
+            updateTokenDisplay();
+        };
+        
+        window.checkTokens = function() {
+            const tokens = {
+                access: localStorage.getItem('access_token'),
+                refresh: localStorage.getItem('refresh_token'),
+                expires: localStorage.getItem('token_expires_at')
+            };
+            
+            if (tokens.access) {
+                const expiresAt = new Date(parseInt(tokens.expires) * 1000);
+                const now = new Date();
+                const timeLeft = expiresAt - now;
+                
+                if (timeLeft > 0) {
+                    log(`✅ Tokens found. Expires in ${Math.floor(timeLeft / 1000 / 60)} minutes`, 'success');
+                } else {
+                    log('⚠️ Tokens found but expired', 'warning');
+                }
+            } else {
+                log('❌ No tokens found', 'error');
+            }
+            
+            updateTokenDisplay();
+        };
+        
+        window.simulateTokenRefresh = function() {
+            log('🔄 Attempting token refresh...', 'info');
+            
+            sdk.refreshTokenIfNeeded().then(success => {
+                if (success) {
+                    log('✅ Token refresh successful', 'success');
+                } else {
+                    log('❌ Token refresh failed', 'error');
+                }
+                updateTokenDisplay();
+            });
+        };
+        
+        window.testApiCall = function() {
+            log('📡 Making test API call...', 'info');
+            
+            sdk.getUserProfile().then(result => {
+                log('✅ API call successful: ' + JSON.stringify(result, null, 2), 'success');
+            }).catch(error => {
+                log('❌ API call failed: ' + error.message, 'error');
+            });
+        };
+        
+        window.clearTokens = function() {
+            sdk.clearAuthToken();
+            log('🗑️ Tokens cleared', 'info');
+            updateAuthStatus();
+            updateTokenDisplay();
+        };
+        
+        window.simulateExpiredToken = function() {
+            const expiredTimestamp = Math.floor(Date.now() / 1000) - 3600; // 1 hour ago
+            localStorage.setItem('token_expires_at', expiredTimestamp.toString());
+            log('⏰ Simulated expired token', 'warning');
+            updateTokenDisplay();
+        };
+        
+        window.clearLog = function() {
+            document.getElementById('log').innerHTML = '';
+        };
+        
+        function log(message, type = 'info') {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${message}\n`;
+            logElement.textContent += logEntry;
+            logElement.scrollTop = logElement.scrollHeight;
+            
+            // Also update auth status if it's an auth-related message
+            if (message.includes('login') || message.includes('Token')) {
+                updateAuthStatus();
+            }
+        }
+        
+        function updateAuthStatus() {
+            const statusElement = document.getElementById('authStatus');
+            const hasTokens = localStorage.getItem('access_token') && localStorage.getItem('refresh_token');
+            
+            if (hasTokens) {
+                const expiresAt = localStorage.getItem('token_expires_at');
+                const now = Math.floor(Date.now() / 1000);
+                const expires = parseInt(expiresAt);
+                
+                if (expires > now) {
+                    statusElement.textContent = '✅ Authenticated';
+                    statusElement.className = 'status success';
+                } else {
+                    statusElement.textContent = '⚠️ Token expired';
+                    statusElement.className = 'status warning';
+                }
+            } else {
+                statusElement.textContent = '❌ Not authenticated';
+                statusElement.className = 'status error';
+            }
+        }
+        
+        function updateTokenDisplay() {
+            document.getElementById('accessToken').textContent = 
+                localStorage.getItem('access_token') || 'None';
+            document.getElementById('refreshToken').textContent = 
+                localStorage.getItem('refresh_token') || 'None';
+            
+            const expiresAt = localStorage.getItem('token_expires_at');
+            if (expiresAt) {
+                const date = new Date(parseInt(expiresAt) * 1000);
+                document.getElementById('expiresAt').textContent = 
+                    `${date.toLocaleString()} (${expiresAt})`;
+            } else {
+                document.getElementById('expiresAt').textContent = 'None';
+            }
+        }
+        
+        // Initialize display
+        updateAuthStatus();
+        updateTokenDisplay();
+        log('🚀 Token Persistence Demo initialized', 'info');
+    </script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 "use client"
 
 import { DashboardLayout } from "@/components/DashboardLayout"
+import { ProtectedRoute } from "@/components/ProtectedRoute"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -36,7 +37,8 @@ export default function CreditsPage() {
   ]
 
   return (
-    <DashboardLayout>
+    <ProtectedRoute>
+      <DashboardLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
@@ -138,6 +140,7 @@ export default function CreditsPage() {
           </CardContent>
         </Card>
       </div>
-    </DashboardLayout>
+      </DashboardLayout>
+    </ProtectedRoute>
   )
 }
