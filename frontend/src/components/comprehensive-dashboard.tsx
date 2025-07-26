@@ -66,6 +66,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
+import { dashboardAPI } from "@/lib/dashboard-api"
 import {
   LineChart,
   Line,
@@ -118,22 +119,7 @@ const pageTitles = {
   "ai-analytics": "AI Analýzy",
 }
 
-// Chart data
-const monthlyData = [
-  { month: "Led", income: 180000, expenses: 120000, profit: 60000 },
-  { month: "Úno", income: 220000, expenses: 140000, profit: 80000 },
-  { month: "Bře", income: 190000, expenses: 130000, profit: 60000 },
-  { month: "Dub", income: 240000, expenses: 150000, profit: 90000 },
-  { month: "Kvě", income: 260000, expenses: 160000, profit: 100000 },
-  { month: "Čer", income: 245000, expenses: 156000, profit: 89000 },
-]
-
-const expenseCategories = [
-  { name: "Služby", value: 45, color: "#3b82f6" },
-  { name: "Materiál", value: 30, color: "#10b981" },
-  { name: "Energie", value: 15, color: "#f59e0b" },
-  { name: "Ostatní", value: 10, color: "#ef4444" },
-]
+// Chart data will be loaded dynamically from API
 
 function AppSidebar({ activeSection, onSectionChange }) {
   return (
@@ -648,6 +634,134 @@ function DashboardHome({ onSectionChange }: { onSectionChange?: (section: string
 function StatisticsPage() {
   const [chartType, setChartType] = useState("line")
   const [timePeriod, setTimePeriod] = useState("6months")
+  const [monthlyData, setMonthlyData] = useState<any[]>([])
+  const [expenseCategories, setExpenseCategories] = useState<any[]>([])
+  const [overviewMetrics, setOverviewMetrics] = useState<any>({})
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  // Mock company ID - in real app this would come from auth context
+  const companyId = "mock-company-id"
+
+  const getDateRange = (period: string) => {
+    const endDate = new Date()
+    const startDate = new Date()
+
+    switch (period) {
+      case "3months":
+        startDate.setMonth(endDate.getMonth() - 3)
+        break
+      case "6months":
+        startDate.setMonth(endDate.getMonth() - 6)
+        break
+      case "year":
+        startDate.setFullYear(endDate.getFullYear() - 1)
+        break
+      default:
+        startDate.setMonth(endDate.getMonth() - 6)
+    }
+
+    return {
+      startDate: startDate.toISOString().split('T')[0],
+      endDate: endDate.toISOString().split('T')[0]
+    }
+  }
+
+  const loadAnalyticsData = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+
+      const { startDate, endDate } = getDateRange(timePeriod)
+
+      // Load all analytics data in parallel
+      const [monthlyTrends, expenseData, overview] = await Promise.all([
+        dashboardAPI.getMonthlyTrends(companyId, startDate, endDate),
+        dashboardAPI.getAnalyticsExpenseCategories(companyId, startDate, endDate),
+        dashboardAPI.getOverviewMetrics(companyId)
+      ])
+
+      setMonthlyData(monthlyTrends)
+      setExpenseCategories(expenseData)
+      setOverviewMetrics(overview)
+
+    } catch (error) {
+      console.error('Error loading analytics data:', error)
+      setError('Nepodařilo se načíst analytická data')
+
+      // Set fallback data
+      setMonthlyData([])
+      setExpenseCategories([])
+      setOverviewMetrics({
+        total_income: 0,
+        total_expenses: 0,
+        net_profit: 0,
+        profit_margin: 0
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadAnalyticsData()
+  }, [timePeriod])
+
+  const handleExport = async () => {
+    try {
+      const { startDate, endDate } = getDateRange(timePeriod)
+      await dashboardAPI.exportAnalytics(companyId, 'csv', startDate, endDate)
+      // Handle successful export (e.g., show notification)
+    } catch (error) {
+      console.error('Export failed:', error)
+      // Handle export error
+    }
+  }
+
+  const getTimePeriodLabel = (period: string) => {
+    switch (period) {
+      case "3months": return "Poslední 3 měsíce"
+      case "6months": return "Posledních 6 měsíců"
+      case "year": return "Poslední rok"
+      default: return "Posledních 6 měsíců"
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold">Statistiky</h2>
+            <p className="text-muted-foreground">Načítám analytická data...</p>
+          </div>
+        </div>
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <RefreshCw className="w-8 h-8 mx-auto mb-4 animate-spin text-blue-600" />
+            <p className="text-muted-foreground">Načítám statistiky...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold">Statistiky</h2>
+            <p className="text-muted-foreground text-red-600">{error}</p>
+          </div>
+          <Button onClick={loadAnalyticsData} variant="outline">
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Zkusit znovu
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -661,7 +775,7 @@ function StatisticsPage() {
             <DropdownMenuTrigger asChild>
               <Button variant="outline">
                 <Calendar className="w-4 h-4 mr-2" />
-                Posledních 6 měsíců
+                {getTimePeriodLabel(timePeriod)}
                 <ChevronDown className="w-4 h-4 ml-2" />
               </Button>
             </DropdownMenuTrigger>
@@ -671,7 +785,7 @@ function StatisticsPage() {
               <DropdownMenuItem onClick={() => setTimePeriod("year")}>Poslední rok</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button variant="outline">
+          <Button variant="outline" onClick={handleExport}>
             <Download className="w-4 h-4 mr-2" />
             Export
           </Button>
@@ -722,7 +836,15 @@ function StatisticsPage() {
             className="h-[400px]"
           >
             <ResponsiveContainer width="100%" height="100%">
-              {chartType === "line" ? (
+              {monthlyData.length === 0 ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <BarChart3 className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                    <p className="text-gray-500">Žádná data k zobrazení</p>
+                    <p className="text-sm text-gray-400 mt-2">Data se zobrazí po zpracování dokumentů</p>
+                  </div>
+                </div>
+              ) : chartType === "line" ? (
                 <LineChart data={monthlyData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
@@ -775,22 +897,32 @@ function StatisticsPage() {
               className="h-[300px]"
             >
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={expenseCategories}
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                    label={({ name, value }) => `${name}: ${value}%`}
-                  >
-                    {expenseCategories.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <ChartTooltip />
-                </PieChart>
+                {expenseCategories.length === 0 ? (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-center">
+                      <PieChartIcon className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                      <p className="text-gray-500">Žádné kategorie výdajů</p>
+                      <p className="text-sm text-gray-400 mt-2">Data se zobrazí po zpracování faktur</p>
+                    </div>
+                  </div>
+                ) : (
+                  <PieChart>
+                    <Pie
+                      data={expenseCategories}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                      label={({ name, value }) => `${name}: ${value}%`}
+                    >
+                      {expenseCategories.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <ChartTooltip />
+                  </PieChart>
+                )}
               </ResponsiveContainer>
             </ChartContainer>
           </CardContent>
@@ -807,16 +939,20 @@ function StatisticsPage() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span>Průměrný měsíční příjem</span>
-                <span className="font-medium">225,833 CZK</span>
+                <span>Celkové příjmy</span>
+                <span className="font-medium">{overviewMetrics.total_income?.toLocaleString('cs-CZ') || 0} CZK</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span>Průměrný měsíční výdaj</span>
-                <span className="font-medium">142,667 CZK</span>
+                <span>Celkové výdaje</span>
+                <span className="font-medium">{overviewMetrics.total_expenses?.toLocaleString('cs-CZ') || 0} CZK</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span>Průměrná zisková marže</span>
-                <span className="font-medium text-green-600">36.8%</span>
+                <span>Čistý zisk</span>
+                <span className="font-medium">{overviewMetrics.net_profit?.toLocaleString('cs-CZ') || 0} CZK</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span>Zisková marže</span>
+                <span className="font-medium text-green-600">{overviewMetrics.profit_margin?.toFixed(1) || 0}%</span>
               </div>
             </div>
 
@@ -825,24 +961,31 @@ function StatisticsPage() {
               <div className="space-y-3">
                 <div>
                   <div className="flex justify-between text-sm mb-1">
-                    <span>Příjmy</span>
-                    <span>245,680 / 280,000 CZK</span>
+                    <span>Dokumenty zpracované</span>
+                    <span>{overviewMetrics.documents_this_period || 0}</span>
                   </div>
-                  <Progress value={87.7} className="h-2" />
+                  <Progress value={Math.min((overviewMetrics.documents_this_period || 0) / 100 * 100, 100)} className="h-2" />
                 </div>
                 <div>
                   <div className="flex justify-between text-sm mb-1">
-                    <span>Úspora nákladů</span>
-                    <span>8.7% / 10%</span>
+                    <span>Čekající schválení</span>
+                    <span>{overviewMetrics.pending_approvals || 0}</span>
                   </div>
-                  <Progress value={87} className="h-2" />
+                  <Progress value={Math.max(0, 100 - (overviewMetrics.pending_approvals || 0) * 10)} className="h-2" />
                 </div>
                 <div>
                   <div className="flex justify-between text-sm mb-1">
-                    <span>Dokumenty</span>
-                    <span>47 / 60</span>
+                    <span>Aktivní uživatelé</span>
+                    <span>{overviewMetrics.active_users || 0}</span>
                   </div>
-                  <Progress value={78.3} className="h-2" />
+                  <Progress value={Math.min((overviewMetrics.active_users || 0) / 10 * 100, 100)} className="h-2" />
+                </div>
+                <div>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span>Využité úložiště</span>
+                    <span>{overviewMetrics.total_storage_gb?.toFixed(2) || 0} GB</span>
+                  </div>
+                  <Progress value={Math.min((overviewMetrics.total_storage_gb || 0) / 100 * 100, 100)} className="h-2" />
                 </div>
               </div>
             </div>
