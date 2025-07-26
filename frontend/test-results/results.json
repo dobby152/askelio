@@ -1,0 +1,1542 @@
+{
+  "config": {
+    "configFile": "C:\\Users\\askelatest\\askelio\\frontend\\playwright.config.ts",
+    "rootDir": "C:/Users/askelatest/askelio/frontend/tests",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 2
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "test-results/results.xml"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "C:/Users/askelatest/askelio/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/askelatest/askelio/frontend/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/askelatest/askelio/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "C:/Users/askelatest/askelio/frontend/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/askelatest/askelio/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "C:/Users/askelatest/askelio/frontend/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/askelatest/askelio/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "Mobile Chrome",
+        "name": "Mobile Chrome",
+        "testDir": "C:/Users/askelatest/askelio/frontend/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/askelatest/askelio/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "Mobile Safari",
+        "name": "Mobile Safari",
+        "testDir": "C:/Users/askelatest/askelio/frontend/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/askelatest/askelio/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "Tablet",
+        "name": "Tablet",
+        "testDir": "C:/Users/askelatest/askelio/frontend/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/askelatest/askelio/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "Desktop Large",
+        "name": "Desktop Large",
+        "testDir": "C:/Users/askelatest/askelio/frontend/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/askelatest/askelio/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "Microsoft Edge",
+        "name": "Microsoft Edge",
+        "testDir": "C:/Users/askelatest/askelio/frontend/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/askelatest/askelio/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "visual-tests",
+        "name": "visual-tests",
+        "testDir": "C:/Users/askelatest/askelio/frontend/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/dashboard-visual.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.54.1",
+    "workers": 2,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "analytics-dashboard.spec.js",
+      "file": "analytics-dashboard.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Analytics Dashboard",
+          "file": "analytics-dashboard.spec.js",
+          "line": 8,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should display analytics with mock data",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3835,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "✅ Analytics dashboard test passed - all metrics and charts are displaying correctly\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-26T23:36:58.149Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d490fad1cf3dba0816e5-2bee8b2bc8fd7fafcced",
+              "file": "analytics-dashboard.spec.js",
+              "line": 9,
+              "column": 3
+            },
+            {
+              "title": "should format numbers correctly",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 3267,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\n    at C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js:56:24",
+                        "location": {
+                          "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                          "column": 24,
+                          "line": 56
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 54 |\u001b[39m     \u001b[90m// Check Czech number formatting\u001b[39m\n \u001b[90m 55 |\u001b[39m     \u001b[36mconst\u001b[39m incomeText \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'#income'\u001b[39m)\u001b[33m.\u001b[39mtextContent()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 56 |\u001b[39m     expect(incomeText)\u001b[33m.\u001b[39mtoBe(\u001b[32m'1 250 000'\u001b[39m)\u001b[33m;\u001b[39m \u001b[90m// Czech formatting with spaces\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 57 |\u001b[39m     \n \u001b[90m 58 |\u001b[39m     \u001b[36mconst\u001b[39m expensesText \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'#expenses'\u001b[39m)\u001b[33m.\u001b[39mtextContent()\u001b[33m;\u001b[39m\n \u001b[90m 59 |\u001b[39m     expect(expensesText)\u001b[33m.\u001b[39mtoBe(\u001b[32m'850 000'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                            "column": 24,
+                            "line": 56
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\n\n\u001b[0m \u001b[90m 54 |\u001b[39m     \u001b[90m// Check Czech number formatting\u001b[39m\n \u001b[90m 55 |\u001b[39m     \u001b[36mconst\u001b[39m incomeText \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'#income'\u001b[39m)\u001b[33m.\u001b[39mtextContent()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 56 |\u001b[39m     expect(incomeText)\u001b[33m.\u001b[39mtoBe(\u001b[32m'1 250 000'\u001b[39m)\u001b[33m;\u001b[39m \u001b[90m// Czech formatting with spaces\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 57 |\u001b[39m     \n \u001b[90m 58 |\u001b[39m     \u001b[36mconst\u001b[39m expensesText \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'#expenses'\u001b[39m)\u001b[33m.\u001b[39mtextContent()\u001b[33m;\u001b[39m\n \u001b[90m 59 |\u001b[39m     expect(expensesText)\u001b[33m.\u001b[39mtoBe(\u001b[32m'850 000'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js:56:24\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-26T23:36:58.128Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-chromium\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-chromium\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-chromium\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                        "column": 24,
+                        "line": 56
+                      }
+                    },
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 3717,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\n    at C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js:56:24",
+                        "location": {
+                          "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                          "column": 24,
+                          "line": 56
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 54 |\u001b[39m     \u001b[90m// Check Czech number formatting\u001b[39m\n \u001b[90m 55 |\u001b[39m     \u001b[36mconst\u001b[39m incomeText \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'#income'\u001b[39m)\u001b[33m.\u001b[39mtextContent()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 56 |\u001b[39m     expect(incomeText)\u001b[33m.\u001b[39mtoBe(\u001b[32m'1 250 000'\u001b[39m)\u001b[33m;\u001b[39m \u001b[90m// Czech formatting with spaces\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 57 |\u001b[39m     \n \u001b[90m 58 |\u001b[39m     \u001b[36mconst\u001b[39m expensesText \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'#expenses'\u001b[39m)\u001b[33m.\u001b[39mtextContent()\u001b[33m;\u001b[39m\n \u001b[90m 59 |\u001b[39m     expect(expensesText)\u001b[33m.\u001b[39mtoBe(\u001b[32m'850 000'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                            "column": 24,
+                            "line": 56
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\n\n\u001b[0m \u001b[90m 54 |\u001b[39m     \u001b[90m// Check Czech number formatting\u001b[39m\n \u001b[90m 55 |\u001b[39m     \u001b[36mconst\u001b[39m incomeText \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'#income'\u001b[39m)\u001b[33m.\u001b[39mtextContent()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 56 |\u001b[39m     expect(incomeText)\u001b[33m.\u001b[39mtoBe(\u001b[32m'1 250 000'\u001b[39m)\u001b[33m;\u001b[39m \u001b[90m// Czech formatting with spaces\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 57 |\u001b[39m     \n \u001b[90m 58 |\u001b[39m     \u001b[36mconst\u001b[39m expensesText \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'#expenses'\u001b[39m)\u001b[33m.\u001b[39mtextContent()\u001b[33m;\u001b[39m\n \u001b[90m 59 |\u001b[39m     expect(expensesText)\u001b[33m.\u001b[39mtoBe(\u001b[32m'850 000'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js:56:24\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2025-07-26T23:37:05.961Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-chromium-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-chromium-retry1\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-chromium-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-chromium-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                        "column": 24,
+                        "line": 56
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "d490fad1cf3dba0816e5-4c85588a1912ba903f34",
+              "file": "analytics-dashboard.spec.js",
+              "line": 50,
+              "column": 3
+            },
+            {
+              "title": "should display analytics with mock data",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5875,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "✅ Analytics dashboard test passed - all metrics and charts are displaying correctly\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-26T23:37:06.011Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d490fad1cf3dba0816e5-c735e09716e3db69191c",
+              "file": "analytics-dashboard.spec.js",
+              "line": 9,
+              "column": 3
+            },
+            {
+              "title": "should format numbers correctly",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "firefox",
+                  "projectName": "firefox",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 5129,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\n    at C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js:56:24",
+                        "location": {
+                          "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                          "column": 24,
+                          "line": 56
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 54 |\u001b[39m     \u001b[90m// Check Czech number formatting\u001b[39m\n \u001b[90m 55 |\u001b[39m     \u001b[36mconst\u001b[39m incomeText \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'#income'\u001b[39m)\u001b[33m.\u001b[39mtextContent()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 56 |\u001b[39m     expect(incomeText)\u001b[33m.\u001b[39mtoBe(\u001b[32m'1 250 000'\u001b[39m)\u001b[33m;\u001b[39m \u001b[90m// Czech formatting with spaces\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 57 |\u001b[39m     \n \u001b[90m 58 |\u001b[39m     \u001b[36mconst\u001b[39m expensesText \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'#expenses'\u001b[39m)\u001b[33m.\u001b[39mtextContent()\u001b[33m;\u001b[39m\n \u001b[90m 59 |\u001b[39m     expect(expensesText)\u001b[33m.\u001b[39mtoBe(\u001b[32m'850 000'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                            "column": 24,
+                            "line": 56
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\n\n\u001b[0m \u001b[90m 54 |\u001b[39m     \u001b[90m// Check Czech number formatting\u001b[39m\n \u001b[90m 55 |\u001b[39m     \u001b[36mconst\u001b[39m incomeText \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'#income'\u001b[39m)\u001b[33m.\u001b[39mtextContent()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 56 |\u001b[39m     expect(incomeText)\u001b[33m.\u001b[39mtoBe(\u001b[32m'1 250 000'\u001b[39m)\u001b[33m;\u001b[39m \u001b[90m// Czech formatting with spaces\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 57 |\u001b[39m     \n \u001b[90m 58 |\u001b[39m     \u001b[36mconst\u001b[39m expensesText \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'#expenses'\u001b[39m)\u001b[33m.\u001b[39mtextContent()\u001b[33m;\u001b[39m\n \u001b[90m 59 |\u001b[39m     expect(expensesText)\u001b[33m.\u001b[39mtoBe(\u001b[32m'850 000'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js:56:24\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-26T23:37:13.640Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-firefox\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-firefox\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-firefox\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                        "column": 24,
+                        "line": 56
+                      }
+                    },
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 5615,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\n    at C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js:56:24",
+                        "location": {
+                          "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                          "column": 24,
+                          "line": 56
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 54 |\u001b[39m     \u001b[90m// Check Czech number formatting\u001b[39m\n \u001b[90m 55 |\u001b[39m     \u001b[36mconst\u001b[39m incomeText \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'#income'\u001b[39m)\u001b[33m.\u001b[39mtextContent()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 56 |\u001b[39m     expect(incomeText)\u001b[33m.\u001b[39mtoBe(\u001b[32m'1 250 000'\u001b[39m)\u001b[33m;\u001b[39m \u001b[90m// Czech formatting with spaces\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 57 |\u001b[39m     \n \u001b[90m 58 |\u001b[39m     \u001b[36mconst\u001b[39m expensesText \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'#expenses'\u001b[39m)\u001b[33m.\u001b[39mtextContent()\u001b[33m;\u001b[39m\n \u001b[90m 59 |\u001b[39m     expect(expensesText)\u001b[33m.\u001b[39mtoBe(\u001b[32m'850 000'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                            "column": 24,
+                            "line": 56
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\n\n\u001b[0m \u001b[90m 54 |\u001b[39m     \u001b[90m// Check Czech number formatting\u001b[39m\n \u001b[90m 55 |\u001b[39m     \u001b[36mconst\u001b[39m incomeText \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'#income'\u001b[39m)\u001b[33m.\u001b[39mtextContent()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 56 |\u001b[39m     expect(incomeText)\u001b[33m.\u001b[39mtoBe(\u001b[32m'1 250 000'\u001b[39m)\u001b[33m;\u001b[39m \u001b[90m// Czech formatting with spaces\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 57 |\u001b[39m     \n \u001b[90m 58 |\u001b[39m     \u001b[36mconst\u001b[39m expensesText \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'#expenses'\u001b[39m)\u001b[33m.\u001b[39mtextContent()\u001b[33m;\u001b[39m\n \u001b[90m 59 |\u001b[39m     expect(expensesText)\u001b[33m.\u001b[39mtoBe(\u001b[32m'850 000'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js:56:24\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2025-07-26T23:37:21.720Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-firefox-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-firefox-retry1\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-firefox-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-firefox-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                        "column": 24,
+                        "line": 56
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "d490fad1cf3dba0816e5-5227f520ea4ebfc9b453",
+              "file": "analytics-dashboard.spec.js",
+              "line": 50,
+              "column": 3
+            },
+            {
+              "title": "should display analytics with mock data",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4695,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "✅ Analytics dashboard test passed - all metrics and charts are displaying correctly\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-26T23:37:18.475Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d490fad1cf3dba0816e5-a6143f8795bdadc5b7a0",
+              "file": "analytics-dashboard.spec.js",
+              "line": 9,
+              "column": 3
+            },
+            {
+              "title": "should format numbers correctly",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "webkit",
+                  "projectName": "webkit",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 3164,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\n    at C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js:56:24",
+                        "location": {
+                          "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                          "column": 24,
+                          "line": 56
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 54 |\u001b[39m     \u001b[90m// Check Czech number formatting\u001b[39m\n \u001b[90m 55 |\u001b[39m     \u001b[36mconst\u001b[39m incomeText \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'#income'\u001b[39m)\u001b[33m.\u001b[39mtextContent()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 56 |\u001b[39m     expect(incomeText)\u001b[33m.\u001b[39mtoBe(\u001b[32m'1 250 000'\u001b[39m)\u001b[33m;\u001b[39m \u001b[90m// Czech formatting with spaces\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 57 |\u001b[39m     \n \u001b[90m 58 |\u001b[39m     \u001b[36mconst\u001b[39m expensesText \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'#expenses'\u001b[39m)\u001b[33m.\u001b[39mtextContent()\u001b[33m;\u001b[39m\n \u001b[90m 59 |\u001b[39m     expect(expensesText)\u001b[33m.\u001b[39mtoBe(\u001b[32m'850 000'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                            "column": 24,
+                            "line": 56
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\n\n\u001b[0m \u001b[90m 54 |\u001b[39m     \u001b[90m// Check Czech number formatting\u001b[39m\n \u001b[90m 55 |\u001b[39m     \u001b[36mconst\u001b[39m incomeText \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'#income'\u001b[39m)\u001b[33m.\u001b[39mtextContent()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 56 |\u001b[39m     expect(incomeText)\u001b[33m.\u001b[39mtoBe(\u001b[32m'1 250 000'\u001b[39m)\u001b[33m;\u001b[39m \u001b[90m// Czech formatting with spaces\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 57 |\u001b[39m     \n \u001b[90m 58 |\u001b[39m     \u001b[36mconst\u001b[39m expensesText \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'#expenses'\u001b[39m)\u001b[33m.\u001b[39mtextContent()\u001b[33m;\u001b[39m\n \u001b[90m 59 |\u001b[39m     expect(expensesText)\u001b[33m.\u001b[39mtoBe(\u001b[32m'850 000'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js:56:24\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-26T23:37:24.613Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-webkit\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-webkit\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-webkit\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                        "column": 24,
+                        "line": 56
+                      }
+                    },
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 3973,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\n    at C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js:56:24",
+                        "location": {
+                          "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                          "column": 24,
+                          "line": 56
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 54 |\u001b[39m     \u001b[90m// Check Czech number formatting (using toContainText instead of exact match)\u001b[39m\n \u001b[90m 55 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#income'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'1 250 000'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 56 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#expenses'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'850 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 57 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#profit'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'400 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 58 |\u001b[39m\n \u001b[90m 59 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'✅ Number formatting test passed - Czech locale formatting works correctly'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                            "column": 24,
+                            "line": 56
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\n\n\u001b[0m \u001b[90m 54 |\u001b[39m     \u001b[90m// Check Czech number formatting (using toContainText instead of exact match)\u001b[39m\n \u001b[90m 55 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#income'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'1 250 000'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 56 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#expenses'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'850 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 57 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#profit'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'400 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 58 |\u001b[39m\n \u001b[90m 59 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'✅ Number formatting test passed - Czech locale formatting works correctly'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js:56:24\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2025-07-26T23:37:29.284Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-webkit-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-webkit-retry1\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-webkit-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-webkit-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                        "column": 24,
+                        "line": 56
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "d490fad1cf3dba0816e5-7f3d68208980d1ac41f9",
+              "file": "analytics-dashboard.spec.js",
+              "line": 50,
+              "column": 3
+            },
+            {
+              "title": "should display analytics with mock data",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 3858,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "✅ Analytics dashboard test passed - all metrics and charts are displaying correctly\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-26T23:37:30.536Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d490fad1cf3dba0816e5-5595640e000d05e8f413",
+              "file": "analytics-dashboard.spec.js",
+              "line": 9,
+              "column": 3
+            },
+            {
+              "title": "should format numbers correctly",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 2892,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\n    at C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js:56:24",
+                        "location": {
+                          "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                          "column": 24,
+                          "line": 56
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 54 |\u001b[39m     \u001b[90m// Check Czech number formatting (using toContainText instead of exact match)\u001b[39m\n \u001b[90m 55 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#income'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'1 250 000'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 56 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#expenses'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'850 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 57 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#profit'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'400 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 58 |\u001b[39m\n \u001b[90m 59 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'✅ Number formatting test passed - Czech locale formatting works correctly'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                            "column": 24,
+                            "line": 56
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\n\n\u001b[0m \u001b[90m 54 |\u001b[39m     \u001b[90m// Check Czech number formatting (using toContainText instead of exact match)\u001b[39m\n \u001b[90m 55 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#income'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'1 250 000'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 56 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#expenses'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'850 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 57 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#profit'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'400 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 58 |\u001b[39m\n \u001b[90m 59 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'✅ Number formatting test passed - Czech locale formatting works correctly'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js:56:24\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-26T23:37:35.721Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Chrome\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Chrome\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Chrome\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                        "column": 24,
+                        "line": 56
+                      }
+                    },
+                    {
+                      "workerIndex": 11,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 3027,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\n    at C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js:56:24",
+                        "location": {
+                          "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                          "column": 24,
+                          "line": 56
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 54 |\u001b[39m     \u001b[90m// Check Czech number formatting (using toContainText instead of exact match)\u001b[39m\n \u001b[90m 55 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#income'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'1 250 000'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 56 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#expenses'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'850 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 57 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#profit'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'400 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 58 |\u001b[39m\n \u001b[90m 59 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'✅ Number formatting test passed - Czech locale formatting works correctly'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                            "column": 24,
+                            "line": 56
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\n\n\u001b[0m \u001b[90m 54 |\u001b[39m     \u001b[90m// Check Czech number formatting (using toContainText instead of exact match)\u001b[39m\n \u001b[90m 55 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#income'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'1 250 000'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 56 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#expenses'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'850 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 57 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#profit'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'400 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 58 |\u001b[39m\n \u001b[90m 59 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'✅ Number formatting test passed - Czech locale formatting works correctly'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js:56:24\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2025-07-26T23:37:40.908Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Chrome-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Chrome-retry1\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Chrome-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Chrome-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                        "column": 24,
+                        "line": 56
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "d490fad1cf3dba0816e5-de92192e45dc64990e46",
+              "file": "analytics-dashboard.spec.js",
+              "line": 50,
+              "column": 3
+            },
+            {
+              "title": "should display analytics with mock data",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 10,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 3866,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "✅ Analytics dashboard test passed - all metrics and charts are displaying correctly\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-26T23:37:39.496Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d490fad1cf3dba0816e5-424668c66e52256e78df",
+              "file": "analytics-dashboard.spec.js",
+              "line": 9,
+              "column": 3
+            },
+            {
+              "title": "should format numbers correctly",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 10,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 3261,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\n    at C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js:56:24",
+                        "location": {
+                          "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                          "column": 24,
+                          "line": 56
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 54 |\u001b[39m     \u001b[90m// Check Czech number formatting (using toContainText instead of exact match)\u001b[39m\n \u001b[90m 55 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#income'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'1 250 000'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 56 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#expenses'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'850 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 57 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#profit'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'400 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 58 |\u001b[39m\n \u001b[90m 59 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'✅ Number formatting test passed - Czech locale formatting works correctly'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                            "column": 24,
+                            "line": 56
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\n\n\u001b[0m \u001b[90m 54 |\u001b[39m     \u001b[90m// Check Czech number formatting (using toContainText instead of exact match)\u001b[39m\n \u001b[90m 55 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#income'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'1 250 000'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 56 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#expenses'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'850 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 57 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#profit'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'400 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 58 |\u001b[39m\n \u001b[90m 59 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'✅ Number formatting test passed - Czech locale formatting works correctly'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js:56:24\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-26T23:37:43.468Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Safari\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Safari\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Safari\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                        "column": 24,
+                        "line": 56
+                      }
+                    },
+                    {
+                      "workerIndex": 13,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 3702,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\n    at C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js:56:24",
+                        "location": {
+                          "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                          "column": 24,
+                          "line": 56
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 54 |\u001b[39m     \u001b[90m// Check Czech number formatting (using toContainText instead of exact match)\u001b[39m\n \u001b[90m 55 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#income'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'1 250 000'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 56 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#expenses'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'850 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 57 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#profit'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'400 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 58 |\u001b[39m\n \u001b[90m 59 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'✅ Number formatting test passed - Czech locale formatting works correctly'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                            "column": 24,
+                            "line": 56
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\n\n\u001b[0m \u001b[90m 54 |\u001b[39m     \u001b[90m// Check Czech number formatting (using toContainText instead of exact match)\u001b[39m\n \u001b[90m 55 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#income'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'1 250 000'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 56 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#expenses'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'850 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 57 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#profit'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'400 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 58 |\u001b[39m\n \u001b[90m 59 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'✅ Number formatting test passed - Czech locale formatting works correctly'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js:56:24\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2025-07-26T23:37:47.922Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Safari-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Safari-retry1\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Safari-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Safari-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                        "column": 24,
+                        "line": 56
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "d490fad1cf3dba0816e5-34599f5c1bc1bff1e2e3",
+              "file": "analytics-dashboard.spec.js",
+              "line": 50,
+              "column": 3
+            },
+            {
+              "title": "should display analytics with mock data",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Tablet",
+                  "projectName": "Tablet",
+                  "results": [
+                    {
+                      "workerIndex": 12,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3359,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "✅ Analytics dashboard test passed - all metrics and charts are displaying correctly\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-26T23:37:45.857Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d490fad1cf3dba0816e5-57e099ccf7d52e5c87eb",
+              "file": "analytics-dashboard.spec.js",
+              "line": 9,
+              "column": 3
+            },
+            {
+              "title": "should format numbers correctly",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Tablet",
+                  "projectName": "Tablet",
+                  "results": [
+                    {
+                      "workerIndex": 12,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 2642,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\n    at C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js:56:24",
+                        "location": {
+                          "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                          "column": 24,
+                          "line": 56
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 54 |\u001b[39m     \u001b[90m// Check Czech number formatting (using toContainText instead of exact match)\u001b[39m\n \u001b[90m 55 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#income'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'1 250 000'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 56 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#expenses'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'850 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 57 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#profit'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'400 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 58 |\u001b[39m\n \u001b[90m 59 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'✅ Number formatting test passed - Czech locale formatting works correctly'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                            "column": 24,
+                            "line": 56
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\n\n\u001b[0m \u001b[90m 54 |\u001b[39m     \u001b[90m// Check Czech number formatting (using toContainText instead of exact match)\u001b[39m\n \u001b[90m 55 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#income'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'1 250 000'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 56 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#expenses'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'850 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 57 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#profit'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'400 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 58 |\u001b[39m\n \u001b[90m 59 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'✅ Number formatting test passed - Czech locale formatting works correctly'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js:56:24\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-26T23:37:49.581Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Tablet\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Tablet\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Tablet\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                        "column": 24,
+                        "line": 56
+                      }
+                    },
+                    {
+                      "workerIndex": 15,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 2937,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\n    at C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js:56:24",
+                        "location": {
+                          "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                          "column": 24,
+                          "line": 56
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 54 |\u001b[39m     \u001b[90m// Check Czech number formatting (using toContainText instead of exact match)\u001b[39m\n \u001b[90m 55 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#income'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'1 250 000'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 56 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#expenses'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'850 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 57 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#profit'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'400 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 58 |\u001b[39m\n \u001b[90m 59 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'✅ Number formatting test passed - Czech locale formatting works correctly'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                            "column": 24,
+                            "line": 56
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\n\n\u001b[0m \u001b[90m 54 |\u001b[39m     \u001b[90m// Check Czech number formatting (using toContainText instead of exact match)\u001b[39m\n \u001b[90m 55 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#income'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'1 250 000'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 56 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#expenses'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'850 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 57 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#profit'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'400 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 58 |\u001b[39m\n \u001b[90m 59 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'✅ Number formatting test passed - Czech locale formatting works correctly'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js:56:24\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2025-07-26T23:37:54.309Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Tablet-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Tablet-retry1\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Tablet-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Tablet-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                        "column": 24,
+                        "line": 56
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "d490fad1cf3dba0816e5-9e71053309af6854cebb",
+              "file": "analytics-dashboard.spec.js",
+              "line": 50,
+              "column": 3
+            },
+            {
+              "title": "should display analytics with mock data",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Large",
+                  "projectName": "Desktop Large",
+                  "results": [
+                    {
+                      "workerIndex": 14,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 3761,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "✅ Analytics dashboard test passed - all metrics and charts are displaying correctly\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-26T23:37:53.505Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d490fad1cf3dba0816e5-323ad3b893ca792bb8d0",
+              "file": "analytics-dashboard.spec.js",
+              "line": 9,
+              "column": 3
+            },
+            {
+              "title": "should format numbers correctly",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Large",
+                  "projectName": "Desktop Large",
+                  "results": [
+                    {
+                      "workerIndex": 14,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 3118,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\n    at C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js:56:24",
+                        "location": {
+                          "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                          "column": 24,
+                          "line": 56
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 54 |\u001b[39m     \u001b[90m// Check Czech number formatting (using toContainText instead of exact match)\u001b[39m\n \u001b[90m 55 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#income'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'1 250 000'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 56 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#expenses'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'850 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 57 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#profit'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'400 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 58 |\u001b[39m\n \u001b[90m 59 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'✅ Number formatting test passed - Czech locale formatting works correctly'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                            "column": 24,
+                            "line": 56
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\n\n\u001b[0m \u001b[90m 54 |\u001b[39m     \u001b[90m// Check Czech number formatting (using toContainText instead of exact match)\u001b[39m\n \u001b[90m 55 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#income'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'1 250 000'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 56 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#expenses'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'850 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 57 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#profit'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'400 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 58 |\u001b[39m\n \u001b[90m 59 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'✅ Number formatting test passed - Czech locale formatting works correctly'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js:56:24\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-26T23:37:57.643Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Desktop-Large\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Desktop-Large\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Desktop-Large\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                        "column": 24,
+                        "line": 56
+                      }
+                    },
+                    {
+                      "workerIndex": 17,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 3584,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\n    at C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js:56:24",
+                        "location": {
+                          "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                          "column": 24,
+                          "line": 56
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 54 |\u001b[39m     \u001b[90m// Check Czech number formatting (using toContainText instead of exact match)\u001b[39m\n \u001b[90m 55 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#income'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'1 250 000'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 56 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#expenses'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'850 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 57 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#profit'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'400 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 58 |\u001b[39m\n \u001b[90m 59 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'✅ Number formatting test passed - Czech locale formatting works correctly'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                            "column": 24,
+                            "line": 56
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\n\n\u001b[0m \u001b[90m 54 |\u001b[39m     \u001b[90m// Check Czech number formatting (using toContainText instead of exact match)\u001b[39m\n \u001b[90m 55 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#income'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'1 250 000'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 56 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#expenses'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'850 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 57 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#profit'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'400 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 58 |\u001b[39m\n \u001b[90m 59 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'✅ Number formatting test passed - Czech locale formatting works correctly'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js:56:24\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2025-07-26T23:38:02.849Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Desktop-Large-retry1\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Desktop-Large-retry1\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Desktop-Large-retry1\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Desktop-Large-retry1\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                        "column": 24,
+                        "line": 56
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "d490fad1cf3dba0816e5-6e1f480eacd590459694",
+              "file": "analytics-dashboard.spec.js",
+              "line": 50,
+              "column": 3
+            },
+            {
+              "title": "should display analytics with mock data",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Microsoft Edge",
+                  "projectName": "Microsoft Edge",
+                  "results": [
+                    {
+                      "workerIndex": 16,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3453,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "✅ Analytics dashboard test passed - all metrics and charts are displaying correctly\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-26T23:38:00.084Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d490fad1cf3dba0816e5-05b8d95c34a82830bb02",
+              "file": "analytics-dashboard.spec.js",
+              "line": 9,
+              "column": 3
+            },
+            {
+              "title": "should format numbers correctly",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Microsoft Edge",
+                  "projectName": "Microsoft Edge",
+                  "results": [
+                    {
+                      "workerIndex": 16,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 2802,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\n    at C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js:56:24",
+                        "location": {
+                          "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                          "column": 24,
+                          "line": 56
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 54 |\u001b[39m     \u001b[90m// Check Czech number formatting (using toContainText instead of exact match)\u001b[39m\n \u001b[90m 55 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#income'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'1 250 000'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 56 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#expenses'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'850 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 57 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#profit'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'400 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 58 |\u001b[39m\n \u001b[90m 59 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'✅ Number formatting test passed - Czech locale formatting works correctly'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                            "column": 24,
+                            "line": 56
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m \u001b[27m250\u001b[7m \u001b[27m000\"\u001b[39m\n\n\u001b[0m \u001b[90m 54 |\u001b[39m     \u001b[90m// Check Czech number formatting (using toContainText instead of exact match)\u001b[39m\n \u001b[90m 55 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#income'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'1 250 000'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 56 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#expenses'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'850 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 57 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#profit'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(\u001b[32m'400 000'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 58 |\u001b[39m\n \u001b[90m 59 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'✅ Number formatting test passed - Czech locale formatting works correctly'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js:56:24\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-07-26T23:38:04.705Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Microsoft-Edge\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Microsoft-Edge\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Microsoft-Edge\\error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\askelatest\\askelio\\frontend\\tests\\analytics-dashboard.spec.js",
+                        "column": 24,
+                        "line": 56
+                      }
+                    },
+                    {
+                      "workerIndex": 18,
+                      "parallelIndex": 0,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2025-07-26T23:38:10.705Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\askelatest\\askelio\\frontend\\test-results\\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Microsoft-Edge-retry1\\trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "d490fad1cf3dba0816e5-7c9ed576058ec20b394e",
+              "file": "analytics-dashboard.spec.js",
+              "line": 50,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-07-26T23:36:56.719Z",
+    "duration": 74040.53199999999,
+    "expected": 8,
+    "skipped": 0,
+    "unexpected": 8,
+    "flaky": 0
+  }
+}
