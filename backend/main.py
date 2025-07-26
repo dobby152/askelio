@@ -35,6 +35,7 @@ from routers.auth import router as auth_router
 from routers.dashboard import router as dashboard_router
 from routes.company_routes import router as company_router
 from routes.approval_routes import router as approval_router
+from routes.analytics_routes import router as analytics_router
 from middleware.auth_middleware import get_current_user
 
 
@@ -71,6 +72,7 @@ app.include_router(auth_router)
 app.include_router(dashboard_router)
 app.include_router(company_router)
 app.include_router(approval_router)
+app.include_router(analytics_router)
 
 # Test endpoint
 @app.get("/test")
