@@ -9,9 +9,9 @@ from pydantic import BaseModel
 from typing import Dict, List, Optional, Any
 import logging
 
-from ..services.company_service import CompanyService
-from ..services.approval_service import ApprovalService
-from ..middleware.auth import get_current_user
+from services.company_service import CompanyService
+from services.approval_service import ApprovalService
+from middleware.auth_middleware import get_current_user
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/companies", tags=["companies"])
