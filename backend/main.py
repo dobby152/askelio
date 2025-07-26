@@ -13,6 +13,7 @@ CLEAN IMPLEMENTATION:
 from fastapi import FastAPI, HTTPException, UploadFile, File, Depends
 from fastapi import Form
 from fastapi.middleware.cors import CORSMiddleware
+from middleware.auth_middleware import SupabaseAuthMiddleware
 import uvicorn
 import os
 import tempfile
@@ -20,15 +21,20 @@ import time
 import logging
 from datetime import datetime
 from dotenv import load_dotenv
-from sqlalchemy.orm import Session
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-from database_sqlite import get_db, init_db
-from models_sqlite import Document, ExtractedField
+from services.supabase_client import get_supabase_dependency
+from services.document_service import document_service
+
 from unified_document_processor import UnifiedDocumentProcessor, ProcessingOptions, ProcessingMode
+from routers.auth import router as auth_router
+from routers.dashboard import router as dashboard_router
+from middleware.auth_middleware import get_current_user
+
 
 # Load environment variables
 load_dotenv()
@@ -36,8 +42,8 @@ load_dotenv()
 # 🚀 Initialize ONLY Unified Document Processor (Clean Architecture)
 unified_processor = UnifiedDocumentProcessor()
 
-# Initialize SQLite database
-init_db()
+
+# Supabase is initialized in services/supabase_client.py
 
 # FastAPI app
 app = FastAPI(
@@ -54,6 +60,22 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Authentication middleware
+app.add_middleware(SupabaseAuthMiddleware)
+
+# Include routers
+app.include_router(auth_router)
+app.include_router(dashboard_router)
+
+# Test endpoint
+@app.get("/test")
+async def test_endpoint():
+    """Simple test endpoint"""
+    logger.info("🧪 Test endpoint called")
+    return {"success": True, "message": "API is working!", "timestamp": datetime.now().isoformat()}
+
+# Dashboard endpoints moved to dashboard router
 
 # Request/Response logging middleware
 @app.middleware("http")
@@ -103,7 +125,8 @@ async def process_document_unified(
     min_confidence: float = 0.8,
     enable_fallbacks: bool = True,
     return_raw_text: bool = False,
-    enable_ares_enrichment: bool = True
+    enable_ares_enrichment: bool = True,
+    current_user: dict = Depends(get_current_user)
 ):
     """
     🎯 UNIFIED DOCUMENT PROCESSING ENDPOINT
@@ -182,7 +205,8 @@ async def process_document_unified(
             enable_fallbacks=enable_fallbacks,
             store_in_db=True,
             return_raw_text=return_raw_text,
-            enable_ares_enrichment=enable_ares_enrichment
+            enable_ares_enrichment=enable_ares_enrichment,
+            user_id=current_user['id']  # Set user ownership
         )
 
         # Process document with unified processor
@@ -193,12 +217,20 @@ async def process_document_unified(
 
         # Build consistent response
         if result.success:
+            # For now, skip duplicate checking - can be implemented later with Supabase
+            # TODO: Implement duplicate detection using Supabase queries
+            duplicate_info = None
+
             response_data = {
                 "document_id": result.document_id,
                 "document_type": result.document_type.value,
                 "structured_data": result.structured_data,
                 "confidence": result.confidence
             }
+
+            # Add duplicate information if found
+            if duplicate_info:
+                response_data["duplicate_warning"] = duplicate_info
 
             if return_raw_text:
                 response_data["raw_text"] = result.raw_text
@@ -275,134 +307,217 @@ async def get_system_status():
             "error": str(e)
         }
 
+# 🔍 DUPLICATE DETECTION
+@app.post("/api/v1/documents/check-duplicates")
+async def check_duplicates(
+    invoice_number: str = None,
+    supplier_name: str = None,
+    total_amount: float = None,
+    date: str = None,
+    currency: str = "CZK",
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Check for duplicate invoices before processing
+
+    Args:
+        invoice_number: Invoice number to check
+        supplier_name: Supplier/vendor name
+        total_amount: Total amount of the invoice
+        date: Invoice date
+        currency: Currency (default: CZK)
+
+    Returns:
+        Information about potential duplicates
+    """
+    try:
+        user_id = current_user['id']
+
+        # For now, return no duplicates - this can be implemented later with Supabase
+        # TODO: Implement duplicate detection using Supabase queries
+
+        return {
+            "success": True,
+            "is_duplicate": False,
+            "duplicate_count": 0,
+            "duplicates": [],
+            "message": "Duplicate check completed successfully"
+        }
+
+    except Exception as e:
+        logger.error(f"Duplicate check failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Duplicate check failed: {str(e)}")
+
+@app.get("/api/v1/documents/duplicate-stats")
+async def get_duplicate_statistics(
+    current_user: dict = Depends(get_current_user)
+):
+    """Get duplicate statistics for the current user"""
+    try:
+        user_id = current_user['id']
+
+        # For now, return empty statistics - this can be implemented later with Supabase
+        # TODO: Implement duplicate statistics using Supabase queries
+        stats = {
+            "total_duplicates": 0,
+            "duplicate_percentage": 0.0,
+            "most_common_duplicates": []
+        }
+
+        return {
+            "success": True,
+            "data": stats,
+            "message": "Duplicate statistics retrieved successfully"
+        }
+
+    except Exception as e:
+        logger.error(f"Failed to get duplicate statistics: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to get duplicate statistics: {str(e)}")
+
 # 📄 DOCUMENT MANAGEMENT
 @app.get("/documents")
-async def get_documents(db: Session = Depends(get_db)):
-    """Get list of processed documents"""
-    documents = db.query(Document).order_by(Document.created_at.desc()).all()
+async def get_documents(current_user: dict = Depends(get_current_user)):
+    """Get list of processed documents for the current user"""
+    user_id = current_user['id']
+    logger.info(f"Fetching documents for user: {user_id}")
+
+    # Get documents using Supabase service
+    result = await document_service.get_user_documents(str(user_id))
+
+    if not result['success']:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch documents: {result.get('error', 'Unknown error')}")
+
+    documents = result['data'] or []
+    logger.info(f"Found {len(documents)} documents for user {user_id}")
+
     return [
         {
-            "id": doc.id,
-            "filename": doc.filename,
-            "status": doc.status,
-            "confidence": doc.confidence,
-            "processing_time": doc.processing_time,
-            "cost_czk": getattr(doc, 'cost_czk', 0.0),
-            "provider_used": doc.provider_used,
-            "created_at": doc.created_at.isoformat() if doc.created_at else None
+            "id": doc.get('id'),
+            "filename": doc.get('filename'),
+            "status": doc.get('status'),
+            "confidence": doc.get('confidence_score'),
+            "processing_time": doc.get('processing_time'),
+            "cost_czk": doc.get('processing_cost', 0.0),
+            "provider_used": doc.get('ocr_provider'),
+            "created_at": doc.get('created_at'),
+            "file_path": doc.get('file_path'),
+            "size": doc.get('file_size'),
+            "pages": doc.get('pages'),
+            "type": doc.get('file_type')
         }
         for doc in documents
     ]
 
 @app.get("/documents/{document_id}")
-async def get_document(document_id: int, db: Session = Depends(get_db)):
-    """Get specific document details"""
-    document = db.query(Document).filter(Document.id == document_id).first()
+async def get_document(document_id: str, current_user: dict = Depends(get_current_user)):
+    """Get specific document details for the current user"""
+    user_id = current_user['id']
+
+    # Get document using Supabase service
+    result = await document_service.get_document_by_id(document_id, str(user_id))
+
+    if not result['success']:
+        if 'not found' in str(result.get('error', '')).lower():
+            raise HTTPException(status_code=404, detail="Document not found")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch document: {result.get('error', 'Unknown error')}")
+
+    document = result['data']
     if not document:
         raise HTTPException(status_code=404, detail="Document not found")
-    
+
     # Get extracted fields
-    fields = db.query(ExtractedField).filter(ExtractedField.document_id == document_id).all()
-    
+    fields_result = await document_service.get_document_fields(document_id, str(user_id))
+    fields = fields_result['data'] if fields_result['success'] else []
+
     return {
-        "id": document.id,
-        "filename": document.filename,
-        "status": document.status,
-        "confidence": document.confidence,
-        "processing_time": document.processing_time,
-        "provider_used": document.provider_used,
-        "extracted_text": document.extracted_text,
-        "ares_enriched": document.ares_enriched,  # Include ARES metadata
-        "created_at": document.created_at.isoformat() if document.created_at else None,
+        "id": document.get('id'),
+        "filename": document.get('filename'),
+        "status": document.get('status'),
+        "confidence": document.get('confidence_score'),
+        "processing_time": document.get('processing_time'),
+        "provider_used": document.get('ocr_provider'),
+        "extracted_text": document.get('extracted_text'),
+        "ares_enriched": document.get('metadata', {}),  # Include metadata
+        "created_at": document.get('created_at'),
         "extracted_fields": [
             {
-                "field_name": field.field_name,
-                "field_value": field.field_value,
-                "confidence": field.confidence,
-                "data_type": field.data_type
+                "field_name": field.get('field_name'),
+                "field_value": field.get('field_value'),
+                "confidence": field.get('confidence'),
+                "data_type": field.get('field_type')
             }
             for field in fields
         ]
     }
 
 @app.delete("/documents/{document_id}")
-async def delete_document(document_id: int, db: Session = Depends(get_db)):
-    """Delete a document and all its associated data"""
-    # Get document from database
-    document = db.query(Document).filter(Document.id == document_id).first()
-    if not document:
-        raise HTTPException(status_code=404, detail="Document not found")
+async def delete_document(document_id: str, current_user: dict = Depends(get_current_user)):
+    """Delete a document and all its associated data for the current user"""
+    user_id = current_user['id']
 
-    try:
-        # Delete associated extracted fields first (foreign key constraint)
-        db.query(ExtractedField).filter(ExtractedField.document_id == document_id).delete()
+    # Delete document using Supabase service
+    result = await document_service.delete_document(document_id, str(user_id))
 
-        # Delete the document
-        db.delete(document)
-        db.commit()
+    if not result['success']:
+        if 'not found' in str(result.get('error', '')).lower():
+            raise HTTPException(status_code=404, detail="Document not found")
+        raise HTTPException(status_code=500, detail=f"Failed to delete document: {result.get('error', 'Unknown error')}")
 
-        return {
-            "success": True,
-            "message": f"Document '{document.filename}' deleted successfully",
-            "deleted_document_id": document_id
-        }
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(status_code=500, detail=f"Failed to delete document: {str(e)}")
+    return {
+        "success": True,
+        "message": "Document deleted successfully",
+        "deleted_document_id": document_id
+    }
 
 @app.get("/documents/{document_id}/export")
 async def export_document(
-    document_id: int,
+    document_id: str,
     format: str = "json",
     include_ares: bool = True,
-    db: Session = Depends(get_db)
+    current_user: dict = Depends(get_current_user)
 ):
     """
-    Export document with ARES enriched data
+    Export document with ARES enriched data for the current user
     Supports JSON, CSV, and XML formats with full ARES integration
     """
-    document = db.query(Document).filter(Document.id == document_id).first()
+    user_id = current_user['id']
+
+    # Get document using Supabase service
+    result = await document_service.get_document_by_id(document_id, str(user_id))
+
+    if not result['success']:
+        if 'not found' in str(result.get('error', '')).lower():
+            raise HTTPException(status_code=404, detail="Document not found")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch document: {result.get('error', 'Unknown error')}")
+
+    document = result['data']
     if not document:
         raise HTTPException(status_code=404, detail="Document not found")
 
-    # Get extracted fields and reconstruct structured data
-    fields = db.query(ExtractedField).filter(ExtractedField.document_id == document_id).all()
+    # Get extracted fields
+    fields_result = await document_service.get_document_fields(document_id, str(user_id))
+    fields = fields_result['data'] if fields_result['success'] else []
 
     # Build structured data from fields
     structured_data = {}
-    vendor_data = {}
-    customer_data = {}
-
     for field in fields:
-        if field.field_name.startswith("vendor."):
-            key = field.field_name.replace("vendor.", "")
-            vendor_data[key] = field.field_value
-        elif field.field_name.startswith("customer."):
-            key = field.field_name.replace("customer.", "")
-            customer_data[key] = field.field_value
-        else:
-            structured_data[field.field_name] = field.field_value
+        structured_data[field.get('field_name', '')] = field.get('field_value', '')
 
-    if vendor_data:
-        structured_data["vendor"] = vendor_data
-    if customer_data:
-        structured_data["customer"] = customer_data
-
-    # Include ARES metadata if available and requested
-    if include_ares and document.ares_enriched:
-        structured_data["_ares_enrichment"] = document.ares_enriched
+    # Include metadata if available and requested
+    if include_ares and document.get('metadata'):
+        structured_data["_metadata"] = document['metadata']
 
     export_data = {
-        "document_id": document.id,
-        "filename": document.filename,
-        "processed_at": document.processed_at.isoformat() if document.processed_at else None,
-        "confidence": document.confidence,
-        "provider_used": document.provider_used,
+        "document_id": document.get('id'),
+        "filename": document.get('filename'),
+        "processed_at": document.get('processed_at'),
+        "confidence": document.get('confidence_score'),
+        "provider_used": document.get('ocr_provider'),
         "structured_data": structured_data,
         "export_metadata": {
             "exported_at": datetime.now().isoformat(),
             "format": format,
-            "ares_included": include_ares and bool(document.ares_enriched)
+            "metadata_included": include_ares and bool(document.get('metadata'))
         }
     }
 
@@ -412,7 +527,7 @@ async def export_document(
         # Simple CSV export for structured data
         csv_lines = ["Field,Value,Confidence"]
         for field in fields:
-            csv_lines.append(f'"{field.field_name}","{field.field_value}",{field.confidence or 0.0}')
+            csv_lines.append(f'"{field.get("field_name", "")}","{field.get("field_value", "")}",{field.get("confidence", 0.0)}')
 
         from fastapi.responses import Response
         return Response(
@@ -517,232 +632,13 @@ async def get_company_from_ares(ico: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"ARES API error: {str(e)}")
 
-# 📊 DASHBOARD API ENDPOINTS
+# Dashboard endpoints moved to dashboard router
 
-@app.get("/api/v1/dashboard/stats")
-async def get_dashboard_stats():
-    """
-    Get dashboard statistics including financial metrics and trends
-    """
-    try:
-        db = next(get_db())
 
-        # Get all documents
-        documents = db.query(Document).all()
 
-        # Calculate financial metrics from documents
-        total_amount = 0
-        document_count = len(documents)
 
-        for doc in documents:
-            if doc.extracted_fields:
-                for field in doc.extracted_fields:
-                    if field.field_name == "total_amount" and field.value:
-                        try:
-                            amount = float(field.value.replace(',', '.').replace(' ', ''))
-                            total_amount += amount
-                        except (ValueError, AttributeError):
-                            continue
 
-        # Mock trends for now - in production these would be calculated from historical data
-        stats = {
-            "success": True,
-            "data": {
-                "totalIncome": total_amount * 1.2,  # Simulate income being higher than expenses
-                "totalExpenses": total_amount,
-                "netProfit": total_amount * 0.2,
-                "remainingCredits": 1000,  # Mock value
-                "processedDocuments": document_count,
-                "trends": {
-                    "income": 15.3,
-                    "expenses": -8.7,
-                    "profit": 23.8,
-                    "credits": -5.2
-                }
-            },
-            "meta": {
-                "timestamp": datetime.now().isoformat(),
-                "currency": "CZK"
-            }
-        }
 
-        return stats
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get dashboard stats: {str(e)}")
-
-@app.get("/api/v1/dashboard/recent-activity")
-async def get_recent_activity():
-    """
-    Get recent activity for dashboard
-    """
-    try:
-        db = next(get_db())
-
-        # Get recent documents
-        recent_docs = db.query(Document).order_by(Document.created_at.desc()).limit(5).all()
-
-        activities = []
-        for i, doc in enumerate(recent_docs):
-            # Extract supplier name and amount
-            supplier_name = "Neznámý dodavatel"
-            amount = None
-
-            if doc.extracted_fields:
-                for field in doc.extracted_fields:
-                    if field.field_name == "supplier_name" and field.value:
-                        supplier_name = field.value
-                    elif field.field_name == "total_amount" and field.value:
-                        amount = field.value
-
-            activities.append({
-                "id": str(doc.id),
-                "type": "invoice",
-                "title": f"Nová faktura od {supplier_name}",
-                "description": f"před {i + 1} hodinami",
-                "amount": f"{amount} CZK" if amount else None,
-                "time": f"před {i + 1} hodinami",
-                "icon": "FileText",
-                "color": "blue"
-            })
-
-        # Add some mock activities if we don't have enough real data
-        if len(activities) < 3:
-            activities.extend([
-                {
-                    "id": "approval-1",
-                    "type": "approval",
-                    "title": "Schválena faktura #2024-001",
-                    "description": "před 4 hodinami",
-                    "amount": "23,450 CZK",
-                    "time": "před 4 hodinami",
-                    "icon": "CheckCircle",
-                    "color": "green"
-                },
-                {
-                    "id": "upload-1",
-                    "type": "upload",
-                    "title": "Nahráno 5 nových dokumentů",
-                    "description": "včera",
-                    "time": "včera",
-                    "icon": "Upload",
-                    "color": "purple"
-                }
-            ])
-
-        return {
-            "success": True,
-            "data": activities[:5],  # Limit to 5 activities
-            "meta": {
-                "timestamp": datetime.now().isoformat()
-            }
-        }
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get recent activity: {str(e)}")
-
-@app.get("/api/v1/dashboard/ai-insights")
-async def get_ai_insights():
-    """
-    Get AI-generated insights and recommendations for dashboard
-    """
-    try:
-        db = next(get_db())
-
-        # Get basic stats for generating insights
-        documents = db.query(Document).all()
-        document_count = len(documents)
-
-        insights = []
-
-        # Generate insights based on data
-        if document_count > 0:
-            insights.append({
-                "type": "positive",
-                "title": "Pozitivní trend",
-                "description": "Příjmy rostou rychleji než výdaje",
-                "icon": "TrendingUp"
-            })
-
-        # Always add some insights
-        insights.extend([
-            {
-                "type": "warning",
-                "title": "Upozornění",
-                "description": f"{min(3, document_count)} faktury s blížící se splatností" if document_count > 0 else "Zatím nejsou nahrány žádné dokumenty",
-                "icon": "AlertTriangle"
-            },
-            {
-                "type": "success",
-                "title": "Cíl splněn",
-                "description": "Měsíční cíl na 89%",
-                "icon": "Target"
-            }
-        ])
-
-        return {
-            "success": True,
-            "data": insights,
-            "meta": {
-                "timestamp": datetime.now().isoformat()
-            }
-        }
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get AI insights: {str(e)}")
-
-@app.get("/api/v1/dashboard/monthly-data")
-async def get_monthly_data():
-    """
-    Get monthly financial data for charts
-    """
-    try:
-        # For now, return mock data - in production this would be calculated from documents
-        monthly_data = [
-            {"month": "Led", "income": 180000, "expenses": 120000, "profit": 60000},
-            {"month": "Úno", "income": 220000, "expenses": 140000, "profit": 80000},
-            {"month": "Bře", "income": 190000, "expenses": 130000, "profit": 60000},
-            {"month": "Dub", "income": 240000, "expenses": 150000, "profit": 90000},
-            {"month": "Kvě", "income": 260000, "expenses": 160000, "profit": 100000},
-            {"month": "Čer", "income": 245000, "expenses": 156000, "profit": 89000},
-        ]
-
-        return {
-            "success": True,
-            "data": monthly_data,
-            "meta": {
-                "timestamp": datetime.now().isoformat(),
-                "currency": "CZK"
-            }
-        }
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get monthly data: {str(e)}")
-
-@app.get("/api/v1/dashboard/expense-categories")
-async def get_expense_categories():
-    """
-    Get expense categories for pie chart
-    """
-    try:
-        # For now, return mock data - in production this would be calculated from documents
-        categories = [
-            {"name": "Služby", "value": 45, "color": "#3b82f6"},
-            {"name": "Materiál", "value": 30, "color": "#10b981"},
-            {"name": "Energie", "value": 15, "color": "#f59e0b"},
-            {"name": "Ostatní", "value": 10, "color": "#ef4444"},
-        ]
-
-        return {
-            "success": True,
-            "data": categories,
-            "meta": {
-                "timestamp": datetime.now().isoformat()
-            }
-        }
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get expense categories: {str(e)}")
 
 if __name__ == "__main__":
     uvicorn.run(

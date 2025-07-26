@@ -59,6 +59,7 @@ python-dotenv==1.0.0
 
 # HTTP client
 httpx==0.25.2
+aiohttp==3.9.1
 
 # Google Cloud Services
 google-cloud-storage==2.10.0

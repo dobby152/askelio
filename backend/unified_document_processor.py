@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from enum import Enum
 from datetime import datetime
 from pathlib import Path
+# from services.duplicate_detection_service import DuplicateDetectionService  # Disabled for Supabase migration
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -39,6 +40,7 @@ class ProcessingOptions:
     store_in_db: bool = True
     return_raw_text: bool = False
     enable_ares_enrichment: bool = True  # Enable ARES company data enrichment
+    user_id: Optional[str] = None  # User ID for document ownership
 
 @dataclass
 class ProcessingResult:
@@ -78,6 +80,9 @@ class UnifiedDocumentProcessor:
             "provider_usage": {},
             "fallback_usage": 0
         }
+
+        # Duplicate detection service disabled for Supabase migration
+        # self.duplicate_detector = DuplicateDetectionService()
         
         logger.info("✅ Unified Document Processor initialized")
     
@@ -116,17 +121,9 @@ class UnifiedDocumentProcessor:
         else:
             logger.info("ℹ️ Gemini Decision Engine disabled (set ENABLE_GEMINI=true to enable)")
         
-        try:
-            # Database components
-            from database_sqlite import SessionLocal
-            from models_sqlite import Document, ExtractedField
-            self.SessionLocal = SessionLocal
-            self.Document = Document
-            self.ExtractedField = ExtractedField
-            logger.info("✅ Database components initialized")
-        except Exception as e:
-            logger.error(f"❌ Failed to initialize database: {e}")
-            self.SessionLocal = None
+        # Database components disabled for Supabase migration
+        # Database operations now handled by document_service
+        logger.info("ℹ️ Database components disabled (using Supabase services)")
 
         # 🏢 ARES Client for Czech company data enrichment
         try:
@@ -502,6 +499,7 @@ class UnifiedDocumentProcessor:
         try:
             # Create document record
             document = self.Document(
+                user_id=options.user_id,  # Set user ownership
                 filename=filename,
                 status="completed" if llm_result.success else "failed",
                 type="application/pdf",  # TODO: Detect actual type
@@ -522,6 +520,7 @@ class UnifiedDocumentProcessor:
             db.refresh(document)
 
             # Store extracted fields
+            extracted_fields = []
             for field_name, field_value in validated_data.items():
                 if field_value is not None and field_name not in ["validated_at", "items"]:
                     extracted_field = self.ExtractedField(
@@ -532,8 +531,20 @@ class UnifiedDocumentProcessor:
                         data_type=type(field_value).__name__
                     )
                     db.add(extracted_field)
+                    extracted_fields.append(extracted_field)
 
             db.commit()
+
+            # Generate and store duplicate hash
+            try:
+                invoice_data = self.duplicate_detector.extract_invoice_data_from_fields(extracted_fields)
+                duplicate_hash = self.duplicate_detector.generate_invoice_hash(invoice_data)
+                document.duplicate_hash = duplicate_hash
+                db.commit()
+                logger.info(f"🔍 Generated duplicate hash for document {document.id}")
+            except Exception as e:
+                logger.warning(f"⚠️ Failed to generate duplicate hash: {e}")
+
             logger.info(f"💾 Document stored in database with ID: {document.id}")
             return document.id
 

@@ -6,7 +6,7 @@ Caches similar document responses to achieve <3s processing
 import hashlib
 import json
 import time
-import sqlite3
+# import sqlite3  # Disabled for Supabase migration
 import logging
 from typing import Dict, Any, Optional, Tuple
 from dataclasses import dataclass, asdict
@@ -40,31 +40,9 @@ class LLMCache:
         logger.info(f"🚀 LLM Cache initialized (max_age: {max_age_hours}h)")
     
     def _init_database(self):
-        """Initialize SQLite database for caching"""
-        with sqlite3.connect(self.db_path) as conn:
-            conn.execute("""
-                CREATE TABLE IF NOT EXISTS llm_cache (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    text_hash TEXT UNIQUE NOT NULL,
-                    text_preview TEXT,
-                    response_data TEXT NOT NULL,
-                    model_used TEXT NOT NULL,
-                    confidence_score REAL,
-                    created_at REAL NOT NULL,
-                    access_count INTEGER DEFAULT 0,
-                    last_accessed REAL DEFAULT 0,
-                    document_type TEXT,
-                    language TEXT
-                )
-            """)
-            
-            conn.execute("""
-                CREATE INDEX IF NOT EXISTS idx_text_hash ON llm_cache(text_hash)
-            """)
-            
-            conn.execute("""
-                CREATE INDEX IF NOT EXISTS idx_created_at ON llm_cache(created_at)
-            """)
+        """Initialize in-memory cache (SQLite disabled for Supabase migration)"""
+        self._cache = {}
+        logger.info("Cache initialized in memory mode")
     
     def _calculate_text_hash(self, text: str, document_type: str = "", complexity: str = "") -> str:
         """Calculate hash for text with normalization"""
@@ -107,46 +85,11 @@ class LLMCache:
         
         return len(intersection) / len(union) if union else 0.0
     
-    def get_cached_response(self, text: str, document_type: str = "", 
+    def get_cached_response(self, text: str, document_type: str = "",
                           complexity: str = "") -> Optional[Dict[str, Any]]:
-        """Get cached response if available"""
-        text_hash = self._calculate_text_hash(text, document_type, complexity)
-        
-        try:
-            with sqlite3.connect(self.db_path) as conn:
-                cursor = conn.execute("""
-                    SELECT text_preview, response_data, model_used, confidence_score, 
-                           created_at, access_count
-                    FROM llm_cache 
-                    WHERE text_hash = ? AND created_at > ?
-                """, (text_hash, time.time() - self.max_age_seconds))
-                
-                row = cursor.fetchone()
-                if row:
-                    # Exact hash match
-                    self._update_access_stats(text_hash)
-                    
-                    response_data = json.loads(row[1])
-                    logger.info(f"🎯 Cache HIT (exact): {text_hash[:8]}... - {row[2]}")
-                    
-                    return {
-                        "success": True,
-                        "extracted_data": response_data,
-                        "model_used": f"cached:{row[2]}",
-                        "confidence_score": row[3],
-                        "processing_time": 0.1,  # Very fast cache response
-                        "cost_usd": 0.0,
-                        "reasoning": "Retrieved from cache (exact match)",
-                        "validation_notes": ["Cached response - very fast"],
-                        "cache_hit": True
-                    }
-                
-                # Try similarity matching for near-duplicates
-                return self._find_similar_cached_response(text, document_type)
-                
-        except Exception as e:
-            logger.warning(f"Cache lookup failed: {e}")
-            return None
+        """Get cached response if available (disabled for Supabase migration)"""
+        # Cache disabled for now - always return None to force fresh processing
+        return None
     
     def _find_similar_cached_response(self, text: str, document_type: str) -> Optional[Dict[str, Any]]:
         """Find similar cached responses using text similarity"""
@@ -198,85 +141,27 @@ class LLMCache:
         text_hash = self._calculate_text_hash(text, document_type, complexity)
         text_preview = self._normalize_text(text)[:200]  # First 200 chars for similarity
         
-        try:
-            with sqlite3.connect(self.db_path) as conn:
-                conn.execute("""
-                    INSERT OR REPLACE INTO llm_cache 
-                    (text_hash, text_preview, response_data, model_used, confidence_score,
-                     created_at, access_count, last_accessed, document_type, language)
-                    VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?, ?)
-                """, (
-                    text_hash, text_preview, json.dumps(response_data), 
-                    model_used, confidence_score, time.time(), time.time(),
-                    document_type, language
-                ))
-                
-            logger.info(f"💾 Cached response: {text_hash[:8]}... - {model_used}")
-            
-        except Exception as e:
-            logger.warning(f"Failed to cache response: {e}")
+        # Cache disabled for Supabase migration
+        pass
     
     def _update_access_stats(self, text_hash: str):
-        """Update access statistics for cached item"""
-        try:
-            with sqlite3.connect(self.db_path) as conn:
-                conn.execute("""
-                    UPDATE llm_cache 
-                    SET access_count = access_count + 1, last_accessed = ?
-                    WHERE text_hash = ?
-                """, (time.time(), text_hash))
-        except Exception as e:
-            logger.warning(f"Failed to update access stats: {e}")
-    
+        """Update access statistics for cached item (disabled)"""
+        pass
+
     def cleanup_old_entries(self):
-        """Remove old cache entries"""
-        try:
-            cutoff_time = time.time() - self.max_age_seconds
-            
-            with sqlite3.connect(self.db_path) as conn:
-                cursor = conn.execute("DELETE FROM llm_cache WHERE created_at < ?", (cutoff_time,))
-                deleted_count = cursor.rowcount
-                
-            if deleted_count > 0:
-                logger.info(f"🧹 Cleaned up {deleted_count} old cache entries")
-                
-        except Exception as e:
-            logger.warning(f"Cache cleanup failed: {e}")
+        """Remove old cache entries (disabled)"""
+        pass
     
     def get_cache_stats(self) -> Dict[str, Any]:
-        """Get cache performance statistics"""
-        try:
-            with sqlite3.connect(self.db_path) as conn:
-                cursor = conn.execute("""
-                    SELECT COUNT(*) as total_entries,
-                           AVG(access_count) as avg_access_count,
-                           SUM(access_count) as total_hits,
-                           COUNT(CASE WHEN access_count > 0 THEN 1 END) as used_entries
-                    FROM llm_cache
-                """)
-                
-                row = cursor.fetchone()
-                if row:
-                    total_entries = row[0]
-                    avg_access = row[1] or 0
-                    total_hits = row[2] or 0
-                    used_entries = row[3] or 0
-                    
-                    hit_rate = (used_entries / total_entries * 100) if total_entries > 0 else 0
-                    
-                    return {
-                        "total_entries": total_entries,
-                        "used_entries": used_entries,
-                        "total_hits": total_hits,
-                        "avg_access_count": round(avg_access, 2),
-                        "hit_rate_percent": round(hit_rate, 1),
-                        "estimated_time_saved": total_hits * 3.0  # Assume 3s saved per hit
-                    }
-                    
-        except Exception as e:
-            logger.warning(f"Failed to get cache stats: {e}")
-        
-        return {"error": "Failed to get stats"}
+        """Get cache performance statistics (disabled)"""
+        return {
+            "total_entries": 0,
+            "used_entries": 0,
+            "total_hits": 0,
+            "avg_access_count": 0,
+            "hit_rate_percent": 0,
+            "estimated_time_saved": 0
+        }
 
 # Global cache instance
 llm_cache = LLMCache()
