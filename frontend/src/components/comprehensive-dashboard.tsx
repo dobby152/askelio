@@ -855,6 +855,26 @@ function StatisticsPage() {
 
 // Enhanced components for other sections
 function DocumentsPage() {
+  const [documents, setDocuments] = useState<RecentActivity[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const loadDocuments = async () => {
+      try {
+        setLoading(true)
+        const activities = await dashboardAPI.getRecentActivity()
+        setDocuments(activities)
+      } catch (error) {
+        console.error('Error loading documents:', error)
+        setDocuments([])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadDocuments()
+  }, [])
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -877,14 +897,18 @@ function DocumentsPage() {
       </div>
 
       <div className="grid gap-4">
-        {recentActivities.length === 0 ? (
+        {loading ? (
+          <div className="text-center py-8">
+            <div className="text-sm text-muted-foreground">Načítám dokumenty...</div>
+          </div>
+        ) : documents.length === 0 ? (
           <div className="text-center py-8">
             <FileText className="w-12 h-12 mx-auto mb-4 text-gray-300" />
             <p className="text-gray-500">Zatím nemáte žádné dokumenty</p>
             <p className="text-sm text-gray-400 mt-2">Nahrajte svůj první dokument pomocí tlačítka "Nahrát dokument"</p>
           </div>
         ) : (
-          recentActivities.map((activity, i) => (
+          documents.map((activity, i) => (
             <Card key={activity.id || i}>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
@@ -893,7 +917,7 @@ function DocumentsPage() {
                     <div>
                       <h4 className="font-medium">{activity.title}</h4>
                       <div className="text-sm text-muted-foreground">{activity.description}</div>
-                      <div className="text-xs text-muted-foreground">{activity.timestamp}</div>
+                      <div className="text-xs text-muted-foreground">{activity.time}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
