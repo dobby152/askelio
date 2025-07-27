@@ -28,6 +28,7 @@ import {
 import { ExportDialog } from "@/components/export-dialog"
 import { AresInfoBadge } from "@/components/ares-info-badge"
 import { apiClient } from "@/lib/api"
+import { formatAmount } from "@/lib/format-utils"
 import { cn } from "@/lib/utils"
 import { toast } from 'sonner'
 
@@ -455,7 +456,7 @@ export function DocumentsTable({
                         )}
                         {document.extractedData.amount && (
                           <div className="text-green-600 dark:text-green-400 font-semibold">
-                            {document.extractedData.amount} {document.extractedData.currency || 'CZK'}
+                            {formatAmount(document.extractedData.amount, document.extractedData.currency)}
                           </div>
                         )}
                         {document.extractedData.date && (

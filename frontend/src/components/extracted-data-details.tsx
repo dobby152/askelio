@@ -28,10 +28,11 @@ import {
   Clock
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { formatAmount, formatDate, extractAmountFields, extractItemFields } from '@/lib/format-utils'
 
 interface ExtractedData {
   id: string
-  type: 'vendor' | 'amount' | 'date' | 'invoice_number' | 'item' | 'tax' | 'subtotal' | 'due_date' | 'payment_method'
+  type: 'vendor' | 'amount' | 'date' | 'invoice_number' | 'item' | 'tax' | 'subtotal' | 'due_date' | 'payment_method' | 'items'
   label: string
   value: string
   confidence: number
@@ -86,7 +87,8 @@ const getTypeIcon = (type: string) => {
     case 'amount': return <DollarSign className="w-4 h-4" />
     case 'date': return <Calendar className="w-4 h-4" />
     case 'invoice_number': return <Hash className="w-4 h-4" />
-    case 'item': return <ShoppingCart className="w-4 h-4" />
+    case 'item':
+    case 'items': return <ShoppingCart className="w-4 h-4" />
     default: return <FileText className="w-4 h-4" />
   }
 }
@@ -136,6 +138,55 @@ export function ExtractedDataDetails({
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
+  }
+
+  const formatExtractedValue = (data: ExtractedData) => {
+    if (!data.value) return 'N/A'
+
+    // Handle amount fields
+    if (data.type === 'amount' || data.type === 'subtotal' || data.type === 'tax') {
+      return formatAmount(data.value)
+    }
+
+    // Handle date fields
+    if (data.type === 'date' || data.type === 'due_date') {
+      return formatDate(data.value)
+    }
+
+    // For other types, handle objects
+    if (typeof data.value === 'object') {
+      // If it's an object, try to extract meaningful value
+      if (data.value.value !== undefined) return String(data.value.value)
+      if (data.value.amount !== undefined) return formatAmount(data.value.amount)
+      if (data.value.total !== undefined) return formatAmount(data.value.total)
+      // If no recognizable structure, return JSON string
+      return JSON.stringify(data.value)
+    }
+
+    return String(data.value)
+  }
+
+  const getExpandedFieldsFromExtractedData = (data: ExtractedData) => {
+    if (data.value) {
+      try {
+        // Handle amount fields
+        if ((data.type === 'amount' || data.type === 'subtotal' || data.type === 'tax') &&
+            data.value.startsWith('{') && data.value.endsWith('}')) {
+          const parsed = JSON.parse(data.value)
+          return extractAmountFields(parsed)
+        }
+
+        // Handle item fields
+        if ((data.type === 'item' || data.type === 'items') &&
+            (data.value.startsWith('[') || data.value.startsWith('{'))) {
+          const parsed = JSON.parse(data.value)
+          return extractItemFields(parsed)
+        }
+      } catch (e) {
+        // If parsing fails, treat as regular value
+      }
+    }
+    return []
   }
 
   const exportData = () => {
@@ -193,11 +244,63 @@ export function ExtractedDataDetails({
           <TabsContent value="data" className="mt-0 h-full">
             <ScrollArea className="h-[400px] px-6">
               <div className="space-y-4 py-4">
-                {extractedData.map((data) => (
-                  <div key={data.id} className={cn(
-                    "border rounded-lg p-4 transition-all hover:shadow-sm",
-                    getConfidenceColor(data.confidence)
-                  )}>
+                {extractedData.map((data) => {
+                  const amountFields = getAmountFieldsFromExtractedData(data)
+
+                  // If this is an amount field with multiple values, show them separately
+                  if (amountFields.length > 1) {
+                    return amountFields.map((amountField, index) => (
+                      <div key={`${data.id}_${index}`} className={cn(
+                        "border rounded-lg p-4 transition-all hover:shadow-sm",
+                        getConfidenceColor(data.confidence)
+                      )}>
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            {getTypeIcon(data.type)}
+                            <span className="font-medium">{amountField.label}</span>
+                            {getConfidenceBadge(data.confidence)}
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => copyToClipboard(amountField.value)}
+                            >
+                              <Copy className="w-3 h-3" />
+                            </Button>
+                            {data.editable && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleEdit(data.id, amountField.value)}
+                              >
+                                <Edit3 className="w-3 h-3" />
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className="font-mono text-sm bg-white/50 p-2 rounded border">
+                            {amountField.value}
+                          </div>
+
+                          {data.source_provider && (
+                            <div className="text-xs text-gray-500">
+                              Zdroj: {data.source_provider}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  }
+
+                  // Regular single-value field display
+                  return (
+                    <div key={data.id} className={cn(
+                      "border rounded-lg p-4 transition-all hover:shadow-sm",
+                      getConfidenceColor(data.confidence)
+                    )}>
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center gap-2">
                         {getTypeIcon(data.type)}
@@ -246,7 +349,7 @@ export function ExtractedDataDetails({
                     ) : (
                       <div className="space-y-2">
                         <div className="font-mono text-sm bg-white/50 p-2 rounded border">
-                          {data.value}
+                          {formatExtractedValue(data)}
                         </div>
                         
                         {data.source_provider && (

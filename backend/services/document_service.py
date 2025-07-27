@@ -21,16 +21,27 @@ class DocumentService(SupabaseService):
     async def create_document(self, user_id: str, document_data: DocumentCreate) -> Dict[str, Any]:
         """Create a new document record"""
         try:
+            logger.info(f"🔍 Creating document for user {user_id}")
+            logger.info(f"🔍 Document data: {document_data}")
+
             doc_dict = document_data.dict()
             doc_dict['user_id'] = user_id
             doc_dict['created_at'] = datetime.utcnow().isoformat()
             doc_dict['updated_at'] = datetime.utcnow().isoformat()
-            
-            return await self.execute_query(
+
+            logger.info(f"🔍 Final doc_dict: {doc_dict}")
+
+            result = await self.execute_query(
                 lambda: self.supabase.table('documents').insert(doc_dict).execute()
             )
+
+            logger.info(f"🔍 Create document result: {result}")
+            return result
         except Exception as e:
             logger.error(f"Error creating document: {e}")
+            logger.error(f"Exception type: {type(e)}")
+            import traceback
+            logger.error(f"Traceback: {traceback.format_exc()}")
             return self._handle_error(e)
     
     async def get_user_documents(self, user_id: str, limit: int = 50, offset: int = 0) -> Dict[str, Any]:

@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { apiClient } from '@/lib/api'
+import { formatAmount } from '@/lib/format-utils'
 
 interface SelectedDocument {
   id: string
@@ -179,10 +180,8 @@ export function DocumentWorkspace({ className }: DocumentWorkspaceProps) {
         if (structuredData.date) addStructuredItem('date', 'Datum vystavení', structuredData.date)
         if (structuredData.due_date) addStructuredItem('due_date', 'Datum splatnosti', structuredData.due_date)
         if (structuredData.total_amount) {
-          const amount = typeof structuredData.total_amount === 'object'
-            ? `${structuredData.total_amount.value} ${structuredData.total_amount.currency || 'CZK'}`
-            : structuredData.total_amount
-          addStructuredItem('amount', 'Celková částka', amount)
+          const formattedAmount = formatAmount(structuredData.total_amount)
+          addStructuredItem('amount', 'Celková částka', formattedAmount)
         }
         // Vendor data with ARES enrichment indicators
         if (structuredData.vendor?.name) {

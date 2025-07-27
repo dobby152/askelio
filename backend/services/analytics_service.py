@@ -535,12 +535,12 @@ class AnalyticsService(SupabaseService):
         for key in current_metrics:
             current_val = current_metrics.get(key, 0)
             previous_val = previous_metrics.get(key, 0)
-            
+
             if previous_val > 0:
                 change_percent = ((current_val - previous_val) / previous_val) * 100
             else:
                 change_percent = 100 if current_val > 0 else 0
-            
+
             trends[key] = {
                 "current": current_val,
                 "previous": previous_val,
@@ -548,7 +548,17 @@ class AnalyticsService(SupabaseService):
                 "trend": "up" if change_percent > 0 else "down" if change_percent < 0 else "stable"
             }
 
-        return trends
+        # Get monthly data for charts
+        monthly_data = await self._get_monthly_data(company_id, start_date, end_date)
+
+        # Get expense categories for pie chart
+        expense_categories = await self._get_expense_categories(company_id, start_date, end_date)
+
+        return {
+            **trends,
+            "monthly_data": monthly_data,
+            "expense_categories": expense_categories
+        }
 
     async def _update_company_analytics_record(self, company_id: str, analytics: Dict[str, Any]) -> None:
         """Update the company_analytics table with latest data"""
@@ -727,3 +737,101 @@ class AnalyticsService(SupabaseService):
         except Exception as e:
             logger.error(f"Error creating CSV export: {str(e)}")
             return {"success": False, "error": str(e)}
+
+    async def _get_monthly_data(self, company_id: str, start_date: datetime, end_date: datetime) -> List[Dict[str, Any]]:
+        """Get monthly financial data for charts"""
+        try:
+            # Get last 6 months of data
+            monthly_data = []
+            current_date = end_date
+
+            for i in range(6):
+                month_start = current_date.replace(day=1)
+                if month_start.month == 1:
+                    month_end = month_start.replace(year=month_start.year, month=12, day=31)
+                else:
+                    month_end = month_start.replace(month=month_start.month - 1, day=1) - timedelta(days=1)
+
+                # Get metrics for this month
+                month_metrics = await self._get_overview_metrics(company_id, month_start, month_end)
+
+                # Czech month names
+                czech_months = ["Led", "Úno", "Bře", "Dub", "Kvě", "Čer",
+                               "Čvc", "Srp", "Zář", "Říj", "Lis", "Pro"]
+
+                monthly_data.insert(0, {
+                    "month": czech_months[current_date.month - 1],
+                    "income": month_metrics.get('total_income', 0),
+                    "expenses": month_metrics.get('total_expenses', 0),
+                    "profit": month_metrics.get('net_profit', 0)
+                })
+
+                # Move to previous month
+                if current_date.month == 1:
+                    current_date = current_date.replace(year=current_date.year - 1, month=12)
+                else:
+                    current_date = current_date.replace(month=current_date.month - 1)
+
+            return monthly_data
+
+        except Exception as e:
+            logger.error(f"Error getting monthly data: {e}")
+            return []
+
+    async def _get_expense_categories(self, company_id: str, start_date: datetime, end_date: datetime) -> List[Dict[str, Any]]:
+        """Get expense categories for pie chart"""
+        try:
+            # Query documents with extracted fields for expense categories
+            result = self.supabase.table('documents').select('''
+                id, extracted_fields
+            ''').eq('company_id', company_id).gte('created_at', start_date.isoformat()).lte('created_at', end_date.isoformat()).execute()
+
+            if not result.data:
+                return []
+
+            # Analyze categories from extracted fields
+            categories = {}
+            total_amount = 0
+
+            for doc in result.data:
+                if not doc.get('extracted_fields'):
+                    continue
+
+                category = "Ostatní"
+                amount = 0
+
+                for field in doc['extracted_fields']:
+                    if field.get('field_name') == 'category' and field.get('field_value'):
+                        category = field['field_value']
+                    elif field.get('field_name') == 'total_amount' and field.get('field_value'):
+                        try:
+                            amount = float(field['field_value'])
+                        except:
+                            amount = 0
+
+                if amount > 0:
+                    categories[category] = categories.get(category, 0) + amount
+                    total_amount += amount
+
+            # Convert to percentage format
+            category_list = []
+            colors = ["#3b82f6", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6", "#06b6d4"]
+
+            for i, (category, amount) in enumerate(categories.items()):
+                percentage = (amount / total_amount * 100) if total_amount > 0 else 0
+                category_list.append({
+                    "category": category,
+                    "amount": amount,
+                    "percentage": round(percentage, 1),
+                    "color": colors[i % len(colors)]
+                })
+
+            return sorted(category_list, key=lambda x: x['amount'], reverse=True)
+
+        except Exception as e:
+            logger.error(f"Error getting expense categories: {e}")
+            return []
+
+
+# Create global instance
+analytics_service = AnalyticsService()

@@ -5,6 +5,7 @@
 
 import { secureLogger } from './secure-logger'
 import AskelioSDK from './askelio-sdk.js'
+import { secureSessionManager } from './secure-session-manager'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'
 
@@ -72,12 +73,17 @@ class ApiClient {
       }
     })
 
-    // Load token from localStorage on initialization
+    // ✅ SECURE: Load token from secure session manager
+    this.initializeSession()
+  }
+
+  private async initializeSession() {
     if (typeof window !== 'undefined') {
-      this.accessToken = localStorage.getItem('access_token')
-      // Sync with SDK
-      if (this.accessToken) {
-        this.sdk.setAuthToken(this.accessToken)
+      const session = await secureSessionManager.getSession()
+      if (session) {
+        this.accessToken = session.access_token
+        this.sdk.setAuthToken(session.access_token)
+        secureLogger.authEvent('Session loaded from secure storage')
       }
     }
   }
@@ -151,7 +157,7 @@ class ApiClient {
     console.log('🔐 API Client: Login response:', response)
 
     if (response.success && response.data?.session) {
-      this.setTokens(response.data.session)
+      await this.setTokens(response.data.session)
       if (response.data.user) {
         this.setStoredUserData(response.data.user)
       }
@@ -171,7 +177,7 @@ class ApiClient {
     })
 
     if (response.success && response.data?.session) {
-      this.setTokens(response.data.session)
+      await this.setTokens(response.data.session)
       if (response.data.user) {
         this.setStoredUserData(response.data.user)
       }
@@ -185,12 +191,12 @@ class ApiClient {
       method: 'POST',
     })
 
-    this.clearTokens()
+    await this.clearTokens()
     return response
   }
 
   async refreshToken(): Promise<ApiResponse<AuthData>> {
-    const refreshToken = this.getRefreshToken()
+    const refreshToken = await this.getRefreshToken()
     if (!refreshToken) {
       return {
         success: false,
@@ -205,7 +211,7 @@ class ApiClient {
     })
 
     if (response.success && response.data?.session) {
-      this.setTokens(response.data.session)
+      await this.setTokens(response.data.session)
     }
 
     return response
@@ -218,54 +224,55 @@ class ApiClient {
     })
   }
 
-  // Token management
-  private setTokens(session: AuthData['session']) {
+  // ✅ SECURE: Token management with secure session manager
+  private async setTokens(session: AuthData['session']) {
     if (typeof window !== 'undefined') {
       this.accessToken = session.access_token
-      // Store tokens in localStorage for persistence
-      localStorage.setItem('access_token', session.access_token)
-      localStorage.setItem('refresh_token', session.refresh_token)
-      localStorage.setItem('token_expires_at', session.expires_at.toString())
+
+      // Store tokens securely (handles private mode automatically)
+      await secureSessionManager.setSession({
+        access_token: session.access_token,
+        refresh_token: session.refresh_token,
+        expires_at: session.expires_at
+      })
+
       // Use SDK to manage tokens with automatic refresh
       this.sdk.setAuthTokens(session)
+
+      secureLogger.authEvent('Tokens stored securely')
     }
   }
 
-  private clearTokens() {
+  private async clearTokens() {
     if (typeof window !== 'undefined') {
       this.accessToken = null
-      // Clear all tokens from localStorage
-      localStorage.removeItem('access_token')
-      localStorage.removeItem('refresh_token')
-      localStorage.removeItem('token_expires_at')
-      localStorage.removeItem('askelio_user_data')
+
+      // ✅ SECURE: Clear tokens from secure session manager
+      await secureSessionManager.clearSession()
+
       // Use SDK to clear tokens and stop refresh timer
       this.sdk.clearAuthToken()
+
+      secureLogger.authEvent('All tokens cleared securely')
     }
   }
 
-  private getRefreshToken(): string | null {
+  private async getRefreshToken(): Promise<string | null> {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('refresh_token')
+      return await secureSessionManager.getRefreshToken()
     }
     return null
   }
 
-  // Check if user is authenticated
-  isAuthenticated(): boolean {
+  // ✅ SECURE: Check if user is authenticated using secure session manager
+  async isAuthenticated(): Promise<boolean> {
     if (typeof window === 'undefined') return false
+    return await secureSessionManager.isSessionValid()
+  }
 
-    const token = localStorage.getItem('access_token')
-    const expiresAt = localStorage.getItem('token_expires_at')
-
-    if (!token || !expiresAt) return false
-
-    // Check if token is expired (with 5 minute buffer)
-    const now = Math.floor(Date.now() / 1000)
-    const expires = parseInt(expiresAt)
-
-    // Token is valid if it's not expired (SDK will handle automatic refresh)
-    return expires > now
+  // Synchronous version for backward compatibility (less secure)
+  isAuthenticatedSync(): boolean {
+    return this.accessToken !== null
   }
 
   // Get current access token

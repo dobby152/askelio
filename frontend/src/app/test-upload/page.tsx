@@ -28,7 +28,7 @@ export default function TestUploadPage() {
       console.log('🚀 Starting upload test:', file.name)
       
       const response = await apiClient.uploadDocument(file, {
-        mode: 'cost_optimized',
+        mode: 'cost_effective',
         max_cost_czk: 5.0,
         enable_ares_enrichment: true
       }, (progress) => {

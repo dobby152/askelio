@@ -5,8 +5,8 @@
 
 // ===== PROCESSING TYPES =====
 
-export type ProcessingMode = 
-  | "cost_optimized"    // Default: GPT-4o-mini primary (0.014 Kč/doc)
+export type ProcessingMode =
+  | "cost_effective"    // Default: GPT-4o-mini primary (0.014 Kč/doc) - renamed from cost_optimized
   | "accuracy_first"    // Claude 3.5 Sonnet primary (0.30 Kč/doc)
   | "speed_first"       // Fastest available
   | "budget_strict";    // Cheapest options only
@@ -289,7 +289,7 @@ export const SUPPORTED_FILE_TYPES = [
 export const MAX_FILE_SIZE_MB = 10;
 
 export const DEFAULT_PROCESSING_OPTIONS: ProcessingOptions = {
-  mode: "cost_optimized",
+  mode: "cost_effective",
   max_cost_czk: 5.0,  // 🚀 Increased for powerful models (Claude, GPT-4o)
   min_confidence: 0.8,
   enable_fallbacks: true,

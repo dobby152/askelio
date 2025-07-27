@@ -181,7 +181,7 @@ class AskelioSDK {
   async estimateCost(file, options = {}) {
     // Simple estimation based on file size and mode
     const fileSizeMB = file.size / (1024 * 1024);
-    const mode = options.mode || 'cost_optimized';
+    const mode = options.mode || 'cost_effective';
     
     let baseCost = 0.043; // Average cost in CZK
     
@@ -324,7 +324,7 @@ const sdk = new AskelioSDK('http://localhost:8001');
 
 // Simple document processing
 const result = await sdk.processDocument(file, {
-  mode: 'cost_optimized',
+  mode: 'cost_effective',
   max_cost_czk: 0.5
 });
 

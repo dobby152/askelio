@@ -29,6 +29,7 @@ import {
 } from 'lucide-react'
 import { apiClient } from '@/lib/api'
 import { cn } from '@/lib/utils'
+import { formatAmount, formatDate, formatSimpleNumber, extractAmountFields, extractItemFields } from '@/lib/format-utils'
 import { InteractivePDFPreview } from './interactive-pdf-preview'
 import { ExtractedDataEditor } from './extracted-data-editor'
 import { AresValidation } from './ares-validation'
@@ -113,7 +114,7 @@ export function InvoiceUploadWorkspace() {
       updateProcessingStep('ocr', 'processing', 30, 'Rozpoznávání textu...')
       
       const response = await apiClient.uploadDocument(file, {
-        mode: 'cost_optimized',
+        mode: 'cost_effective',
         max_cost_czk: 5.0,
         enable_ares_enrichment: true
       }, (progress) => {
@@ -309,8 +310,53 @@ export function InvoiceUploadWorkspace() {
     if (fieldName.includes('address') || fieldName.includes('adresa')) {
       return { icon: MapPin, color: 'text-red-600', bgColor: 'bg-red-100', type: 'address' }
     }
+    if (fieldName.includes('item') || fieldName.includes('polozka')) {
+      return { icon: CreditCard, color: 'text-indigo-600', bgColor: 'bg-indigo-100', type: 'item' }
+    }
 
     return { icon: FileText, color: 'text-gray-600', bgColor: 'bg-gray-100', type: 'other' }
+  }
+
+  const formatFieldValue = (field: ExtractedField, typeInfo: any) => {
+    if (!field.value || field.value === 'Nerozpoznáno') {
+      return 'Nerozpoznáno'
+    }
+
+    // Handle amount fields
+    if (typeInfo.type === 'amount') {
+      return formatAmount(field.value)
+    }
+
+    // Handle date fields
+    if (typeInfo.type === 'date') {
+      return formatDate(field.value)
+    }
+
+    // For other types, return as string
+    if (typeof field.value === 'object') {
+      // If it's an object, try to extract meaningful value
+      if (field.value.value !== undefined) return String(field.value.value)
+      if (field.value.amount !== undefined) return formatAmount(field.value.amount)
+      if (field.value.total !== undefined) return formatAmount(field.value.total)
+      // If no recognizable structure, return JSON string
+      return JSON.stringify(field.value)
+    }
+
+    return String(field.value)
+  }
+
+  const getExpandedFieldsFromValue = (field: ExtractedField, typeInfo: any) => {
+    // Handle amount fields with multiple values
+    if (typeInfo.type === 'amount' && typeof field.value === 'object') {
+      return extractAmountFields(field.value)
+    }
+
+    // Handle item fields
+    if (typeInfo.type === 'item' && typeof field.value === 'object') {
+      return extractItemFields(field.value)
+    }
+
+    return []
   }
 
   if (!document) {
@@ -617,7 +663,50 @@ export function InvoiceUploadWorkspace() {
                       {document.extractedData.slice(0, 8).map(field => {
                         const typeInfo = getFieldTypeInfo(field)
                         const IconComponent = typeInfo.icon
+                        const expandedFields = getExpandedFieldsFromValue(field, typeInfo)
 
+                        // If this field has multiple values (amounts or items), show them separately
+                        if (expandedFields.length > 1) {
+                          return expandedFields.map((expandedField, index) => (
+                            <div key={`${field.id}_${index}`} className="p-2 bg-muted/30 rounded border hover:bg-muted/50 transition-colors">
+                              <div className="flex items-center gap-2 mb-1">
+                                <div className={cn("w-4 h-4 rounded flex items-center justify-center", typeInfo.bgColor)}>
+                                  <IconComponent className={cn("w-2.5 h-2.5", typeInfo.color)} />
+                                </div>
+                                <span className="text-xs font-medium truncate flex-1">
+                                  {expandedField.label}
+                                </span>
+                                <Badge
+                                  variant={field.confidence > 0.9 ? 'default' : field.confidence > 0.7 ? 'secondary' : 'destructive'}
+                                  className="text-xs px-1 py-0"
+                                >
+                                  {Math.round(field.confidence * 100)}%
+                                </Badge>
+                              </div>
+                              <div className="text-xs font-mono bg-background p-1.5 rounded border text-gray-700">
+                                {expandedField.value}
+                              </div>
+                              {(field.aresEnriched || field.validated) && (
+                                <div className="flex gap-1 mt-1">
+                                  {field.aresEnriched && (
+                                    <Badge variant="outline" className="text-xs px-1 py-0">
+                                      <Building2 className="w-2 h-2 mr-1" />
+                                      ARES
+                                    </Badge>
+                                  )}
+                                  {field.validated && (
+                                    <Badge variant="outline" className="text-xs px-1 py-0 text-green-600">
+                                      <CheckCircle className="w-2 h-2 mr-1" />
+                                      Ověřeno
+                                    </Badge>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          ))
+                        }
+
+                        // Regular single-value field display
                         return (
                           <div key={field.id} className="p-2 bg-muted/30 rounded border hover:bg-muted/50 transition-colors">
                             <div className="flex items-center gap-2 mb-1">
@@ -635,7 +724,7 @@ export function InvoiceUploadWorkspace() {
                               </Badge>
                             </div>
                             <div className="text-xs font-mono bg-background p-1.5 rounded border text-gray-700">
-                              {field.value || 'Nerozpoznáno'}
+                              {formatFieldValue(field, typeInfo)}
                             </div>
                             {(field.aresEnriched || field.validated) && (
                               <div className="flex gap-1 mt-1">

@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/lib/use-toast"
 import { Upload, FileText, ImageIcon, X, CheckCircle, AlertCircle, DollarSign, Clock } from "lucide-react"
 import { apiClient } from "@/lib/api"
+import { formatAmount } from "@/lib/format-utils"
 import type {
   ProcessingOptions,
   ProcessingProgress,
@@ -35,9 +36,11 @@ interface UploadedFile {
 export function UploadArea() {
   const [files, setFiles] = useState<UploadedFile[]>([])
   const [isDragOver, setIsDragOver] = useState(false)
-  const [processingMode, setProcessingMode] = useState<ProcessingMode>("cost_optimized")
+  const [processingMode, setProcessingMode] = useState<ProcessingMode>("cost_effective")
   const [maxCost, setMaxCost] = useState<number>(5.0)  // 🚀 Increased for powerful models
   const { toast } = useToast()
+
+
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -295,7 +298,7 @@ export function UploadArea() {
                 onChange={(e) => setProcessingMode(e.target.value as ProcessingMode)}
                 className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
               >
-                <option value="cost_optimized">Optimalizované náklady (0.043 Kč/dok)</option>
+                <option value="cost_effective">Optimalizované náklady (0.043 Kč/dok)</option>
                 <option value="accuracy_first">Nejvyšší přesnost (0.30 Kč/dok)</option>
                 <option value="speed_first">Nejrychlejší (0.014 Kč/dok)</option>
                 <option value="budget_strict">Nejlevnější (0.007 Kč/dok)</option>
@@ -402,7 +405,7 @@ export function UploadArea() {
                         <p className="text-green-700 dark:text-green-300">
                           Typ: {file.result.data.structured_data.document_type || 'Neznámý'}
                           {file.result.data.structured_data.amount && (
-                            <span> • Částka: {file.result.data.structured_data.amount} {file.result.data.structured_data.currency || 'CZK'}</span>
+                            <span> • Částka: {formatAmount(file.result.data.structured_data.amount, file.result.data.structured_data.currency || 'CZK')}</span>
                           )}
                         </p>
                       </div>

@@ -41,19 +41,65 @@ async def get_dashboard_stats(current_user: dict = Depends(get_current_user)):
     try:
         user_id = current_user['id']
         logger.info(f"📊 Router: Fetching dashboard stats for user: {user_id}")
-        logger.info(f"📊 Router: Current user data: {current_user}")
 
-        # Simplified stats without database queries for now
+        # Get user's companies
+        from services.company_service import CompanyService
+        from services.analytics_service import AnalyticsService
+
+        company_service = CompanyService()
+        companies_result = await company_service.get_user_companies(user_id)
+
+        if not companies_result['success'] or not companies_result['data']:
+            logger.warning(f"📊 Router: No companies found for user {user_id}")
+            # Return empty stats if no company
+            return {
+                "success": True,
+                "data": {
+                    "totalIncome": 0,
+                    "totalExpenses": 0,
+                    "netProfit": 0,
+                    "remainingCredits": 1000,
+                    "processedDocuments": 0,
+                    "trends": {
+                        "income": 0,
+                        "expenses": 0,
+                        "profit": 0,
+                        "credits": 0
+                    }
+                },
+                "meta": {
+                    "timestamp": datetime.now().isoformat(),
+                    "currency": "CZK"
+                }
+            }
+
+        # Get first company (for now, later we can support multiple companies)
+        company = companies_result['data'][0]['companies']
+        company_id = company['id']
+        logger.info(f"📊 Router: Using company {company_id} for user {user_id}")
+
+        # Get analytics data
+        analytics_service = AnalyticsService()
+        analytics_result = await analytics_service.get_company_analytics(company_id)
+
+        if not analytics_result['success']:
+            logger.error(f"📊 Router: Failed to get analytics: {analytics_result.get('error')}")
+            raise HTTPException(status_code=500, detail="Failed to get analytics data")
+
+        # Extract overview metrics
+        overview = analytics_result['data']['overview']
+
+        # Map analytics data to dashboard stats format
         stats = {
             "success": True,
             "data": {
-                "totalIncome": 0,
-                "totalExpenses": 0,
-                "netProfit": 0,
-                "remainingCredits": 1000,
-                "processedDocuments": 0,
+                "totalIncome": overview.get('total_income', 0),
+                "totalExpenses": overview.get('total_expenses', 0),
+                "netProfit": overview.get('net_profit', 0),
+                "remainingCredits": 1000,  # This would come from user service
+                "processedDocuments": overview.get('total_documents', 0),
                 "trends": {
-                    "income": 0,
+                    "income": 0,  # Would need trend calculation
                     "expenses": 0,
                     "profit": 0,
                     "credits": 0
@@ -61,13 +107,17 @@ async def get_dashboard_stats(current_user: dict = Depends(get_current_user)):
             },
             "meta": {
                 "timestamp": datetime.now().isoformat(),
-                "currency": "CZK"
+                "currency": "CZK",
+                "company_id": company_id,
+                "company_name": company['name']
             }
         }
 
-        logger.info(f"📊 Router: Returning dashboard stats for user {user_id}")
+        logger.info(f"📊 Router: Returning real analytics data for user {user_id}")
         return stats
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Failed to get dashboard stats for user {user_id}: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to get dashboard stats: {str(e)}")
@@ -627,32 +677,52 @@ async def delete_user_document(document_id: str, current_user: dict = Depends(ge
 @router.get("/monthly-data")
 async def get_monthly_data(current_user: dict = Depends(get_current_user)):
     """
-    Get monthly financial data for charts based on user's documents
+    Get monthly financial data for charts based on real analytics data
     """
     try:
         user_id = current_user['id']
         logger.info(f"Getting monthly data for user {user_id}")
 
-        # Import document service
-        from services.document_service import document_service
+        # Get user's companies
+        from services.company_service import CompanyService
+        from services.analytics_service import AnalyticsService
 
-        # Get user documents
-        result = await document_service.get_user_documents(str(user_id), limit=1000)
-        documents = result['data'] if result['success'] and result['data'] else []
+        company_service = CompanyService()
+        companies_result = await company_service.get_user_companies(user_id)
 
-        # Generate monthly data based on document count (simplified for now)
-        monthly_data = []
-        months = ["Led", "Úno", "Bře", "Dub", "Kvě", "Čer", "Čvc", "Srp", "Zář", "Říj", "Lis", "Pro"]
+        if not companies_result['success'] or not companies_result['data']:
+            logger.warning(f"No companies found for user {user_id}")
+            return {
+                "success": True,
+                "data": [],
+                "meta": {
+                    "timestamp": datetime.now().isoformat(),
+                    "currency": "CZK"
+                }
+            }
 
-        for i, month in enumerate(months[:6]):  # Show last 6 months
-            # This is a simplified calculation - in production would use actual document dates and amounts
-            doc_count = len([d for d in documents if d.get('created_at')])
-            monthly_data.append({
-                "month": month,
-                "income": doc_count * 10000,  # Simplified calculation
-                "expenses": doc_count * 7000,
-                "profit": doc_count * 3000
-            })
+        # Get first company
+        company = companies_result['data'][0]['companies']
+        company_id = company['id']
+
+        # Get analytics data
+        analytics_service = AnalyticsService()
+        analytics_result = await analytics_service.get_company_analytics(company_id)
+
+        if not analytics_result['success']:
+            logger.error(f"Failed to get analytics: {analytics_result.get('error')}")
+            return {
+                "success": True,
+                "data": [],
+                "meta": {
+                    "timestamp": datetime.now().isoformat(),
+                    "currency": "CZK"
+                }
+            }
+
+        # Extract monthly data from trends
+        trends = analytics_result['data']['trends']
+        monthly_data = trends.get('monthly_data', [])
 
         return {
             "success": True,
@@ -660,7 +730,8 @@ async def get_monthly_data(current_user: dict = Depends(get_current_user)):
             "meta": {
                 "timestamp": datetime.now().isoformat(),
                 "currency": "CZK",
-                "total_documents": len(documents)
+                "company_id": company_id,
+                "company_name": company['name']
             }
         }
 
@@ -675,31 +746,67 @@ async def get_monthly_data(current_user: dict = Depends(get_current_user)):
 @router.get("/expense-categories")
 async def get_expense_categories(current_user: dict = Depends(get_current_user)):
     """
-    Get expense categories for pie chart based on user's documents
+    Get expense categories for pie chart based on real analytics data
     """
     try:
         user_id = current_user['id']
         logger.info(f"Getting expense categories for user {user_id}")
 
-        # Import document service
-        from services.document_service import document_service
+        # Get user's companies
+        from services.company_service import CompanyService
+        from services.analytics_service import AnalyticsService
 
-        # Get user documents
-        result = await document_service.get_user_documents(str(user_id), limit=1000)
-        documents = result['data'] if result['success'] and result['data'] else []
+        company_service = CompanyService()
+        companies_result = await company_service.get_user_companies(user_id)
 
-        # Basic category analysis based on document types (simplified for now)
-        doc_count = len(documents)
-        categories = [
-            {"name": "Faktury", "value": doc_count, "color": "#3b82f6"},
-        ] if doc_count > 0 else []
+        if not companies_result['success'] or not companies_result['data']:
+            logger.warning(f"No companies found for user {user_id}")
+            return {
+                "success": True,
+                "data": [],
+                "meta": {
+                    "timestamp": datetime.now().isoformat()
+                }
+            }
+
+        # Get first company
+        company = companies_result['data'][0]['companies']
+        company_id = company['id']
+
+        # Get analytics data
+        analytics_service = AnalyticsService()
+        analytics_result = await analytics_service.get_company_analytics(company_id)
+
+        if not analytics_result['success']:
+            logger.error(f"Failed to get analytics: {analytics_result.get('error')}")
+            return {
+                "success": True,
+                "data": [],
+                "meta": {
+                    "timestamp": datetime.now().isoformat()
+                }
+            }
+
+        # Extract expense categories from trends
+        trends = analytics_result['data']['trends']
+        expense_categories = trends.get('expense_categories', [])
+
+        # Convert to expected format
+        categories = []
+        for category in expense_categories:
+            categories.append({
+                "name": category.get('category', 'Unknown'),
+                "value": category.get('percentage', 0),
+                "color": category.get('color', '#3b82f6')
+            })
 
         return {
             "success": True,
             "data": categories,
             "meta": {
                 "timestamp": datetime.now().isoformat(),
-                "total_documents": doc_count
+                "company_id": company_id,
+                "company_name": company['name']
             }
         }
 

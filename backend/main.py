@@ -10,10 +10,12 @@ CLEAN IMPLEMENTATION:
 - Production-ready architecture
 """
 
-from fastapi import FastAPI, HTTPException, UploadFile, File, Depends
+from fastapi import FastAPI, HTTPException, UploadFile, File, Depends, Request
 from fastapi import Form
+from typing import List
 from fastapi.middleware.cors import CORSMiddleware
 from middleware.auth_middleware import SupabaseAuthMiddleware
+from middleware.csrf_middleware import CSRFProtectionMiddleware, get_csrf_token
 import uvicorn
 import os
 import tempfile
@@ -55,16 +57,27 @@ app = FastAPI(
     version="3.0.0"
 )
 
-# CORS middleware
+# CORS middleware - SECURE CONFIGURATION
+allowed_origins = [
+    "http://localhost:3000",  # Development frontend
+    "https://yourdomain.com",  # Production domain - CHANGE THIS!
+]
+
+# Get additional origins from environment
+env_origins = os.getenv('CORS_ORIGINS', '').split(',')
+if env_origins and env_origins[0]:  # Check if not empty
+    allowed_origins.extend([origin.strip() for origin in env_origins])
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,  # ✅ Specific domains only
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],  # ✅ Specific methods
+    allow_headers=["Authorization", "Content-Type", "X-Requested-With"],  # ✅ Specific headers
 )
 
-# Authentication middleware
+# Security middleware
+app.add_middleware(CSRFProtectionMiddleware, secret_key=os.getenv('CSRF_SECRET_KEY', 'default-csrf-secret'))
 app.add_middleware(SupabaseAuthMiddleware)
 
 # Include routers
@@ -83,18 +96,24 @@ async def test_endpoint():
 
 # Dashboard endpoints moved to dashboard router
 
-# Request/Response logging middleware
+# Request/Response logging middleware - SECURE VERSION
 @app.middleware("http")
 async def log_requests(request, call_next):
     start_time = time.time()
     logger.info(f"🔍 Request: {request.method} {request.url}")
-    logger.info(f"🔍 Headers: {dict(request.headers)}")
-    
+
+    # ✅ SECURE: Log only safe headers, exclude Authorization and other sensitive headers
+    safe_headers = {
+        k: v for k, v in request.headers.items()
+        if k.lower() not in ['authorization', 'cookie', 'x-api-key', 'x-auth-token']
+    }
+    logger.info(f"🔍 Safe Headers: {safe_headers}")
+
     response = await call_next(request)
-    
+
     process_time = time.time() - start_time
     logger.info(f"✅ Response: {response.status_code} in {process_time:.3f}s")
-    
+
     return response
 
 @app.get("/")
@@ -122,11 +141,16 @@ async def root():
 async def health_check():
     return {"status": "healthy", "version": "3.0.0", "architecture": "clean"}
 
+@app.get("/csrf-token")
+async def csrf_token_endpoint(request: Request):
+    """Get CSRF token for client"""
+    return await get_csrf_token(request)
+
 # 🎯 MAIN ENDPOINT - Unified Document Processing
 @app.post("/api/v1/documents/process")
 async def process_document_unified(
     file: UploadFile = File(...),
-    mode: str = "cost_optimized",
+    mode: str = "cost_effective",
     max_cost_czk: float = 5.0,
     min_confidence: float = 0.8,
     enable_fallbacks: bool = True,
@@ -140,7 +164,7 @@ async def process_document_unified(
     Powerful models with deep understanding and context awareness.
     
     Parameters:
-    - mode: cost_optimized (default), accuracy_first, speed_first, budget_strict
+    - mode: cost_effective (default), accuracy_first, speed_first, budget_strict
     - max_cost_czk: Maximum cost per document in CZK (default: 5.0 for powerful models)
     - min_confidence: Minimum acceptable confidence (default: 0.8)
     - enable_fallbacks: Enable fallback providers (default: true)
@@ -201,7 +225,7 @@ async def process_document_unified(
         try:
             processing_mode = ProcessingMode(mode)
         except ValueError:
-            processing_mode = ProcessingMode.COST_OPTIMIZED
+            processing_mode = ProcessingMode.COST_EFFECTIVE
 
         # Create processing options
         options = ProcessingOptions(
@@ -255,6 +279,13 @@ async def process_document_unified(
                 "error": None
             }
         else:
+            # Determine error code based on the type of failure
+            error_code = "PROCESSING_FAILED"
+            if result.error_message and "database" in result.error_message.lower():
+                error_code = "DATABASE_STORAGE_FAILED"
+            elif result.error_message and "timeout" in result.error_message.lower():
+                error_code = "PROCESSING_TIMEOUT"
+
             return {
                 "success": False,
                 "data": None,
@@ -265,8 +296,12 @@ async def process_document_unified(
                     "fallbacks_used": result.fallbacks_used
                 },
                 "error": {
-                    "code": "PROCESSING_FAILED",
-                    "message": result.error_message or "Document processing failed"
+                    "code": error_code,
+                    "message": result.error_message or "Document processing failed",
+                    "details": {
+                        "document_saved": result.document_id is not None,
+                        "processing_completed": result.confidence > 0
+                    }
                 }
             }
 
@@ -285,6 +320,104 @@ async def process_document_unified(
                 "message": f"Internal processing error: {str(e)}"
             }
         }
+
+# 🎯 BULK PROCESSING ENDPOINT
+@app.post("/api/v1/documents/process-batch")
+async def process_documents_batch(
+    files: List[UploadFile] = File(...),
+    mode: str = "cost_effective",
+    max_cost_czk: float = 5.0,
+    min_confidence: float = 0.8,
+    enable_fallbacks: bool = True,
+    return_raw_text: bool = False,
+    enable_ares_enrichment: bool = True,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    🎯 BULK DOCUMENT PROCESSING ENDPOINT
+
+    Process multiple documents at once with optimized performance.
+    """
+    logger.info(f"📄 Bulk processing {len(files)} documents for user {current_user.get('id', 'unknown')}")
+
+    if len(files) > 10:  # Limit batch size
+        raise HTTPException(status_code=400, detail="Maximum 10 files per batch")
+
+    results = []
+    total_cost = 0.0
+
+    for i, file in enumerate(files):
+        logger.info(f"📄 Processing file {i+1}/{len(files)}: {file.filename}")
+
+        # Check cost limit
+        if total_cost >= max_cost_czk:
+            logger.warning(f"💰 Cost limit reached ({total_cost:.2f} CZK), skipping remaining files")
+            break
+
+        # Save uploaded file temporarily
+        temp_path = None
+        try:
+            with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(file.filename)[1]) as temp_file:
+                content = await file.read()
+                temp_file.write(content)
+                temp_path = temp_file.name
+
+            # Parse processing mode
+            try:
+                processing_mode = ProcessingMode(mode)
+            except ValueError:
+                processing_mode = ProcessingMode.COST_EFFECTIVE
+
+            # Process document
+            options = ProcessingOptions(
+                mode=processing_mode,
+                max_cost_czk=max_cost_czk - total_cost,  # Remaining budget
+                min_confidence=min_confidence,
+                enable_fallbacks=enable_fallbacks,
+                store_in_db=True,
+                return_raw_text=return_raw_text,
+                enable_ares_enrichment=enable_ares_enrichment,
+                user_id=current_user.get('id')
+            )
+
+            result = unified_processor.process_document(temp_path, file.filename, options)
+            total_cost += result.cost_czk
+
+            # Add result to batch
+            results.append({
+                "filename": file.filename,
+                "success": result.success,
+                "document_id": result.document_id,
+                "document_type": result.document_type.value,
+                "structured_data": result.structured_data,
+                "confidence": result.confidence,
+                "processing_time": result.processing_time,
+                "cost_czk": result.cost_czk,
+                "provider_used": result.provider_used,
+                "error_message": result.error_message
+            })
+
+        except Exception as e:
+            logger.error(f"💥 Error processing {file.filename}: {e}")
+            results.append({
+                "filename": file.filename,
+                "success": False,
+                "error_message": str(e),
+                "cost_czk": 0.0
+            })
+        finally:
+            # Clean up temp file
+            if temp_path and os.path.exists(temp_path):
+                os.unlink(temp_path)
+
+    logger.info(f"✅ Bulk processing completed: {len(results)} files, total cost: {total_cost:.2f} CZK")
+
+    return {
+        "success": True,
+        "processed_count": len(results),
+        "total_cost_czk": total_cost,
+        "results": results
+    }
 
 # 📊 SYSTEM STATUS
 @app.get("/api/v1/system/status")
@@ -474,6 +607,49 @@ async def delete_document(document_id: str, current_user: dict = Depends(get_cur
         "message": "Document deleted successfully",
         "deleted_document_id": document_id
     }
+
+@app.get("/documents/{document_id}/preview")
+async def preview_document(document_id: str, current_user: dict = Depends(get_current_user)):
+    """Serve the actual document file for preview"""
+    user_id = current_user['id']
+
+    # Get document using Supabase service
+    result = await document_service.get_document_by_id(document_id, str(user_id))
+
+    if not result['success']:
+        if 'not found' in str(result.get('error', '')).lower():
+            raise HTTPException(status_code=404, detail="Document not found")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch document: {result.get('error', 'Unknown error')}")
+
+    document = result['data']
+    if not document:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    # For now, return a placeholder response since we don't have file storage implemented
+    # TODO: Implement actual file serving from cloud storage or local filesystem
+    from fastapi.responses import Response
+
+    # Return a simple placeholder for now
+    placeholder_content = f"""
+    <html>
+    <body style="font-family: Arial, sans-serif; padding: 20px; text-align: center;">
+        <h2>Document Preview</h2>
+        <p><strong>Filename:</strong> {document.get('filename', 'Unknown')}</p>
+        <p><strong>Type:</strong> {document.get('file_type', 'Unknown')}</p>
+        <p><strong>Status:</strong> {document.get('status', 'Unknown')}</p>
+        <p><strong>Processed:</strong> {document.get('created_at', 'Unknown')}</p>
+        <hr>
+        <p><em>File preview will be available once file storage is properly configured.</em></p>
+        <p><em>For now, you can view the extracted data in the document details.</em></p>
+    </body>
+    </html>
+    """
+
+    return Response(
+        content=placeholder_content,
+        media_type="text/html",
+        headers={"Cache-Control": "no-cache"}
+    )
 
 @app.get("/documents/{document_id}/export")
 async def export_document(

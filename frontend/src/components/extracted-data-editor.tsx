@@ -63,13 +63,13 @@ export function ExtractedDataEditor({ extractedData, onFieldUpdate }: ExtractedD
       {
         title: 'Dodavatel',
         icon: <Building2 className="w-4 h-4" />,
-        fields: extractedData.filter(f => f.field.startsWith('vendor.')),
+        fields: extractedData.filter(f => f.field.startsWith('vendor')),
         color: 'blue'
       },
       {
         title: 'Odběratel',
         icon: <User className="w-4 h-4" />,
-        fields: extractedData.filter(f => f.field.startsWith('customer.')),
+        fields: extractedData.filter(f => f.field.startsWith('customer')),
         color: 'green'
       },
       {
@@ -85,9 +85,13 @@ export function ExtractedDataEditor({ extractedData, onFieldUpdate }: ExtractedD
       {
         title: 'Částky',
         icon: <Euro className="w-4 h-4" />,
-        fields: extractedData.filter(f => 
-          f.field.includes('amount') || 
-          f.field.includes('price') || 
+        fields: extractedData.filter(f =>
+          f.field === 'amount' ||
+          f.field === 'total_amount' ||
+          f.field === 'subtotal' ||
+          f.field === 'tax_amount' ||
+          f.field.includes('amount') ||
+          f.field.includes('price') ||
           f.field.includes('vat') ||
           f.field.includes('total')
         ),
@@ -96,12 +100,16 @@ export function ExtractedDataEditor({ extractedData, onFieldUpdate }: ExtractedD
       {
         title: 'Ostatní',
         icon: <Hash className="w-4 h-4" />,
-        fields: extractedData.filter(f => 
-          !f.field.startsWith('vendor.') &&
-          !f.field.startsWith('customer.') &&
+        fields: extractedData.filter(f =>
+          !f.field.startsWith('vendor') &&
+          !f.field.startsWith('customer') &&
           !f.field.includes('invoice_number') &&
           !f.field.includes('issue_date') &&
           !f.field.includes('due_date') &&
+          f.field !== 'amount' &&
+          f.field !== 'total_amount' &&
+          f.field !== 'subtotal' &&
+          f.field !== 'tax_amount' &&
           !f.field.includes('amount') &&
           !f.field.includes('price') &&
           !f.field.includes('vat') &&
@@ -140,10 +148,17 @@ export function ExtractedDataEditor({ extractedData, onFieldUpdate }: ExtractedD
       'invoice_number': 'Číslo faktury',
       'issue_date': 'Datum vystavení',
       'due_date': 'Datum splatnosti',
+      'date': 'Datum',
+      'amount': 'Částka',
       'total_amount': 'Celková částka',
       'subtotal': 'Částka bez DPH',
+      'tax_amount': 'DPH částka',
       'vat_amount': 'DPH',
-      'vat_rate': 'Sazba DPH'
+      'vat_rate': 'Sazba DPH',
+      'currency': 'Měna',
+      'variable_symbol': 'Variabilní symbol',
+      'bank_account': 'Bankovní účet',
+      'document_type': 'Typ dokumentu'
     }
     
     return displayNames[lastPart] || lastPart

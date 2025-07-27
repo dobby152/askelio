@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔒 Askelio Security Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+        
+        .test-section h2 {
+            color: #34495e;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        button:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result {
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+        
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .status.pass {
+            background: #28a745;
+            color: white;
+        }
+        
+        .status.fail {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .status.warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        input[type="email"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔒 Askelio Security Test Suite</h1>
+        <p style="text-align: center; color: #666; font-size: 18px;">
+            Testování bezpečnostních oprav - anonymní okno, CORS, CSRF, rate limiting
+        </p>
+        
+        <div class="test-grid">
+            <!-- Session Persistence Test -->
+            <div class="test-section">
+                <h2>🕵️ Session Persistence Test</h2>
+                <p>Test persistence session v anonymním okně</p>
+                <button onclick="testSessionPersistence()">Test Session Persistence</button>
+                <button onclick="clearAllSessions()">Clear All Sessions</button>
+                <div id="sessionResult" class="result info"></div>
+            </div>
+            
+            <!-- CORS Test -->
+            <div class="test-section">
+                <h2>🌐 CORS Security Test</h2>
+                <p>Test CORS konfigurace a origin validation</p>
+                <button onclick="testCORS()">Test CORS</button>
+                <button onclick="testCORSAttack()">Simulate CORS Attack</button>
+                <div id="corsResult" class="result info"></div>
+            </div>
+            
+            <!-- CSRF Test -->
+            <div class="test-section">
+                <h2>🛡️ CSRF Protection Test</h2>
+                <p>Test CSRF ochrany a token validation</p>
+                <button onclick="getCSRFToken()">Get CSRF Token</button>
+                <button onclick="testCSRFProtection()">Test CSRF Protection</button>
+                <div id="csrfResult" class="result info"></div>
+            </div>
+            
+            <!-- Rate Limiting Test -->
+            <div class="test-section">
+                <h2>⚡ Rate Limiting Test</h2>
+                <p>Test rate limiting a DoS ochrany</p>
+                <button onclick="testRateLimit()">Test Rate Limit</button>
+                <button onclick="stressTest()">Stress Test (10 requests)</button>
+                <div id="rateLimitResult" class="result info"></div>
+            </div>
+            
+            <!-- Authentication Test -->
+            <div class="test-section">
+                <h2>🔐 Authentication Test</h2>
+                <p>Test autentifikace a token managementu</p>
+                <input type="email" id="testEmail" placeholder="Email pro test" value="test@example.com">
+                <input type="password" id="testPassword" placeholder="Heslo pro test" value="testpassword">
+                <button onclick="testLogin()">Test Login</button>
+                <button onclick="testLogout()">Test Logout</button>
+                <div id="authResult" class="result info"></div>
+            </div>
+            
+            <!-- Private Mode Detection -->
+            <div class="test-section">
+                <h2>🥷 Private Mode Detection</h2>
+                <p>Detekce anonymního/incognito režimu</p>
+                <button onclick="detectPrivateMode()">Detect Private Mode</button>
+                <button onclick="testStorageIsolation()">Test Storage Isolation</button>
+                <div id="privateModeResult" class="result info"></div>
+            </div>
+        </div>
+        
+        <div class="test-section" style="margin-top: 40px;">
+            <h2>📊 Overall Security Status</h2>
+            <div id="overallStatus" class="result info">
+                Klikněte na tlačítka výše pro spuštění testů...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8001';
+        let csrfToken = null;
+        let testResults = {};
+
+        function log(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            element.className = `result ${type}`;
+            element.textContent = `[${timestamp}] ${message}`;
+        }
+
+        function updateOverallStatus() {
+            const total = Object.keys(testResults).length;
+            const passed = Object.values(testResults).filter(r => r === 'pass').length;
+            const failed = Object.values(testResults).filter(r => r === 'fail').length;
+            const warnings = Object.values(testResults).filter(r => r === 'warning').length;
+            
+            const status = document.getElementById('overallStatus');
+            status.innerHTML = `
+                <strong>Security Test Results:</strong>
+                ✅ Passed: ${passed}
+                ❌ Failed: ${failed}
+                ⚠️ Warnings: ${warnings}
+                📊 Total: ${total}
+                
+                ${failed > 0 ? '🚨 CRITICAL SECURITY ISSUES DETECTED!' : 
+                  warnings > 0 ? '⚠️ Some security concerns found' : 
+                  total > 0 ? '✅ All security tests passed!' : ''}
+            `;
+            status.className = `result ${failed > 0 ? 'error' : warnings > 0 ? 'warning' : 'success'}`;
+        }
+
+        async function testSessionPersistence() {
+            log('sessionResult', 'Testing session persistence...', 'info');
+            
+            try {
+                // Test if we can detect private mode
+                const isPrivate = await detectPrivateModeInternal();
+                
+                // Test localStorage vs sessionStorage behavior
+                const testKey = 'security_test_' + Date.now();
+                const testValue = 'test_value_' + Math.random();
+                
+                localStorage.setItem(testKey, testValue);
+                sessionStorage.setItem(testKey, testValue);
+                
+                const localValue = localStorage.getItem(testKey);
+                const sessionValue = sessionStorage.getItem(testKey);
+                
+                localStorage.removeItem(testKey);
+                sessionStorage.removeItem(testKey);
+                
+                const result = `
+Private Mode Detected: ${isPrivate ? 'YES ✅' : 'NO ❌'}
+localStorage works: ${localValue === testValue ? 'YES' : 'NO'}
+sessionStorage works: ${sessionValue === testValue ? 'YES' : 'NO'}
+
+${isPrivate ? 
+    '✅ PASS: Private mode detected, session should be isolated' : 
+    '⚠️ WARNING: Not in private mode, sessions may persist'}
+                `;
+                
+                log('sessionResult', result, isPrivate ? 'success' : 'warning');
+                testResults.sessionPersistence = isPrivate ? 'pass' : 'warning';
+                
+            } catch (error) {
+                log('sessionResult', `❌ ERROR: ${error.message}`, 'error');
+                testResults.sessionPersistence = 'fail';
+            }
+            
+            updateOverallStatus();
+        }
+
+        async function detectPrivateModeInternal() {
+            try {
+                // Test various private mode detection methods
+                if (!window.indexedDB) return true;
+                
+                if (window.navigator.storage) {
+                    const estimate = await window.navigator.storage.estimate();
+                    if (!estimate.quota) return true;
+                }
+                
+                return false;
+            } catch (e) {
+                return true;
+            }
+        }
+
+        async function clearAllSessions() {
+            try {
+                // Clear all possible session data
+                localStorage.clear();
+                sessionStorage.clear();
+                
+                // Clear cookies (if any)
+                document.cookie.split(";").forEach(function(c) { 
+                    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+                });
+                
+                log('sessionResult', '✅ All sessions cleared successfully', 'success');
+            } catch (error) {
+                log('sessionResult', `❌ Error clearing sessions: ${error.message}`, 'error');
+            }
+        }
+
+        async function testCORS() {
+            log('corsResult', 'Testing CORS configuration...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/health`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                
+                const corsHeaders = {
+                    'Access-Control-Allow-Origin': response.headers.get('Access-Control-Allow-Origin'),
+                    'Access-Control-Allow-Credentials': response.headers.get('Access-Control-Allow-Credentials'),
+                    'Access-Control-Allow-Methods': response.headers.get('Access-Control-Allow-Methods')
+                };
+                
+                const result = `
+CORS Headers:
+${JSON.stringify(corsHeaders, null, 2)}
+
+${corsHeaders['Access-Control-Allow-Origin'] === '*' ? 
+    '❌ FAIL: Wildcard origin with credentials is dangerous!' : 
+    '✅ PASS: CORS properly configured'}
+                `;
+                
+                const isSecure = corsHeaders['Access-Control-Allow-Origin'] !== '*';
+                log('corsResult', result, isSecure ? 'success' : 'error');
+                testResults.cors = isSecure ? 'pass' : 'fail';
+                
+            } catch (error) {
+                log('corsResult', `❌ CORS test failed: ${error.message}`, 'error');
+                testResults.cors = 'fail';
+            }
+            
+            updateOverallStatus();
+        }
+
+        async function getCSRFToken() {
+            log('csrfResult', 'Getting CSRF token...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/csrf-token`);
+                const data = await response.json();
+                
+                if (data.csrf_token) {
+                    csrfToken = data.csrf_token;
+                    log('csrfResult', `✅ CSRF token obtained: ${csrfToken.substring(0, 10)}...`, 'success');
+                } else {
+                    log('csrfResult', '❌ No CSRF token received', 'error');
+                }
+            } catch (error) {
+                log('csrfResult', `❌ Failed to get CSRF token: ${error.message}`, 'error');
+            }
+        }
+
+        async function testCSRFProtection() {
+            log('csrfResult', 'Testing CSRF protection...', 'info');
+            
+            try {
+                // Test without CSRF token
+                const responseWithoutToken = await fetch(`${API_BASE}/test`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ test: 'csrf' })
+                });
+                
+                const withoutTokenBlocked = responseWithoutToken.status === 403;
+                
+                // Test with CSRF token (if we have one)
+                let withTokenAllowed = false;
+                if (csrfToken) {
+                    const responseWithToken = await fetch(`${API_BASE}/test`, {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'X-CSRF-Token': csrfToken
+                        },
+                        body: JSON.stringify({ test: 'csrf' })
+                    });
+                    
+                    withTokenAllowed = responseWithToken.status !== 403;
+                }
+                
+                const result = `
+Without CSRF token: ${withoutTokenBlocked ? '✅ BLOCKED' : '❌ ALLOWED'}
+With CSRF token: ${csrfToken ? (withTokenAllowed ? '✅ ALLOWED' : '❌ BLOCKED') : 'N/A (no token)'}
+
+${withoutTokenBlocked ? '✅ PASS: CSRF protection working' : '❌ FAIL: CSRF protection not working'}
+                `;
+                
+                log('csrfResult', result, withoutTokenBlocked ? 'success' : 'error');
+                testResults.csrf = withoutTokenBlocked ? 'pass' : 'fail';
+                
+            } catch (error) {
+                log('csrfResult', `❌ CSRF test failed: ${error.message}`, 'error');
+                testResults.csrf = 'fail';
+            }
+            
+            updateOverallStatus();
+        }
+
+        async function testRateLimit() {
+            log('rateLimitResult', 'Testing rate limiting...', 'info');
+            
+            try {
+                const requests = [];
+                const startTime = Date.now();
+                
+                // Send 5 rapid requests
+                for (let i = 0; i < 5; i++) {
+                    requests.push(fetch(`${API_BASE}/health`));
+                }
+                
+                const responses = await Promise.all(requests);
+                const endTime = Date.now();
+                
+                const rateLimited = responses.some(r => r.status === 429);
+                const avgTime = (endTime - startTime) / requests.length;
+                
+                const result = `
+Requests sent: ${requests.length}
+Rate limited: ${rateLimited ? 'YES ✅' : 'NO ❌'}
+Average response time: ${avgTime.toFixed(2)}ms
+Status codes: ${responses.map(r => r.status).join(', ')}
+
+${rateLimited ? '✅ PASS: Rate limiting active' : '⚠️ WARNING: No rate limiting detected'}
+                `;
+                
+                log('rateLimitResult', result, rateLimited ? 'success' : 'warning');
+                testResults.rateLimit = rateLimited ? 'pass' : 'warning';
+                
+            } catch (error) {
+                log('rateLimitResult', `❌ Rate limit test failed: ${error.message}`, 'error');
+                testResults.rateLimit = 'fail';
+            }
+            
+            updateOverallStatus();
+        }
+
+        async function detectPrivateMode() {
+            log('privateModeResult', 'Detecting private/incognito mode...', 'info');
+            
+            try {
+                const isPrivate = await detectPrivateModeInternal();
+                
+                const result = `
+Private/Incognito Mode: ${isPrivate ? 'DETECTED ✅' : 'NOT DETECTED ❌'}
+IndexedDB available: ${!!window.indexedDB}
+Storage API available: ${!!window.navigator.storage}
+
+${isPrivate ? 
+    '✅ GOOD: Private mode detected - sessions should be isolated' : 
+    '⚠️ INFO: Normal browsing mode - sessions will persist'}
+                `;
+                
+                log('privateModeResult', result, 'info');
+                
+            } catch (error) {
+                log('privateModeResult', `❌ Private mode detection failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Initialize tests on page load
+        window.addEventListener('load', function() {
+            log('overallStatus', 'Security test suite loaded. Click buttons above to run tests.', 'info');
+        });
+    </script>
+</body>
+</html>

@@ -803,7 +803,7 @@ Use null for missing values. Do not add explanations or markdown."""
                 }
                 for tier, info in self.models.items()
             },
-            "strategy": "cost_optimized_openrouter",
+            "strategy": "cost_effective_openrouter",
             "primary_model": self.models["primary"]["name"],
             "fallback_model": self.models["fallback"]["name"],
             "statistics": self.get_statistics()

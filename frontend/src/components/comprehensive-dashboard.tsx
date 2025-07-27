@@ -1,29 +1,38 @@
 "use client"
 
 import {
+  // Basic icons
   BarChart3,
   Building2,
   Calendar,
-  CheckCircle,
   CreditCard,
   DollarSign,
   FileText,
   PieChartIcon,
   Settings,
   TrendingUp,
-  Upload,
   Users,
+  User,
+
+  // Action icons
+  Upload,
+  Download,
+  Save,
+  Edit,
+  Send,
+  RefreshCw,
+
+  // UI icons
   Bell,
   Search,
   Filter,
   Plus,
   Eye,
-  Edit,
+  EyeOff,
   MessageSquare,
   X,
   Star,
   Flag,
-  User,
   Mail,
   Phone,
   Globe,
@@ -31,23 +40,32 @@ import {
   Brain,
   MoreHorizontal,
   ChevronDown,
+  ChevronRight,
+
+  // Status icons
+  CheckCircle,
+  AlertTriangle,
+  Loader2,
   Clock,
   Target,
-  AlertTriangle,
   Lightbulb,
-  Send,
+  XCircle,
+  Files,
+
+  // Chart icons
+  BarChart,
+  LineChartIcon,
+  Activity,
+
+  // Direction icons
   ArrowUpRight,
   ArrowDownRight,
-  Activity,
+
+  // Other icons
   Wallet,
   Receipt,
   FileCheck,
   Scan,
-  BarChart,
-  LineChartIcon,
-  Download,
-  RefreshCw,
-  ChevronRight,
   Truck,
 } from "lucide-react"
 
@@ -57,6 +75,8 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Progress } from "@/components/ui/progress"
 import { Input } from "@/components/ui/input"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Separator } from "@/components/ui/separator"
 
 import {
   DropdownMenu,
@@ -80,9 +100,15 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts"
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useCallback, useRef } from "react"
+import { useDropzone } from 'react-dropzone'
 import { AIAssistant } from "@/components/ai-assistant"
+import { useAuth } from "@/components/AuthProvider"
+import { InteractivePDFPreview } from "@/components/interactive-pdf-preview"
+import { ExtractedDataEditor } from "@/components/extracted-data-editor"
+import { AresValidation } from "@/components/ares-validation"
 import type { DashboardStats, RecentActivity, AIInsight } from "@/lib/dashboard-api"
+import { formatAmount, extractAmountFields, extractItemFields } from "@/lib/format-utils"
 
 // Navigation structure
 const navigationItems = [
@@ -639,8 +665,8 @@ function StatisticsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Mock company ID - in real app this would come from auth context
-  const companyId = "mock-company-id"
+  // Company ID should come from auth context - for now use a test ID
+  const companyId = "test-company-id"
 
   const getDateRange = (period: string) => {
     const endDate = new Date()
@@ -688,15 +714,10 @@ function StatisticsPage() {
       console.error('Error loading analytics data:', error)
       setError('Nepodařilo se načíst analytická data')
 
-      // Set fallback data
+      // Clear data on error - no fallback data
       setMonthlyData([])
       setExpenseCategories([])
-      setOverviewMetrics({
-        total_income: 0,
-        total_expenses: 0,
-        net_profit: 0,
-        profit_margin: 0
-      })
+      setOverviewMetrics({})
     } finally {
       setLoading(false)
     }
@@ -1081,18 +1102,991 @@ function DocumentsPage() {
   )
 }
 
+interface ProcessingStep {
+  id: string
+  name: string
+  status: 'pending' | 'processing' | 'completed' | 'error'
+  progress: number
+  message?: string
+}
+
+interface ExtractedField {
+  id: string
+  field: string
+  value: string
+  confidence: number
+  position?: {
+    x: number
+    y: number
+    width: number
+    height: number
+  }
+  validated?: boolean
+  aresEnriched?: boolean
+}
+
+interface ProcessedDocument {
+  id: string
+  fileName: string
+  fileUrl: string
+  extractedData: ExtractedField[]
+  aresData?: {
+    vendor?: any
+    customer?: any
+  }
+  processingSteps: ProcessingStep[]
+  status: 'processing' | 'completed' | 'error'
+}
+
 function ScanningPage() {
-  // Redirect to the proper scanning page
-  React.useEffect(() => {
-    window.location.href = '/scanning'
+  const { user } = useAuth()
+  const [document, setDocument] = React.useState<ProcessedDocument | null>(null)
+  const [isProcessing, setIsProcessing] = React.useState(false)
+  const [showOverlay, setShowOverlay] = React.useState(true)
+  const [activeTab, setActiveTab] = React.useState('preview')
+  const fileInputRef = React.useRef<HTMLInputElement>(null)
+
+  const processingSteps: ProcessingStep[] = [
+    { id: 'upload', name: 'Nahrávání souboru', status: 'pending', progress: 0 },
+    { id: 'ocr', name: 'OCR zpracování', status: 'pending', progress: 0 },
+    { id: 'extraction', name: 'Extrakce dat', status: 'pending', progress: 0 },
+    { id: 'ares', name: 'ARES validace', status: 'pending', progress: 0 },
+    { id: 'validation', name: 'Finální validace', status: 'pending', progress: 0 }
+  ]
+
+  // State for bulk processing
+  const [processingFiles, setProcessingFiles] = useState<Array<{
+    id: string
+    file: File
+    status: 'pending' | 'processing' | 'completed' | 'error'
+    progress: number
+    result?: any
+    error?: string
+  }>>([])
+
+  const onDrop = React.useCallback(async (acceptedFiles: File[]) => {
+    if (acceptedFiles.length === 0) return
+
+    // Check if user is authenticated
+    if (!user) {
+      alert('Pro nahrávání dokumentů se musíte přihlásit')
+      return
+    }
+
+    // Handle single file (existing behavior)
+    if (acceptedFiles.length === 1) {
+      const file = acceptedFiles[0]
+
+    setIsProcessing(true)
+    setActiveTab('preview')
+
+    // Initialize document with processing steps
+    const newDocument: ProcessedDocument = {
+      id: Date.now().toString(),
+      fileName: file.name,
+      fileUrl: URL.createObjectURL(file),
+      extractedData: [],
+      processingSteps: processingSteps.map(step => ({ ...step })),
+      status: 'processing'
+    }
+    setDocument(newDocument)
+
+    try {
+      // Step 1: Upload
+      updateProcessingStep('upload', 'processing', 50, 'Nahrávání souboru...')
+      await new Promise(resolve => setTimeout(resolve, 500))
+      updateProcessingStep('upload', 'completed', 100, 'Soubor nahrán')
+
+      // Step 2: OCR Processing
+      updateProcessingStep('ocr', 'processing', 30, 'Rozpoznávání textu...')
+
+      // Import apiClient dynamically to avoid SSR issues
+      const { apiClient } = await import('@/lib/api-client')
+
+      const response = await apiClient.processDocument(file, {
+        mode: 'cost_effective',
+        max_cost_czk: 5.0,
+        enable_ares_enrichment: true
+      })
+
+      if (!response.success) {
+        throw new Error(response.error?.message || 'Zpracování selhalo')
+      }
+
+      updateProcessingStep('ocr', 'completed', 100, 'Text rozpoznán')
+      updateProcessingStep('extraction', 'processing', 60, 'Extrakce dat...')
+
+      // Convert response data to ExtractedField format
+      const extractedFields = convertResponseToFields(response.data.structured_data)
+
+      setDocument(prev => prev ? {
+        ...prev,
+        extractedData: extractedFields,
+        aresData: {
+          vendor: response.data.structured_data.vendor,
+          customer: response.data.structured_data.customer,
+          _ares_enrichment: response.data.structured_data._ares_enrichment
+        }
+      } : null)
+
+      updateProcessingStep('extraction', 'completed', 100, 'Data extrahována')
+      updateProcessingStep('ares', 'processing', 80, 'ARES validace...')
+
+      // Simulate ARES processing
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      updateProcessingStep('ares', 'completed', 100, 'ARES data doplněna')
+      updateProcessingStep('validation', 'completed', 100, 'Validace dokončena')
+
+      setDocument(prev => prev ? { ...prev, status: 'completed' } : null)
+
+    } catch (error) {
+      console.error('Processing error:', error)
+      updateProcessingStep('ocr', 'error', 0, `Chyba: ${error.message}`)
+      setDocument(prev => prev ? { ...prev, status: 'error' } : null)
+    } finally {
+      setIsProcessing(false)
+    }
+    } else {
+      // Handle multiple files (bulk processing)
+      console.log('📄 Bulk processing:', acceptedFiles.length, 'files')
+
+      // Initialize processing files state
+      const fileItems = acceptedFiles.map(file => ({
+        id: Math.random().toString(36).substr(2, 9),
+        file,
+        status: 'pending' as const,
+        progress: 0
+      }))
+
+      setProcessingFiles(fileItems)
+      setIsProcessing(true)
+      setActiveTab('bulk') // Switch to bulk processing tab
+
+      try {
+        const { apiClient } = await import('@/lib/api-client')
+
+        // Process files sequentially to avoid overwhelming the server
+        for (const fileItem of fileItems) {
+          setProcessingFiles(prev => prev.map(f =>
+            f.id === fileItem.id ? { ...f, status: 'processing', progress: 10 } : f
+          ))
+
+          try {
+            const response = await apiClient.processDocument(fileItem.file, {
+              mode: 'cost_effective',
+              max_cost_czk: 5.0,
+              enable_ares_enrichment: true
+            })
+
+            setProcessingFiles(prev => prev.map(f =>
+              f.id === fileItem.id ? {
+                ...f,
+                status: response.success ? 'completed' : 'error',
+                progress: 100,
+                result: response.success ? response.data : undefined,
+                error: response.success ? undefined : response.error?.message
+              } : f
+            ))
+          } catch (error) {
+            setProcessingFiles(prev => prev.map(f =>
+              f.id === fileItem.id ? {
+                ...f,
+                status: 'error',
+                progress: 100,
+                error: String(error)
+              } : f
+            ))
+          }
+        }
+
+        console.log('✅ Bulk processing completed')
+
+      } catch (error) {
+        console.error('❌ Bulk processing failed:', error)
+        setProcessingFiles(prev => prev.map(f => ({ ...f, status: 'error', error: String(error) })))
+      } finally {
+        setIsProcessing(false)
+      }
+    }
   }, [])
+
+  const updateProcessingStep = (stepId: string, status: ProcessingStep['status'], progress: number, message?: string) => {
+    setDocument(prev => {
+      if (!prev) return null
+      return {
+        ...prev,
+        processingSteps: prev.processingSteps.map(step =>
+          step.id === stepId ? { ...step, status, progress, message } : step
+        )
+      }
+    })
+  }
+
+  const convertResponseToFields = (data: any): ExtractedField[] => {
+    console.log('🔍 Converting response data:', data)
+    const fields: ExtractedField[] = []
+    let fieldId = 1
+
+    // Define field order for better sorting
+    const fieldOrder = [
+      'document_type', 'invoice_number', 'date', 'due_date',
+      'amount', 'total_amount', 'subtotal', 'tax_amount',
+      'currency', 'variable_symbol', 'bank_account'
+    ]
+
+    // Convert ordered fields first
+    fieldOrder.forEach(fieldName => {
+      if (data[fieldName] !== undefined && data[fieldName] !== null && data[fieldName] !== '') {
+        console.log(`📊 Field ${fieldName}:`, data[fieldName])
+
+        // Handle object values (especially for amounts)
+        let displayValue = data[fieldName];
+
+        // Format amount fields properly
+        if (fieldName.includes('amount') || fieldName.includes('total') || fieldName.includes('subtotal') || fieldName.includes('tax')) {
+          displayValue = formatAmount(displayValue);
+        } else if (typeof displayValue === 'object' && displayValue !== null) {
+          if (displayValue.value !== undefined) {
+            displayValue = displayValue.value;
+          } else if (displayValue.amount !== undefined) {
+            displayValue = displayValue.amount;
+          } else {
+            // For other objects, try to extract meaningful value
+            displayValue = JSON.stringify(displayValue);
+          }
+        }
+
+        fields.push({
+          id: `${fieldName}_${fieldId++}`,
+          field: fieldName,
+          value: String(displayValue),
+          confidence: 0.95,
+          validated: false
+        })
+      }
+    })
+
+    // Add any additional fields not in the ordered list
+    Object.keys(data).forEach(fieldName => {
+      if (!fieldOrder.includes(fieldName) &&
+          !fieldName.startsWith('_') &&
+          fieldName !== 'vendor' &&
+          fieldName !== 'customer' &&
+          fieldName !== 'items' &&
+          data[fieldName] !== undefined &&
+          data[fieldName] !== null &&
+          data[fieldName] !== '') {
+
+        // Handle object values
+        let displayValue = data[fieldName];
+
+        // Check if this is a complex object that should be expanded
+        let expandedFields: Array<{label: string, value: string}> = [];
+
+        // Handle amount fields with multiple values
+        if ((fieldName.includes('amount') || fieldName.includes('total') || fieldName.includes('subtotal') || fieldName.includes('tax')) &&
+            typeof displayValue === 'object' && displayValue !== null) {
+          expandedFields = extractAmountFields(displayValue);
+        }
+
+        // Handle item fields
+        if ((fieldName.includes('item') || fieldName.includes('polozka')) &&
+            typeof displayValue === 'object' && displayValue !== null) {
+          expandedFields = extractItemFields(displayValue);
+        }
+
+        // If we have expanded fields, add them separately
+        if (expandedFields.length > 1) {
+          expandedFields.forEach(expandedField => {
+            fields.push({
+              id: `${fieldName}_${expandedField.label}_${fieldId++}`,
+              field: `${fieldName}.${expandedField.label}`,
+              value: expandedField.value,
+              confidence: 0.9,
+              position: { x: 0, y: 0, width: 0, height: 0, page: 1 }
+            });
+          });
+          return; // Skip adding the original field
+        }
+
+        // Format single amount fields properly
+        if (fieldName.includes('amount') || fieldName.includes('total') || fieldName.includes('subtotal') || fieldName.includes('tax')) {
+          displayValue = formatAmount(displayValue);
+        } else if (typeof displayValue === 'object' && displayValue !== null) {
+          if (displayValue.value !== undefined) {
+            displayValue = displayValue.value;
+          } else if (displayValue.amount !== undefined) {
+            displayValue = displayValue.amount;
+          } else {
+            displayValue = JSON.stringify(displayValue);
+          }
+        }
+
+        fields.push({
+          id: `${fieldName}_${fieldId++}`,
+          field: fieldName,
+          value: String(displayValue),
+          confidence: 0.9,
+          validated: false
+        })
+      }
+    })
+
+    // Handle items array if present
+    if (data.items && Array.isArray(data.items)) {
+      data.items.forEach((item: any, index: number) => {
+        Object.entries(item).forEach(([key, value]) => {
+          if (value !== undefined && value !== null) {
+            fields.push({
+              id: `item_${index}_${key}_${fieldId++}`,
+              field: `item_${index}_${key}`,
+              value: String(value),
+              confidence: 0.9,
+              validated: false
+            })
+          }
+        })
+      })
+    }
+
+    // Convert vendor data
+    if (data.vendor && typeof data.vendor === 'object') {
+      Object.entries(data.vendor).forEach(([key, value]) => {
+        if (value && !key.startsWith('_') && value !== null && value !== '') {
+          // Handle nested objects (like amount objects)
+          let displayValue = value;
+          if (typeof value === 'object' && value !== null) {
+            if (value.value !== undefined) {
+              displayValue = value.value;
+            } else if (value.amount !== undefined) {
+              displayValue = value.amount;
+            } else {
+              displayValue = JSON.stringify(value);
+            }
+          }
+
+          fields.push({
+            id: `vendor_${key}_${fieldId++}`,
+            field: `vendor_${key}`,
+            value: String(displayValue),
+            confidence: 0.9,
+            validated: false,
+            aresEnriched: data._ares_enrichment?.notes?.some(note => note.includes('Vendor')) || false
+          })
+        }
+      })
+    }
+
+    // Convert customer data
+    if (data.customer && typeof data.customer === 'object') {
+      Object.entries(data.customer).forEach(([key, value]) => {
+        if (value && !key.startsWith('_') && value !== null && value !== '') {
+          // Handle nested objects (like amount objects)
+          let displayValue = value;
+          if (typeof value === 'object' && value !== null) {
+            if (value.value !== undefined) {
+              displayValue = value.value;
+            } else if (value.amount !== undefined) {
+              displayValue = value.amount;
+            } else {
+              displayValue = JSON.stringify(value);
+            }
+          }
+
+          fields.push({
+            id: `customer_${key}_${fieldId++}`,
+            field: `customer_${key}`,
+            value: String(displayValue),
+            confidence: 0.9,
+            validated: false,
+            aresEnriched: data._ares_enrichment?.notes?.some(note => note.includes('Customer')) || false
+          })
+        }
+      })
+    }
+
+    return fields
+  }
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || [])
+    if (files.length > 0) {
+      onDrop(files)
+    }
+  }
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'application/pdf': ['.pdf'],
+      'image/*': ['.png', '.jpg', '.jpeg']
+    },
+    maxSize: 10 * 1024 * 1024, // 10MB
+    disabled: isProcessing,
+    multiple: true, // Enable multiple file selection
+    maxFiles: 10   // Limit to 10 files per batch
+  })
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes'
+    const k = 1024
+    const sizes = ['Bytes', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+  }
+
+  const handleFieldUpdate = (fieldId: string, newValue: string) => {
+    setDocument(prev => {
+      if (!prev) return null
+      return {
+        ...prev,
+        extractedData: prev.extractedData.map(field =>
+          field.id === fieldId ? { ...field, value: newValue, validated: true } : field
+        )
+      }
+    })
+  }
+
+  const handleSave = async () => {
+    if (!document) return
+    // TODO: Implement save functionality
+    console.log('Saving document:', document)
+  }
+
+  const handleExport = async () => {
+    if (!document) return
+    // TODO: Implement export functionality
+    console.log('Exporting document:', document)
+  }
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold">Přesměrování...</h2>
-        <p className="text-muted-foreground">Přesměrováváme vás na stránku skenování</p>
+        <h2 className="text-2xl font-bold">Skenování dokumentů</h2>
+        <p className="text-muted-foreground">Nahrajte faktury, účtenky nebo jiné dokumenty pro automatické zpracování</p>
       </div>
+
+      {!document && (
+        <Card className="overflow-hidden">
+          <CardContent className="p-0">
+            <div
+              {...getRootProps()}
+              className={`relative min-h-[400px] cursor-pointer transition-all duration-300 ${
+                isDragActive
+                  ? 'bg-gradient-to-br from-blue-50 to-indigo-100 border-2 border-blue-400 border-dashed'
+                  : 'bg-gradient-to-br from-gray-50 to-blue-50 hover:from-blue-50 hover:to-indigo-100 border-2 border-dashed border-gray-300 hover:border-blue-400'
+              } ${isProcessing ? 'pointer-events-none opacity-50' : ''}`}
+            >
+              <input {...getInputProps()} />
+
+              {/* Background Pattern */}
+              <div className="absolute inset-0 opacity-5">
+                <div className="w-full h-full" style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+                  backgroundSize: '30px 30px'
+                }}></div>
+              </div>
+
+              <div className="relative z-10 flex flex-col items-center justify-center h-full p-8">
+                {isDragActive ? (
+                  <div className="text-center">
+                    <div className="w-20 h-20 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
+                      <Upload className="w-10 h-10 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold text-blue-700 mb-2">Pusťte soubor zde</h3>
+                    <p className="text-blue-600">Soubor bude okamžitě zpracován</p>
+                  </div>
+                ) : (
+                  <div className="text-center max-w-md">
+                    <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                      <Upload className="w-10 h-10 text-white" />
+                    </div>
+
+                    <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                      Nahrajte svůj dokument
+                    </h3>
+
+                    <p className="text-gray-600 mb-6 leading-relaxed">
+                      Přetáhněte soubor sem nebo klikněte pro výběr.<br />
+                      AI automaticky extrahuje všechna důležitá data.
+                    </p>
+
+                    {/* Feature Icons */}
+                    <div className="grid grid-cols-3 gap-4 mb-6">
+                      {[
+                        { icon: Zap, label: 'Rychlé zpracování', color: 'bg-yellow-500' },
+                        { icon: Brain, label: 'AI extrakce', color: 'bg-purple-500' },
+                        { icon: CheckCircle, label: 'ARES validace', color: 'bg-green-500' }
+                      ].map((feature, index) => (
+                        <div key={index} className="flex flex-col items-center">
+                          <div className={`w-12 h-12 ${feature.color} rounded-xl flex items-center justify-center mb-2 shadow-md`}>
+                            <feature.icon className="w-6 h-6 text-white" />
+                          </div>
+                          <span className="text-xs font-medium text-gray-700 text-center leading-tight">
+                            {feature.label}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* File Format Pills */}
+                    <div className="flex flex-wrap justify-center gap-2 mb-6">
+                      {['PDF', 'JPG', 'PNG'].map((format) => (
+                        <span key={format} className="px-3 py-1 bg-white/80 backdrop-blur-sm text-gray-700 rounded-full text-sm font-medium border border-gray-200/50 shadow-sm">
+                          {format}
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
+                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                      <span>Maximální velikost: 10MB</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Processing Status */}
+      {document && (
+        <Card className="overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <div className="font-semibold text-gray-900">{document.fileName}</div>
+                  <div className="text-sm text-gray-500 font-normal">Zpracování dokumentu</div>
+                </div>
+              </CardTitle>
+              <Badge
+                variant={
+                  document.status === 'completed' ? 'default' :
+                  document.status === 'error' ? 'destructive' :
+                  'secondary'
+                }
+                className="px-3 py-1"
+              >
+                {document.status === 'processing' && (
+                  <>
+                    <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                    Zpracovává se
+                  </>
+                )}
+                {document.status === 'completed' && (
+                  <>
+                    <CheckCircle className="w-3 h-3 mr-1" />
+                    Dokončeno
+                  </>
+                )}
+                {document.status === 'error' && (
+                  <>
+                    <AlertTriangle className="w-3 h-3 mr-1" />
+                    Chyba
+                  </>
+                )}
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="space-y-6">
+              {document.processingSteps.map((step, index) => (
+                <div key={step.id} className="relative">
+                  {/* Connection Line */}
+                  {index < document.processingSteps.length - 1 && (
+                    <div className="absolute left-6 top-12 w-0.5 h-8 bg-gray-200"></div>
+                  )}
+
+                  <div className="flex items-start gap-4">
+                    {/* Step Icon */}
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
+                      step.status === 'completed' ? 'bg-green-100 border-green-500' :
+                      step.status === 'processing' ? 'bg-blue-100 border-blue-500' :
+                      step.status === 'error' ? 'bg-red-100 border-red-500' :
+                      'bg-gray-100 border-gray-300'
+                    }`}>
+                      {step.status === 'processing' && (
+                        <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
+                      )}
+                      {step.status === 'completed' && (
+                        <CheckCircle className="w-5 h-5 text-green-600" />
+                      )}
+                      {step.status === 'error' && (
+                        <AlertTriangle className="w-5 h-5 text-red-600" />
+                      )}
+                      {step.status === 'pending' && (
+                        <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
+                      )}
+                    </div>
+
+                    {/* Step Content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-medium text-gray-900">{step.name}</h4>
+                        {step.status !== 'pending' && (
+                          <span className="text-sm text-gray-500">{step.progress}%</span>
+                        )}
+                      </div>
+
+                      {step.message && (
+                        <p className="text-sm text-gray-600 mb-3">{step.message}</p>
+                      )}
+
+                      {step.status !== 'pending' && (
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div
+                            className={`h-2 rounded-full transition-all duration-500 ${
+                              step.status === 'error' ? 'bg-red-500' :
+                              step.status === 'completed' ? 'bg-green-500' : 'bg-blue-500'
+                            }`}
+                            style={{ width: `${step.progress}%` }}
+                          ></div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Document Header */}
+      {document && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="w-5 h-5" />
+                {document.fileName}
+              </CardTitle>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleSave}
+                  disabled={document.status !== 'completed'}
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  Uložit
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleExport}
+                  disabled={document.status !== 'completed'}
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Export
+                </Button>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {document.status === 'processing' && (
+                <>
+                  <Loader2 className="w-4 h-4 text-blue-500 animate-spin" />
+                  <span className="text-sm text-muted-foreground">Zpracovává se...</span>
+                </>
+              )}
+              {document.status === 'completed' && (
+                <>
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <span className="text-sm text-muted-foreground">Zpracování dokončeno</span>
+                </>
+              )}
+              {document.status === 'error' && (
+                <>
+                  <AlertTriangle className="w-4 h-4 text-red-500" />
+                  <span className="text-sm text-muted-foreground">Chyba při zpracování</span>
+                </>
+              )}
+            </div>
+          </CardHeader>
+        </Card>
+      )}
+
+      {/* Main Content - PDF Preview and Data Editor */}
+      {document && document.status === 'completed' && document.extractedData.length > 0 && (
+        <div className="grid lg:grid-cols-4 gap-6">
+          {/* PDF Preview - Takes more space */}
+          <div className="lg:col-span-3">
+            <Card className="h-[700px]">
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <FileText className="w-4 h-4" />
+                    {document.fileName}
+                  </CardTitle>
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowOverlay(!showOverlay)}
+                    >
+                      {showOverlay ? <EyeOff className="w-4 h-4 mr-1" /> : <Eye className="w-4 h-4 mr-1" />}
+                      {showOverlay ? 'Skrýt' : 'Zobrazit'} pole
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="h-full p-0">
+                <div className="relative w-full h-full">
+                  {/* PDF Viewer */}
+                  <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                    <div className="text-center">
+                      <FileText className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">PDF Náhled</h3>
+                      <p className="text-sm text-gray-500 mb-4">
+                        Dokument byl úspěšně zpracován
+                      </p>
+                      <div className="space-y-2">
+                        <p className="text-xs text-gray-400">
+                          Soubor: {document.fileName}
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          Extrahováno: {document.extractedData.length} polí
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Field Overlays (Mock positions for demo) */}
+                  {showOverlay && document.extractedData.map((field, index) => (
+                    <div
+                      key={field.id}
+                      className={`absolute border-2 cursor-pointer transition-all hover:shadow-lg rounded ${
+                        field.confidence >= 0.9
+                          ? 'border-green-500 bg-green-100/20'
+                          : field.confidence >= 0.7
+                          ? 'border-yellow-500 bg-yellow-100/20'
+                          : 'border-red-500 bg-red-100/20'
+                      }`}
+                      style={{
+                        left: `${50 + (index % 3) * 150}px`,
+                        top: `${100 + Math.floor(index / 3) * 40}px`,
+                        width: '140px',
+                        height: '25px',
+                      }}
+                      onClick={() => handleFieldUpdate(field.id, field.value)}
+                      title={`${field.field}: ${field.value} (${Math.round(field.confidence * 100)}%)`}
+                    >
+                      <div className="text-xs p-1 truncate">
+                        {field.value}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Enhanced Sidebar */}
+          <div className="lg:col-span-1 space-y-4">
+            {/* Quick Actions */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Zap className="w-4 h-4" />
+                  Rychlé akce
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-start"
+                  onClick={() => setShowOverlay(!showOverlay)}
+                >
+                  {showOverlay ? <Eye className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
+                  {showOverlay ? 'Skrýt pole' : 'Zobrazit pole'}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-start"
+                  onClick={handleSave}
+                  disabled={document.status !== 'completed'}
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  Uložit změny
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-start"
+                  onClick={handleExport}
+                  disabled={document.status !== 'completed'}
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Exportovat
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Data Tabs */}
+            <Card className="flex-1">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full">
+                <CardHeader className="pb-2">
+                  <TabsList className="grid w-full grid-cols-4">
+                    <TabsTrigger value="preview" className="text-xs">
+                      <Eye className="w-3 h-3 mr-1" />
+                      Náhled
+                    </TabsTrigger>
+                    <TabsTrigger value="data" className="text-xs">
+                      <FileText className="w-3 h-3 mr-1" />
+                      Data
+                    </TabsTrigger>
+                    <TabsTrigger value="ares" className="text-xs">
+                      <Building2 className="w-3 h-3 mr-1" />
+                      ARES
+                    </TabsTrigger>
+                    <TabsTrigger value="bulk" className="text-xs">
+                      <Files className="w-3 h-3 mr-1" />
+                      Hromadné
+                    </TabsTrigger>
+                  </TabsList>
+                </CardHeader>
+                <CardContent className="flex-1 overflow-hidden">
+                  <TabsContent value="preview" className="mt-0">
+                    <div>
+                      <h3 className="font-medium mb-2">Náhled dokumentu</h3>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Interaktivní náhled s označenými poli
+                      </p>
+                      <div className="text-sm space-y-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 bg-green-500 rounded"></div>
+                          <span>Vysoká přesnost (90%+)</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 bg-yellow-500 rounded"></div>
+                          <span>Střední přesnost (70-90%)</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 bg-red-500 rounded"></div>
+                          <span>Nízká přesnost (&lt;70%)</span>
+                        </div>
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="data" className="mt-0">
+                    <div>
+                      <h3 className="font-medium mb-2">Editor dat</h3>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Upravte extrahovaná data podle potřeby
+                      </p>
+                      <div className="max-h-96 overflow-auto">
+                        <ExtractedDataEditor
+                          extractedData={document.extractedData}
+                          onFieldUpdate={handleFieldUpdate}
+                        />
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="ares" className="mt-0">
+                    <div>
+                      <h3 className="font-medium mb-2">ARES Validace</h3>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Ověření a obohacení dat z ARES registru
+                      </p>
+                      <div className="max-h-96 overflow-auto">
+                        <AresValidation
+                          extractedData={document.extractedData}
+                          aresData={document.aresData}
+                          onDataUpdate={(updatedData) => {
+                            setDocument(prev => prev ? { ...prev, aresData: updatedData } : null)
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="bulk" className="mt-0">
+                    <div>
+                      <h3 className="font-medium mb-2">Hromadné zpracování</h3>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Přehled zpracovávaných souborů
+                      </p>
+                      <div className="max-h-96 overflow-auto space-y-2">
+                        {processingFiles.length === 0 ? (
+                          <p className="text-sm text-muted-foreground text-center py-8">
+                            Žádné soubory ke zpracování
+                          </p>
+                        ) : (
+                          processingFiles.map((fileItem) => (
+                            <div key={fileItem.id} className="border rounded-lg p-3">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-sm font-medium truncate">{fileItem.file.name}</span>
+                                <div className="flex items-center gap-2">
+                                  {fileItem.status === 'pending' && (
+                                    <Clock className="w-4 h-4 text-gray-400" />
+                                  )}
+                                  {fileItem.status === 'processing' && (
+                                    <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
+                                  )}
+                                  {fileItem.status === 'completed' && (
+                                    <CheckCircle className="w-4 h-4 text-green-500" />
+                                  )}
+                                  {fileItem.status === 'error' && (
+                                    <XCircle className="w-4 h-4 text-red-500" />
+                                  )}
+                                </div>
+                              </div>
+                              <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+                                <div
+                                  className={`h-2 rounded-full transition-all duration-300 ${
+                                    fileItem.status === 'error' ? 'bg-red-500' :
+                                    fileItem.status === 'completed' ? 'bg-green-500' : 'bg-blue-500'
+                                  }`}
+                                  style={{ width: `${fileItem.progress}%` }}
+                                />
+                              </div>
+                              {fileItem.error && (
+                                <p className="text-xs text-red-600 mt-1">{fileItem.error}</p>
+                              )}
+                              {fileItem.result && (
+                                <div className="text-xs text-green-600 mt-1">
+                                  Zpracováno • Confidence: {(fileItem.result.confidence * 100).toFixed(1)}%
+                                </div>
+                              )}
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  </TabsContent>
+                </CardContent>
+              </Tabs>
+            </Card>
+          </div>
+        </div>
+      )}
+
+      {/* Action Buttons */}
+      {document && document.status === 'completed' && (
+        <div className="flex gap-4">
+          <Button onClick={() => setDocument(null)} variant="outline">
+            <Upload className="w-4 h-4 mr-2" />
+            Nahrát další dokument
+          </Button>
+          <Button onClick={handleSave}>
+            <Save className="w-4 h-4 mr-2" />
+            Uložit data
+          </Button>
+          <Button variant="outline" onClick={handleExport}>
+            <Download className="w-4 h-4 mr-2" />
+            Exportovat
+          </Button>
+        </div>
+      )}
     </div>
   )
 }
@@ -1415,8 +2409,12 @@ function ApprovalPage() {
   )
 }
 
-export function ComprehensiveDashboard() {
-  const [activeSection, setActiveSection] = useState("dashboard")
+interface ComprehensiveDashboardProps {
+  initialSection?: string
+}
+
+export function ComprehensiveDashboard({ initialSection = "dashboard" }: ComprehensiveDashboardProps) {
+  const [activeSection, setActiveSection] = useState(initialSection)
 
   const handleSectionChange = (sectionId: string) => {
     console.log(`Changing section from ${activeSection} to ${sectionId}`)

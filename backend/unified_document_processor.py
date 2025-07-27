@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class ProcessingMode(Enum):
-    COST_OPTIMIZED = "cost_optimized"      # Default: GPT-4o-mini primary
+    COST_EFFECTIVE = "cost_effective"      # Default: GPT-4o-mini primary (renamed from cost_optimized)
     ACCURACY_FIRST = "accuracy_first"      # Claude primary
     SPEED_FIRST = "speed_first"           # Fastest available
     BUDGET_STRICT = "budget_strict"       # Cheapest options only
@@ -33,7 +33,7 @@ class DocumentType(Enum):
 @dataclass
 class ProcessingOptions:
     """Options for document processing"""
-    mode: ProcessingMode = ProcessingMode.COST_OPTIMIZED
+    mode: ProcessingMode = ProcessingMode.COST_EFFECTIVE
     max_cost_czk: float = 1.0  # Maximum cost per document in CZK
     min_confidence: float = 0.8  # Minimum acceptable confidence
     enable_fallbacks: bool = True
@@ -66,10 +66,13 @@ class UnifiedDocumentProcessor:
     
     def __init__(self):
         logger.info("🚀 Initializing Unified Document Processor...")
-        
+
+        # Initialize database components
+        self._init_database()
+
         # Initialize components
         self._init_components()
-        
+
         # Processing statistics
         self.stats = {
             "total_processed": 0,
@@ -83,9 +86,31 @@ class UnifiedDocumentProcessor:
 
         # Duplicate detection service disabled for Supabase migration
         # self.duplicate_detector = DuplicateDetectionService()
-        
+
         logger.info("✅ Unified Document Processor initialized")
-    
+
+    def _init_database(self):
+        """Initialize Supabase database components"""
+        try:
+            # Only use Supabase services - no local database
+            from services.supabase_client import get_supabase_client
+            from models.supabase_models import Document
+
+            self.supabase_client = get_supabase_client()
+            self.Document = Document
+
+            # Set legacy attributes to None since we're using Supabase only
+            self.SessionLocal = None
+            self.Base = None
+
+            logger.info("✅ Supabase database components initialized")
+        except Exception as e:
+            logger.warning(f"⚠️ Supabase database components not available: {e}")
+            self.supabase_client = None
+            self.SessionLocal = None
+            self.Base = None
+            self.Document = None
+
     def _init_components(self):
         """Initialize all processing components"""
         try:
@@ -173,17 +198,25 @@ class UnifiedDocumentProcessor:
 
             # Step 5: Database Storage (if enabled)
             document_id = None
-            if options.store_in_db and self.SessionLocal:
-                document_id = self._store_in_database(
-                    filename, ocr_result, llm_result, enriched_data
+            storage_error = None
+            if options.store_in_db:
+                document_id, storage_error = self._store_in_database(
+                    filename, ocr_result, llm_result, enriched_data, options
                 )
-            
+                if document_id:
+                    logger.info(f"💾 Document stored with ID: {document_id}")
+                else:
+                    logger.warning(f"⚠️ Failed to store document in database: {storage_error}")
+
             # Step 6: Update Statistics
             self._update_statistics(llm_result, time.time() - start_time)
-            
+
             # Step 7: Build Result
+            # If document storage failed, mark the overall result as failed
+            overall_success = llm_result.success and (not options.store_in_db or document_id is not None)
+
             result = ProcessingResult(
-                success=llm_result.success,
+                success=overall_success,
                 document_id=document_id,
                 document_type=doc_type,
                 structured_data=enriched_data,
@@ -193,7 +226,8 @@ class UnifiedDocumentProcessor:
                 cost_czk=llm_result.cost_usd * 23.5,  # USD to CZK conversion (fixed)
                 provider_used=f"ocr:{ocr_result['provider']}, llm:{llm_result.model_used}",
                 fallbacks_used=ocr_result.get("fallbacks_used", []),
-                validation_notes=llm_result.validation_notes
+                validation_notes=llm_result.validation_notes,
+                error_message=storage_error if storage_error else llm_result.error_message
             )
             
             logger.info(f"✅ Document processed successfully in {result.processing_time:.2f}s "
@@ -372,7 +406,10 @@ class UnifiedDocumentProcessor:
         patterns = {
             "amount": r"(\d+[,.]?\d*)\s*(?:kč|czk|eur|usd)",
             "date": r"(\d{1,2}[./]\d{1,2}[./]\d{2,4})",
-            "invoice_number": r"(?:faktura|invoice|č\.?)\s*:?\s*([A-Z0-9\-]+)"
+            "invoice_number": r"(?:faktura|invoice|č\.?)\s*:?\s*([A-Z0-9\-]+)",
+            "ico": r"(?:ičo|ico|ič)\s*:?\s*(\d{8})",
+            "dic": r"(?:dič|dic)\s*:?\s*(CZ\d{8,10})",
+            "company_name": r"(?:název|firma|společnost)\s*:?\s*([^\n\r]+)"
         }
         
         for field, pattern in patterns.items():
@@ -399,13 +436,36 @@ class UnifiedDocumentProcessor:
         validated = data.copy()
 
         # Basic validation rules
-        if "amount" in validated:
-            try:
-                # Clean and convert amount
-                amount_str = str(validated["amount"]).replace(",", ".")
-                validated["amount"] = float(amount_str)
-            except (ValueError, TypeError):
-                validated["amount"] = None
+        # Handle amount fields (can be objects or strings)
+        amount_fields = ["amount", "total_amount", "subtotal", "tax_amount"]
+        for field in amount_fields:
+            if field in validated:
+                try:
+                    amount_value = validated[field]
+                    if isinstance(amount_value, dict):
+                        # Extract value from object
+                        if "value" in amount_value:
+                            amount_str = str(amount_value["value"]).replace(",", ".")
+                        elif "amount" in amount_value:
+                            amount_str = str(amount_value["amount"]).replace(",", ".")
+                        else:
+                            # Take first numeric value from dict
+                            for v in amount_value.values():
+                                if isinstance(v, (int, float, str)):
+                                    amount_str = str(v).replace(",", ".")
+                                    break
+                            else:
+                                amount_str = "0"
+                    else:
+                        amount_str = str(amount_value).replace(",", ".")
+
+                    # Clean and convert to float
+                    import re
+                    amount_str = re.sub(r'[^\d.,]', '', amount_str)
+                    amount_str = amount_str.replace(',', '.')
+                    validated[field] = float(amount_str) if amount_str else None
+                except (ValueError, TypeError, AttributeError):
+                    validated[field] = None
 
         if "date" in validated:
             # Basic date format validation
@@ -490,70 +550,140 @@ class UnifiedDocumentProcessor:
         return enriched
 
     def _store_in_database(self, filename: str, ocr_result: Dict,
-                          llm_result, validated_data: Dict) -> Optional[int]:
-        """Store processing results in database"""
-        if not self.SessionLocal:
-            return None
+                          llm_result, validated_data: Dict, options: ProcessingOptions = None) -> tuple[Optional[int], Optional[str]]:
+        """Store processing results in database using Supabase service
 
-        db = self.SessionLocal()
+        Returns:
+            tuple: (document_id, error_message) - document_id is None if failed
+        """
+        if not options or not options.user_id:
+            error_msg = "Cannot store document: user_id is required"
+            logger.warning(f"⚠️ {error_msg}")
+            return None, error_msg
+
         try:
-            # Create document record
-            document = self.Document(
-                user_id=options.user_id,  # Set user ownership
+            # Import Supabase service for document creation
+            from services.document_service import DocumentService
+            from models.supabase_models import DocumentCreate
+            import os
+
+            # Detect file type from filename
+            file_extension = os.path.splitext(filename)[1].lower()
+            file_type_map = {
+                '.pdf': 'application/pdf',
+                '.jpg': 'image/jpeg',
+                '.jpeg': 'image/jpeg',
+                '.png': 'image/png',
+                '.gif': 'image/gif',
+                '.bmp': 'image/bmp',
+                '.tiff': 'image/tiff'
+            }
+            file_type = file_type_map.get(file_extension, 'application/octet-stream')
+
+            # Create document data using Pydantic model
+            document_data = DocumentCreate(
                 filename=filename,
-                status="completed" if llm_result.success else "failed",
-                type="application/pdf",  # TODO: Detect actual type
-                size="Unknown",  # TODO: Get actual size
-                pages=1,
-                accuracy=f"{llm_result.confidence_score * 100:.1f}%",
-                processed_at=datetime.now(),
-                processing_time=llm_result.processing_time,
-                confidence=llm_result.confidence_score,
-                extracted_text=ocr_result.get("text", ""),
-                provider_used=llm_result.model_used,
-                data_source="unified_processor",
-                ares_enriched=validated_data.get("_ares_enrichment")  # Store ARES metadata
+                original_filename=filename,
+                file_type=file_type,
+                processing_mode=options.mode.value if hasattr(options.mode, 'value') else 'accuracy_first',
+                language='cs',
+                document_type=validated_data.get('document_type', 'invoice'),
+                tags=[],
+                notes=None,
+                file_path=None,  # Will be set by upload handler
+                file_size=None,  # Will be set by upload handler
+                file_hash=None   # Will be set by upload handler
             )
 
-            db.add(document)
-            db.commit()
-            db.refresh(document)
+            # Create document service and store document synchronously
+            import asyncio
+            doc_service = DocumentService()
 
-            # Store extracted fields
-            extracted_fields = []
-            for field_name, field_value in validated_data.items():
-                if field_value is not None and field_name not in ["validated_at", "items"]:
-                    extracted_field = self.ExtractedField(
-                        document_id=document.id,
-                        field_name=field_name,
-                        field_value=str(field_value),
-                        confidence=llm_result.confidence_score,
-                        data_type=type(field_value).__name__
-                    )
-                    db.add(extracted_field)
-                    extracted_fields.append(extracted_field)
+            # Run async operations in sync context using thread pool
+            import concurrent.futures
+            import threading
 
-            db.commit()
+            def run_async_in_thread():
+                """Run async operations in a separate thread with its own event loop"""
+                try:
+                    # Create new event loop for this thread
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
 
-            # Generate and store duplicate hash
-            try:
-                invoice_data = self.duplicate_detector.extract_invoice_data_from_fields(extracted_fields)
-                duplicate_hash = self.duplicate_detector.generate_invoice_hash(invoice_data)
-                document.duplicate_hash = duplicate_hash
-                db.commit()
-                logger.info(f"🔍 Generated duplicate hash for document {document.id}")
-            except Exception as e:
-                logger.warning(f"⚠️ Failed to generate duplicate hash: {e}")
+                    try:
+                        # Create document
+                        logger.info(f"🔍 Creating document with data: {document_data}")
+                        result = loop.run_until_complete(doc_service.create_document(str(options.user_id), document_data))
+                        logger.info(f"🔍 Create document result: {result}")
 
-            logger.info(f"💾 Document stored in database with ID: {document.id}")
-            return document.id
+                        if result.get('success') and result.get('data'):
+                            # Extract document ID from the response
+                            created_documents = result['data']
+                            if isinstance(created_documents, list) and len(created_documents) > 0:
+                                document_id = created_documents[0]['id']
+                            elif isinstance(created_documents, dict):
+                                document_id = created_documents['id']
+                            else:
+                                error_msg = f"Unexpected document creation response format: {created_documents}"
+                                logger.error(f"❌ {error_msg}")
+                                return None, error_msg
+
+                            logger.info(f"💾 Document created in database with ID: {document_id}")
+
+                            # Update document with processing results
+                            update_data = {
+                                'status': 'completed' if llm_result.success else 'failed',
+                                'extracted_text': ocr_result.get("text", ""),
+                                'structured_data': validated_data,
+                                'confidence_score': llm_result.confidence_score,
+                                'accuracy_percentage': llm_result.confidence_score * 100,
+                                'ocr_provider': ocr_result.get('provider', 'unknown'),
+                                'llm_model': llm_result.model_used,
+                                'processing_cost': llm_result.cost_usd * 23.5,  # USD to CZK
+                                'processing_time': llm_result.processing_time,
+                                'processed_at': datetime.now().isoformat()
+                            }
+
+                            update_result = loop.run_until_complete(doc_service.update_document(document_id, str(options.user_id), update_data))
+
+                            if update_result.get('success'):
+                                logger.info(f"✅ Document {document_id} updated successfully")
+                                return document_id, None
+                            else:
+                                error_msg = f"Failed to update document: {update_result.get('error', 'Unknown error')}"
+                                logger.error(f"❌ {error_msg}")
+                                return None, error_msg
+                        else:
+                            error_msg = f"Failed to create document: {result.get('error', 'Unknown error')}"
+                            logger.error(f"❌ {error_msg}")
+                            return None, error_msg
+                    finally:
+                        loop.close()
+                except Exception as e:
+                    error_msg = f"Thread async operation failed: {str(e)}"
+                    logger.error(f"❌ {error_msg}")
+                    return None, error_msg
+
+            # Execute in thread pool to avoid event loop conflicts
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+                future = executor.submit(run_async_in_thread)
+                try:
+                    return future.result(timeout=30)  # 30 second timeout
+                except concurrent.futures.TimeoutError:
+                    error_msg = "Database operation timed out after 30 seconds"
+                    logger.error(f"❌ {error_msg}")
+                    return None, error_msg
 
         except Exception as e:
-            logger.error(f"❌ Database storage failed: {e}")
-            db.rollback()
-            return None
-        finally:
-            db.close()
+            error_msg = f"Database storage failed: {str(e)}"
+            logger.error(f"❌ {error_msg}")
+            logger.error(f"❌ Exception type: {type(e)}")
+            logger.error(f"❌ Exception details: {repr(e)}")
+            import traceback
+            logger.error(f"❌ Traceback: {traceback.format_exc()}")
+            return None, error_msg
+
+
 
     def _update_statistics(self, llm_result, processing_time: float):
         """Update processing statistics"""
@@ -633,7 +763,7 @@ class UnifiedDocumentProcessor:
             "components": {
                 "ocr_manager": self.ocr_manager is not None,
                 "llm_engine": self.llm_engine is not None,
-                "database": self.SessionLocal is not None
+                "database": self.supabase_client is not None
             },
             "capabilities": {
                 "supported_formats": [".pdf", ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff"],
