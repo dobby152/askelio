@@ -1,6 +1,6 @@
 // Complete API client with unified backend integration
 import { supabase } from './supabase'
-import AskelioSDK from './askelio-sdk.js'
+import { getSharedSDK } from './api-client'
 import type {
   ProcessingOptions,
   ApiResponse,
@@ -11,17 +11,12 @@ import type {
   ProcessingProgress
 } from './askelio-types'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'
-
 class ApiClient {
-  private sdk: AskelioSDK
+  private sdk: any
 
   constructor() {
-    this.sdk = new AskelioSDK(API_BASE_URL, {
-      timeout: 30000,
-      retries: 3,
-      retryDelay: 1000
-    })
+    // Use the shared SDK instance to maintain authentication across all clients
+    this.sdk = getSharedSDK()
   }
 
   private async getAuthHeaders() {

@@ -584,7 +584,7 @@ class AskelioSDK {
    * @returns {Promise<Object>} Documents list
    */
   async getDocuments() {
-    return this._makeRequest(`${this.baseUrl}/dashboard/documents`);
+    return this._makeRequest(`${this.baseUrl}/documents`);
   }
 
   /**
@@ -593,7 +593,7 @@ class AskelioSDK {
    * @returns {Promise<Object>} Document details
    */
   async getDocument(id) {
-    return this._makeRequest(`${this.baseUrl}/dashboard/documents/${id}`);
+    return this._makeRequest(`${this.baseUrl}/documents/${id}`);
   }
 
   /**
@@ -602,7 +602,7 @@ class AskelioSDK {
    * @returns {Promise<Object>} Deletion result
    */
   async deleteDocument(id) {
-    return this._makeRequest(`${this.baseUrl}/dashboard/documents/${id}`, {
+    return this._makeRequest(`${this.baseUrl}/documents/${id}`, {
       method: 'DELETE'
     });
   }

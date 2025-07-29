@@ -90,6 +90,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { dashboardAPI } from "@/lib/dashboard-api"
+import { apiClient } from "@/lib/api"
 import {
   LineChart,
   Line,
@@ -105,7 +106,7 @@ import {
 } from "recharts"
 import React, { useState, useEffect, useCallback, useRef } from "react"
 import { useDropzone } from 'react-dropzone'
-import { AIAssistant } from "@/components/ai-assistant"
+import { AIAssistantEnhanced } from "@/components/ai-assistant-enhanced"
 import { useAuth } from "@/components/AuthProvider"
 import { InteractivePDFPreview } from "@/components/interactive-pdf-preview"
 import { ExtractedDataEditor } from "@/components/extracted-data-editor"
@@ -1058,17 +1059,33 @@ function StatisticsPage() {
 
 // Enhanced components for other sections
 function DocumentsPage() {
-  const [documents, setDocuments] = useState<RecentActivity[]>([])
+  const [documents, setDocuments] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [selectedDocument, setSelectedDocument] = useState<any>(null)
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     const loadDocuments = async () => {
       try {
         setLoading(true)
-        const activities = await dashboardAPI.getRecentActivity()
-        setDocuments(activities)
+        console.log('📄 Loading documents from API...')
+        const response = await apiClient.getDocuments()
+        console.log('📄 Documents API response:', response)
+
+        // apiClient.getDocuments() vrací přímo array dokumentů
+        if (Array.isArray(response)) {
+          setDocuments(response)
+          console.log('📄 Documents loaded successfully:', response.length, 'documents')
+        } else if (response && response.success && response.data) {
+          setDocuments(response.data)
+          console.log('📄 Documents loaded successfully:', response.data.length, 'documents')
+        } else {
+          console.error('📄 Failed to load documents:', response)
+          setDocuments([])
+        }
       } catch (error) {
-        console.error('Error loading documents:', error)
+        console.error('📄 Error loading documents:', error)
         setDocuments([])
       } finally {
         setLoading(false)
@@ -1078,6 +1095,83 @@ function DocumentsPage() {
     loadDocuments()
   }, [])
 
+  const handleDocumentClick = (document: any) => {
+    console.log('📄 Document clicked:', document)
+    setSelectedDocument(document)
+    // TODO: Implementovat zobrazení detailu dokumentu
+    toast.info(`Zobrazuji detail dokumentu: ${document.original_filename}`)
+  }
+
+  const handleDownloadDocument = async (document: any) => {
+    try {
+      console.log('📄 Downloading document:', document.id)
+      // TODO: Implementovat stažení dokumentu
+      toast.info(`Stahování dokumentu: ${document.original_filename}`)
+    } catch (error) {
+      console.error('📄 Error downloading document:', error)
+      toast.error('Chyba při stahování dokumentu')
+    }
+  }
+
+  const handleDeleteDocument = async (document: any) => {
+    try {
+      console.log('📄 Deleting document:', document.id)
+      const documentName = document.original_filename || document.filename || 'Neznámý dokument'
+      const confirmed = window.confirm(`Opravdu chcete smazat dokument "${documentName}"?`)
+
+      if (confirmed) {
+        const response = await apiClient.deleteDocument(document.id)
+        if (response.success) {
+          setDocuments(prev => prev.filter(d => d.id !== document.id))
+          toast.success('Dokument byl úspěšně smazán')
+        } else {
+          toast.error('Chyba při mazání dokumentu')
+        }
+      }
+    } catch (error) {
+      console.error('📄 Error deleting document:', error)
+      toast.error('Chyba při mazání dokumentu')
+    }
+  }
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files
+    if (!files || files.length === 0) return
+
+    const file = files[0]
+    console.log('📄 File selected for upload:', file.name)
+
+    try {
+      setUploading(true)
+      toast.info(`Nahrávám dokument: ${file.name}`)
+
+      const response = await apiClient.uploadDocument(file)
+      if (response.success) {
+        toast.success('Dokument byl úspěšně nahrán')
+        // Znovu načteme dokumenty
+        const documentsResponse = await apiClient.getDocuments()
+        if (Array.isArray(documentsResponse)) {
+          setDocuments(documentsResponse)
+        }
+      } else {
+        toast.error('Chyba při nahrávání dokumentu')
+      }
+    } catch (error) {
+      console.error('📄 Error uploading document:', error)
+      toast.error('Chyba při nahrávání dokumentu')
+    } finally {
+      setUploading(false)
+      // Vyčistíme input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -1085,10 +1179,17 @@ function DocumentsPage() {
           <h2 className="text-2xl font-bold">Dokumenty</h2>
           <p className="text-muted-foreground">Přehled všech naskenovaných dokumentů</p>
         </div>
-        <Button>
+        <Button onClick={handleUploadClick} disabled={uploading}>
           <Plus className="w-4 h-4 mr-2" />
-          Nahrát dokument
+          {uploading ? 'Nahrávám...' : 'Nahrát dokument'}
         </Button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".pdf,.jpg,.jpeg,.png"
+          onChange={handleFileSelect}
+          style={{ display: 'none' }}
+        />
       </div>
 
       <div className="flex gap-4">
@@ -1111,31 +1212,113 @@ function DocumentsPage() {
             <p className="text-sm text-gray-400 mt-2">Nahrajte svůj první dokument pomocí tlačítka "Nahrát dokument"</p>
           </div>
         ) : (
-          documents.map((activity, i) => (
-            <Card key={activity.id || i}>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <FileText className="w-8 h-8 text-blue-600" />
-                    <div>
-                      <h4 className="font-medium">{activity.title}</h4>
-                      <div className="text-sm text-muted-foreground">{activity.description}</div>
-                      <div className="text-xs text-muted-foreground">{activity.time}</div>
+          documents.map((document, i) => {
+            const structuredData = document.structured_data || {}
+
+            // Extrakce dodavatele a zákazníka
+            const vendor = structuredData.vendor?.name || 'Neznámý dodavatel'
+            const customer = structuredData.customer?.name || 'Neznámý zákazník'
+
+            // Extrakce částky - zkusíme různé možnosti
+            const amount = structuredData.totals?.total ||
+                          structuredData.total_amount ||
+                          structuredData.amount ||
+                          structuredData.total
+            const currency = structuredData.currency || 'CZK'
+
+            // Extrakce data a čísla faktury
+            const date = structuredData.date || document.created_at
+            const invoiceNumber = structuredData.invoice_number || structuredData.receipt_number
+
+            // Určení typu dokumentu (příjem/výdaj) na základě vendor/customer
+            // Pokud vendor je Askela s.r.o., je to odchozí faktura (příjem)
+            // Pokud customer je Askela s.r.o., je to příchozí faktura (výdaj)
+            const isAskelaVendor = vendor?.toLowerCase().includes('askela')
+            const isAskelaCustomer = customer?.toLowerCase().includes('askela')
+
+            let documentType = 'Neznámý'
+            let typeColor = 'bg-gray-100 text-gray-800'
+
+            if (isAskelaVendor) {
+              documentType = 'Příjem' // Askela vydává fakturu = příjem
+              typeColor = 'bg-green-100 text-green-800'
+            } else if (isAskelaCustomer) {
+              documentType = 'Výdaj' // Askela dostává fakturu = výdaj
+              typeColor = 'bg-red-100 text-red-800'
+            }
+
+            return (
+              <Card key={document.id || i} className="cursor-pointer hover:shadow-md transition-shadow"
+                    onClick={() => handleDocumentClick(document)}>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <FileText className="w-8 h-8 text-blue-600" />
+                      <div>
+                        <h4 className="font-medium">
+                          {invoiceNumber ? `Faktura ${invoiceNumber}` : document.original_filename}
+                        </h4>
+                        <div className="text-sm text-muted-foreground">
+                          {vendor}
+                          {amount && (
+                            <span className="ml-2 font-medium">
+                              {amount.toLocaleString('cs-CZ')} {currency}
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {new Date(date).toLocaleDateString('cs-CZ')}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge className={typeColor}>
+                        {documentType}
+                      </Badge>
+                      <Badge className="bg-green-100 text-green-800">
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        {document.status === 'completed' ? 'Zpracováno' : document.status}
+                      </Badge>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}>
+                            <MoreHorizontal className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={(e) => {
+                            e.stopPropagation()
+                            handleDocumentClick(document)
+                          }}>
+                            <Eye className="w-4 h-4 mr-2" />
+                            Zobrazit detail
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={(e) => {
+                            e.stopPropagation()
+                            handleDownloadDocument(document)
+                          }}>
+                            <Download className="w-4 h-4 mr-2" />
+                            Stáhnout
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            className="text-red-600"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleDeleteDocument(document)
+                            }}
+                          >
+                            <XCircle className="w-4 h-4 mr-2" />
+                            Smazat
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Badge className={activity.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}>
-                      <CheckCircle className="w-3 h-3 mr-1" />
-                      {activity.type === 'success' ? 'Dokončeno' : 'Zpracováno'}
-                    </Badge>
-                    <Button variant="ghost" size="icon">
-                      <MoreHorizontal className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))
+                </CardContent>
+              </Card>
+            )
+          })
         )}
       </div>
     </div>
@@ -2313,11 +2496,11 @@ export function ComprehensiveDashboard({ initialSection = "dashboard" }: Compreh
       case "approval":
         return <ApprovalPage />
       case "ai-chat":
-        return <AIAssistant />
+        return <AIAssistantEnhanced section="ai-chat" />
       case "ai-overview":
-        return <AIAssistant />
+        return <AIAssistantEnhanced section="ai-overview" />
       case "ai-analytics":
-        return <AIAssistant />
+        return <AIAssistantEnhanced section="ai-analytics" />
       default:
         return <DashboardHome onSectionChange={handleSectionChange} />
     }

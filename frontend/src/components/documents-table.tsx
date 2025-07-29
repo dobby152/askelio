@@ -117,6 +117,10 @@ export function DocumentsTable({
         const transformedDocs = data.map((doc: any) => {
           console.log('🔄 DocumentsTable: Transforming document:', doc)
 
+          // Extract vendor information from structured data
+          const structuredData = doc.structured_data || doc.extracted_data || {}
+          const vendorInfo = structuredData.vendor || {}
+
           const transformed = {
             id: doc.id?.toString() || 'unknown',
             name: doc.file_name || doc.filename || doc.name || 'Unknown Document',
@@ -130,7 +134,19 @@ export function DocumentsTable({
             processedAt: formatDate(doc.processed_at || doc.created_at || new Date().toISOString()),
             size: doc.size || doc.file_size || '0 MB',
             pages: doc.pages || 1,
-            extractedData: doc.extracted_data || doc.extracted_text || doc.structured_data,
+            extractedData: {
+              vendor: vendorInfo.name || 'Neznámý dodavatel',
+              amount: structuredData.total_amount || structuredData.amount,
+              currency: structuredData.currency || 'CZK',
+              date: structuredData.date,
+              invoice_number: structuredData.invoice_number
+            },
+            // Invoice direction fields
+            invoice_direction: doc.invoice_direction || 'unknown',
+            direction_confidence: doc.direction_confidence || 0,
+            direction_method: doc.direction_method,
+            financial_category: doc.financial_category || 'unknown',
+            requires_manual_review: doc.requires_manual_review || false,
             errorMessage: doc.error_message
           }
 

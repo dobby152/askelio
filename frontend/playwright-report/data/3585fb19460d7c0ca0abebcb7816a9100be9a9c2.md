@@ -1,0 +1,41 @@
+# Page snapshot
+
+```yaml
+- link "Zpět na hlavní stránku":
+  - /url: /
+- heading "Vítejte zpět" [level=1]
+- paragraph: Přihlaste se do svého účtu Askelio
+- paragraph: Došlo k neočekávané chybě při přihlašování
+- heading "Testovací údaje" [level=3]
+- paragraph: "Email: premium@askelio.cz Heslo: PremiumTest123!"
+- button "Vyplnit"
+- text: E-mailová adresa
+- textbox "E-mailová adresa": invalid@test.com
+- text: Heslo
+- textbox "Heslo": wrongpassword
+- button
+- checkbox "Zapamatovat si mě"
+- text: Zapamatovat si mě
+- link "Zapomenuté heslo?":
+  - /url: /auth/forgot-password
+- button "Přihlásit se"
+- text: nebo
+- button "Pokračovat s Google":
+  - img
+  - text: Pokračovat s Google
+- paragraph:
+  - text: Nemáte účet?
+  - link "Zaregistrujte se zdarma":
+    - /url: /auth/register
+- heading "Používáme cookies" [level=3]
+- paragraph:
+  - text: Používáme cookies pro zlepšení funkčnosti webu, analýzu návštěvnosti a personalizaci obsahu. Více informací najdete v našich
+  - link "zásadách ochrany soukromí":
+    - /url: /privacy
+  - text: .
+- button "Přijmout vše"
+- button "Odmítnout vše"
+- button "Nastavení"
+- button
+- alert
+```

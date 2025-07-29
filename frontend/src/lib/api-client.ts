@@ -9,6 +9,58 @@ import { secureSessionManager } from './secure-session-manager'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001'
 
+// Singleton SDK instance to share authentication across all API clients
+let sharedSDK: AskelioSDK | null = null
+
+export function getSharedSDK(): AskelioSDK {
+  if (!sharedSDK) {
+    sharedSDK = new AskelioSDK(API_BASE_URL, {
+      timeout: 30000,
+      retries: 3,
+      retryDelay: 1000
+    })
+
+    // Okamžitě zkusit načíst tokeny přes secureSessionManager
+    if (typeof window !== 'undefined') {
+      // Asynchronně načíst session, ale neblokovat vytvoření SDK
+      secureSessionManager.getSession().then(session => {
+        if (session) {
+          sharedSDK.setAuthTokens(session)
+          console.log('🔐 Shared SDK: Tokeny načteny z secureSessionManager při inicializaci')
+        } else {
+          // Fallback na staré klíče v localStorage
+          const accessToken = localStorage.getItem('access_token')
+          const refreshToken = localStorage.getItem('refresh_token')
+          const expiresAt = localStorage.getItem('expires_at')
+
+          if (accessToken && refreshToken && expiresAt) {
+            const session = {
+              access_token: accessToken,
+              refresh_token: refreshToken,
+              expires_at: parseInt(expiresAt),
+              token_type: 'bearer'
+            }
+            sharedSDK.setAuthTokens(session)
+            console.log('🔐 Shared SDK: Tokeny načteny z localStorage (legacy) při inicializaci')
+
+            // Migrovat do nového formátu
+            secureSessionManager.setSession(session).then(() => {
+              console.log('🔐 Shared SDK: Tokeny migrovány do secureSessionManager')
+            }).catch(error => {
+              console.error('🔐 Shared SDK: Chyba při migraci tokenů:', error)
+            })
+          } else {
+            console.log('🔐 Shared SDK: Žádné tokeny nenalezeny')
+          }
+        }
+      }).catch(error => {
+        console.error('🔐 Shared SDK: Chyba při načítání tokenů:', error)
+      })
+    }
+  }
+  return sharedSDK
+}
+
 export interface ApiResponse<T = any> {
   success: boolean
   message: string
@@ -53,12 +105,8 @@ class ApiClient {
   constructor(baseUrl: string = API_BASE_URL) {
     this.baseUrl = baseUrl
 
-    // Initialize SDK with automatic token refresh
-    this.sdk = new AskelioSDK(this.baseUrl, {
-      timeout: 30000,
-      retries: 3,
-      retryDelay: 1000
-    })
+    // Use shared SDK instance to maintain authentication across all clients
+    this.sdk = getSharedSDK()
 
     // Set up token refresh callback
     this.sdk.setTokenRefreshCallback((session, error) => {
@@ -82,7 +130,7 @@ class ApiClient {
       const session = await secureSessionManager.getSession()
       if (session) {
         this.accessToken = session.access_token
-        this.sdk.setAuthToken(session.access_token)
+        this.sdk.setAuthTokens(session)
         secureLogger.authEvent('Session loaded from secure storage')
       }
     }

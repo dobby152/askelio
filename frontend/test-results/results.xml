@@ -1,674 +1,480 @@
-<testsuites id="" name="" tests="16" failures="8" skipped="0" errors="0" time="74.040532">
-<testsuite name="analytics-dashboard.spec.js" timestamp="2025-07-26T23:36:56.841Z" hostname="chromium" tests="2" failures="1" skipped="0" time="10.819" errors="0">
-<testcase name="Analytics Dashboard › should display analytics with mock data" classname="analytics-dashboard.spec.js" time="3.835">
-<system-out>
-<![CDATA[✅ Analytics dashboard test passed - all metrics and charts are displaying correctly
-]]>
-</system-out>
-</testcase>
-<testcase name="Analytics Dashboard › should format numbers correctly" classname="analytics-dashboard.spec.js" time="6.984">
-<failure message="analytics-dashboard.spec.js:50:3 should format numbers correctly" type="FAILURE">
-<![CDATA[  [chromium] › analytics-dashboard.spec.js:50:3 › Analytics Dashboard › should format numbers correctly 
+<testsuites id="" name="" tests="40" failures="4" skipped="36" errors="0" time="67.790548">
+<testsuite name="auth.spec.js" timestamp="2025-07-29T21:48:13.240Z" hostname="chromium" tests="5" failures="4" skipped="1" time="112.044" errors="0">
+<testcase name="Authentication › should display login form" classname="auth.spec.js" time="31.078">
+<failure message="auth.spec.js:14:3 should display login form" type="FAILURE">
+<![CDATA[  [chromium] › auth.spec.js:14:3 › Authentication › should display login form ──────────────────────
 
-    Error: expect(received).toBe(expected) // Object.is equality
+    Error: Timed out 10000ms waiting for expect(locator).toBeVisible()
 
-    Expected: "1 250 000"
-    Received: "1 250 000"
+    Locator: locator('text=Vyplnit testovací údaje')
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('text=Vyplnit testovací údaje')
 
-      54 |     // Check Czech number formatting
-      55 |     const incomeText = await page.locator('#income').textContent();
-    > 56 |     expect(incomeText).toBe('1 250 000'); // Czech formatting with spaces
-         |                        ^
-      57 |     
-      58 |     const expensesText = await page.locator('#expenses').textContent();
-      59 |     expect(expensesText).toBe('850 000');
-        at C:\Users\askelatest\askelio\frontend\tests\analytics-dashboard.spec.js:56:24
+
+      22 |     
+      23 |     // Check "Vyplnit testovací údaje" button
+    > 24 |     await expect(page.locator('text=Vyplnit testovací údaje')).toBeVisible();
+         |                                                                ^
+      25 |   });
+      26 |
+      27 |   test('should login with test credentials', async ({ page }) => {
+        at C:\Users\askelatest\askelio\frontend\tests\auth.spec.js:24:64
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-chromium\test-failed-1.png
+    ..\test-results\auth-Authentication-should-display-login-form-chromium\test-failed-1.png
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
     attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-chromium\video.webm
+    ..\test-results\auth-Authentication-should-display-login-form-chromium\video.webm
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
-    Error Context: ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-chromium\error-context.md
+    Error Context: ..\test-results\auth-Authentication-should-display-login-form-chromium\error-context.md
 
     Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
 
-    Error: expect(received).toBe(expected) // Object.is equality
+    Error: Timed out 10000ms waiting for expect(locator).toBeVisible()
 
-    Expected: "1 250 000"
-    Received: "1 250 000"
+    Locator: locator('text=Vyplnit testovací údaje')
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('text=Vyplnit testovací údaje')
 
-      54 |     // Check Czech number formatting
-      55 |     const incomeText = await page.locator('#income').textContent();
-    > 56 |     expect(incomeText).toBe('1 250 000'); // Czech formatting with spaces
-         |                        ^
-      57 |     
-      58 |     const expensesText = await page.locator('#expenses').textContent();
-      59 |     expect(expensesText).toBe('850 000');
-        at C:\Users\askelatest\askelio\frontend\tests\analytics-dashboard.spec.js:56:24
+
+      22 |     
+      23 |     // Check "Vyplnit testovací údaje" button
+    > 24 |     await expect(page.locator('text=Vyplnit testovací údaje')).toBeVisible();
+         |                                                                ^
+      25 |   });
+      26 |
+      27 |   test('should login with test credentials', async ({ page }) => {
+        at C:\Users\askelatest\askelio\frontend\tests\auth.spec.js:24:64
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-chromium-retry1\test-failed-1.png
+    ..\test-results\auth-Authentication-should-display-login-form-chromium-retry1\test-failed-1.png
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
     attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-chromium-retry1\video.webm
+    ..\test-results\auth-Authentication-should-display-login-form-chromium-retry1\video.webm
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
-    Error Context: ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-chromium-retry1\error-context.md
+    Error Context: ..\test-results\auth-Authentication-should-display-login-form-chromium-retry1\error-context.md
 
     attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-chromium-retry1\trace.zip
+    ..\test-results\auth-Authentication-should-display-login-form-chromium-retry1\trace.zip
     Usage:
 
-        npx playwright show-trace ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-chromium-retry1\trace.zip
+        npx playwright show-trace ..\test-results\auth-Authentication-should-display-login-form-chromium-retry1\trace.zip
 
     ────────────────────────────────────────────────────────────────────────────────────────────────
 ]]>
 </failure>
 <system-out>
 <![CDATA[
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-chromium\test-failed-1.png]]
+[[ATTACHMENT|auth-Authentication-should-display-login-form-chromium\test-failed-1.png]]
 
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-chromium\video.webm]]
+[[ATTACHMENT|auth-Authentication-should-display-login-form-chromium\video.webm]]
 
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-chromium\error-context.md]]
+[[ATTACHMENT|auth-Authentication-should-display-login-form-chromium\error-context.md]]
 
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-chromium-retry1\test-failed-1.png]]
+[[ATTACHMENT|auth-Authentication-should-display-login-form-chromium-retry1\test-failed-1.png]]
 
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-chromium-retry1\video.webm]]
+[[ATTACHMENT|auth-Authentication-should-display-login-form-chromium-retry1\video.webm]]
 
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-chromium-retry1\error-context.md]]
+[[ATTACHMENT|auth-Authentication-should-display-login-form-chromium-retry1\error-context.md]]
 
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-chromium-retry1\trace.zip]]
+[[ATTACHMENT|auth-Authentication-should-display-login-form-chromium-retry1\trace.zip]]
 ]]>
 </system-out>
 </testcase>
-</testsuite>
-<testsuite name="analytics-dashboard.spec.js" timestamp="2025-07-26T23:36:56.841Z" hostname="firefox" tests="2" failures="1" skipped="0" time="16.619" errors="0">
-<testcase name="Analytics Dashboard › should display analytics with mock data" classname="analytics-dashboard.spec.js" time="5.875">
-<system-out>
-<![CDATA[✅ Analytics dashboard test passed - all metrics and charts are displaying correctly
-]]>
-</system-out>
-</testcase>
-<testcase name="Analytics Dashboard › should format numbers correctly" classname="analytics-dashboard.spec.js" time="10.744">
-<failure message="analytics-dashboard.spec.js:50:3 should format numbers correctly" type="FAILURE">
-<![CDATA[  [firefox] › analytics-dashboard.spec.js:50:3 › Analytics Dashboard › should format numbers correctly 
+<testcase name="Authentication › should login with test credentials" classname="auth.spec.js" time="30.204">
+<failure message="auth.spec.js:27:3 should login with test credentials" type="FAILURE">
+<![CDATA[  [chromium] › auth.spec.js:27:3 › Authentication › should login with test credentials ─────────────
 
-    Error: expect(received).toBe(expected) // Object.is equality
+    TimeoutError: page.click: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('text=Vyplnit testovací údaje')
 
-    Expected: "1 250 000"
-    Received: "1 250 000"
 
-      54 |     // Check Czech number formatting
-      55 |     const incomeText = await page.locator('#income').textContent();
-    > 56 |     expect(incomeText).toBe('1 250 000'); // Czech formatting with spaces
-         |                        ^
-      57 |     
-      58 |     const expensesText = await page.locator('#expenses').textContent();
-      59 |     expect(expensesText).toBe('850 000');
-        at C:\Users\askelatest\askelio\frontend\tests\analytics-dashboard.spec.js:56:24
+      27 |   test('should login with test credentials', async ({ page }) => {
+      28 |     // Click "Vyplnit testovací údaje" button
+    > 29 |     await page.click('text=Vyplnit testovací údaje');
+         |                ^
+      30 |     
+      31 |     // Verify test credentials are filled
+      32 |     await expect(page.locator('input[type="email"]')).toHaveValue('test@askelio.com');
+        at C:\Users\askelatest\askelio\frontend\tests\auth.spec.js:29:16
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-firefox\test-failed-1.png
+    ..\test-results\auth-Authentication-should-login-with-test-credentials-chromium\test-failed-1.png
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
     attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-firefox\video.webm
+    ..\test-results\auth-Authentication-should-login-with-test-credentials-chromium\video.webm
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
-    Error Context: ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-firefox\error-context.md
+    Error Context: ..\test-results\auth-Authentication-should-login-with-test-credentials-chromium\error-context.md
 
     Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
 
-    Error: expect(received).toBe(expected) // Object.is equality
+    TimeoutError: page.click: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('text=Vyplnit testovací údaje')
 
-    Expected: "1 250 000"
-    Received: "1 250 000"
 
-      54 |     // Check Czech number formatting
-      55 |     const incomeText = await page.locator('#income').textContent();
-    > 56 |     expect(incomeText).toBe('1 250 000'); // Czech formatting with spaces
-         |                        ^
-      57 |     
-      58 |     const expensesText = await page.locator('#expenses').textContent();
-      59 |     expect(expensesText).toBe('850 000');
-        at C:\Users\askelatest\askelio\frontend\tests\analytics-dashboard.spec.js:56:24
+      27 |   test('should login with test credentials', async ({ page }) => {
+      28 |     // Click "Vyplnit testovací údaje" button
+    > 29 |     await page.click('text=Vyplnit testovací údaje');
+         |                ^
+      30 |     
+      31 |     // Verify test credentials are filled
+      32 |     await expect(page.locator('input[type="email"]')).toHaveValue('test@askelio.com');
+        at C:\Users\askelatest\askelio\frontend\tests\auth.spec.js:29:16
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-firefox-retry1\test-failed-1.png
+    ..\test-results\auth-Authentication-should-login-with-test-credentials-chromium-retry1\test-failed-1.png
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
     attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-firefox-retry1\video.webm
+    ..\test-results\auth-Authentication-should-login-with-test-credentials-chromium-retry1\video.webm
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
-    Error Context: ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-firefox-retry1\error-context.md
+    Error Context: ..\test-results\auth-Authentication-should-login-with-test-credentials-chromium-retry1\error-context.md
 
     attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-firefox-retry1\trace.zip
+    ..\test-results\auth-Authentication-should-login-with-test-credentials-chromium-retry1\trace.zip
     Usage:
 
-        npx playwright show-trace ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-firefox-retry1\trace.zip
+        npx playwright show-trace ..\test-results\auth-Authentication-should-login-with-test-credentials-chromium-retry1\trace.zip
 
     ────────────────────────────────────────────────────────────────────────────────────────────────
 ]]>
 </failure>
 <system-out>
 <![CDATA[
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-firefox\test-failed-1.png]]
+[[ATTACHMENT|auth-Authentication-should-login-with-test-credentials-chromium\test-failed-1.png]]
 
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-firefox\video.webm]]
+[[ATTACHMENT|auth-Authentication-should-login-with-test-credentials-chromium\video.webm]]
 
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-firefox\error-context.md]]
+[[ATTACHMENT|auth-Authentication-should-login-with-test-credentials-chromium\error-context.md]]
 
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-firefox-retry1\test-failed-1.png]]
+[[ATTACHMENT|auth-Authentication-should-login-with-test-credentials-chromium-retry1\test-failed-1.png]]
 
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-firefox-retry1\video.webm]]
+[[ATTACHMENT|auth-Authentication-should-login-with-test-credentials-chromium-retry1\video.webm]]
 
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-firefox-retry1\error-context.md]]
+[[ATTACHMENT|auth-Authentication-should-login-with-test-credentials-chromium-retry1\error-context.md]]
 
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-firefox-retry1\trace.zip]]
+[[ATTACHMENT|auth-Authentication-should-login-with-test-credentials-chromium-retry1\trace.zip]]
 ]]>
 </system-out>
 </testcase>
-</testsuite>
-<testsuite name="analytics-dashboard.spec.js" timestamp="2025-07-26T23:36:56.841Z" hostname="webkit" tests="2" failures="1" skipped="0" time="11.832" errors="0">
-<testcase name="Analytics Dashboard › should display analytics with mock data" classname="analytics-dashboard.spec.js" time="4.695">
-<system-out>
-<![CDATA[✅ Analytics dashboard test passed - all metrics and charts are displaying correctly
-]]>
-</system-out>
-</testcase>
-<testcase name="Analytics Dashboard › should format numbers correctly" classname="analytics-dashboard.spec.js" time="7.137">
-<failure message="analytics-dashboard.spec.js:50:3 should format numbers correctly" type="FAILURE">
-<![CDATA[  [webkit] › analytics-dashboard.spec.js:50:3 › Analytics Dashboard › should format numbers correctly 
+<testcase name="Authentication › should show error for invalid credentials" classname="auth.spec.js" time="25.992">
+<failure message="auth.spec.js:46:3 should show error for invalid credentials" type="FAILURE">
+<![CDATA[  [chromium] › auth.spec.js:46:3 › Authentication › should show error for invalid credentials ──────
 
-    Error: expect(received).toBe(expected) // Object.is equality
+    Error: Timed out 10000ms waiting for expect(locator).toBeVisible()
 
-    Expected: "1 250 000"
-    Received: "1 250 000"
+    Locator: locator('text=Neplatné přihlašovací údaje')
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('text=Neplatné přihlašovací údaje')
 
-      54 |     // Check Czech number formatting
-      55 |     const incomeText = await page.locator('#income').textContent();
-    > 56 |     expect(incomeText).toBe('1 250 000'); // Czech formatting with spaces
-         |                        ^
-      57 |     
-      58 |     const expensesText = await page.locator('#expenses').textContent();
-      59 |     expect(expensesText).toBe('850 000');
-        at C:\Users\askelatest\askelio\frontend\tests\analytics-dashboard.spec.js:56:24
+
+      53 |     
+      54 |     // Wait for error message
+    > 55 |     await expect(page.locator('text=Neplatné přihlašovací údaje')).toBeVisible();
+         |                                                                    ^
+      56 |   });
+      57 |
+      58 |   test('should logout successfully', async ({ page }) => {
+        at C:\Users\askelatest\askelio\frontend\tests\auth.spec.js:55:68
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-webkit\test-failed-1.png
+    ..\test-results\auth-Authentication-should-1dbe4-ror-for-invalid-credentials-chromium\test-failed-1.png
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
     attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-webkit\video.webm
+    ..\test-results\auth-Authentication-should-1dbe4-ror-for-invalid-credentials-chromium\video.webm
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
-    Error Context: ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-webkit\error-context.md
+    Error Context: ..\test-results\auth-Authentication-should-1dbe4-ror-for-invalid-credentials-chromium\error-context.md
 
     Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
 
-    Error: expect(received).toBe(expected) // Object.is equality
+    Test was interrupted.
 
-    Expected: "1 250 000"
-    Received: "1 250 000"
+    Error: expect(locator).toBeVisible()
 
-      54 |     // Check Czech number formatting (using toContainText instead of exact match)
-      55 |     await expect(page.locator('#income')).toContainText('1 250 000');
-    > 56 |     await expect(page.locator('#expenses')).toContainText('850 000');
-         |                        ^
-      57 |     await expect(page.locator('#profit')).toContainText('400 000');
-      58 |
-      59 |     console.log('✅ Number formatting test passed - Czech locale formatting works correctly');
-        at C:\Users\askelatest\askelio\frontend\tests\analytics-dashboard.spec.js:56:24
+    Locator: locator('text=Neplatné přihlašovací údaje')
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('text=Neplatné přihlašovací údaje')
 
-    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-webkit-retry1\test-failed-1.png
-    ────────────────────────────────────────────────────────────────────────────────────────────────
 
-    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-webkit-retry1\video.webm
-    ────────────────────────────────────────────────────────────────────────────────────────────────
+      53 |     
+      54 |     // Wait for error message
+    > 55 |     await expect(page.locator('text=Neplatné přihlašovací údaje')).toBeVisible();
+         |                                                                    ^
+      56 |   });
+      57 |
+      58 |   test('should logout successfully', async ({ page }) => {
+        at C:\Users\askelatest\askelio\frontend\tests\auth.spec.js:55:68
 
-    Error Context: ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-webkit-retry1\error-context.md
+    Error: browserContext._wrapApiCall: Target page, context or browser has been closed
 
-    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-webkit-retry1\trace.zip
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\test-results\auth-Authentication-should-1dbe4-ror-for-invalid-credentials-chromium-retry1\trace.zip
     Usage:
 
-        npx playwright show-trace ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-webkit-retry1\trace.zip
+        npx playwright show-trace ..\test-results\auth-Authentication-should-1dbe4-ror-for-invalid-credentials-chromium-retry1\trace.zip
 
     ────────────────────────────────────────────────────────────────────────────────────────────────
 ]]>
 </failure>
 <system-out>
 <![CDATA[
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-webkit\test-failed-1.png]]
+[[ATTACHMENT|auth-Authentication-should-1dbe4-ror-for-invalid-credentials-chromium\test-failed-1.png]]
 
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-webkit\video.webm]]
+[[ATTACHMENT|auth-Authentication-should-1dbe4-ror-for-invalid-credentials-chromium\video.webm]]
 
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-webkit\error-context.md]]
+[[ATTACHMENT|auth-Authentication-should-1dbe4-ror-for-invalid-credentials-chromium\error-context.md]]
 
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-webkit-retry1\test-failed-1.png]]
-
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-webkit-retry1\video.webm]]
-
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-webkit-retry1\error-context.md]]
-
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-webkit-retry1\trace.zip]]
+[[ATTACHMENT|auth-Authentication-should-1dbe4-ror-for-invalid-credentials-chromium-retry1\trace.zip]]
 ]]>
 </system-out>
 </testcase>
-</testsuite>
-<testsuite name="analytics-dashboard.spec.js" timestamp="2025-07-26T23:36:56.841Z" hostname="Mobile Chrome" tests="2" failures="1" skipped="0" time="9.777" errors="0">
-<testcase name="Analytics Dashboard › should display analytics with mock data" classname="analytics-dashboard.spec.js" time="3.858">
-<system-out>
-<![CDATA[✅ Analytics dashboard test passed - all metrics and charts are displaying correctly
-]]>
-</system-out>
-</testcase>
-<testcase name="Analytics Dashboard › should format numbers correctly" classname="analytics-dashboard.spec.js" time="5.919">
-<failure message="analytics-dashboard.spec.js:50:3 should format numbers correctly" type="FAILURE">
-<![CDATA[  [Mobile Chrome] › analytics-dashboard.spec.js:50:3 › Analytics Dashboard › should format numbers correctly 
+<testcase name="Authentication › should logout successfully" classname="auth.spec.js" time="24.77">
+<failure message="auth.spec.js:58:3 should logout successfully" type="FAILURE">
+<![CDATA[  [chromium] › auth.spec.js:58:3 › Authentication › should logout successfully ─────────────────────
 
-    Error: expect(received).toBe(expected) // Object.is equality
+    TimeoutError: page.click: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for locator('text=Vyplnit testovací údaje')
 
-    Expected: "1 250 000"
-    Received: "1 250 000"
 
-      54 |     // Check Czech number formatting (using toContainText instead of exact match)
-      55 |     await expect(page.locator('#income')).toContainText('1 250 000');
-    > 56 |     await expect(page.locator('#expenses')).toContainText('850 000');
-         |                        ^
-      57 |     await expect(page.locator('#profit')).toContainText('400 000');
-      58 |
-      59 |     console.log('✅ Number formatting test passed - Czech locale formatting works correctly');
-        at C:\Users\askelatest\askelio\frontend\tests\analytics-dashboard.spec.js:56:24
+      58 |   test('should logout successfully', async ({ page }) => {
+      59 |     // Login first
+    > 60 |     await page.click('text=Vyplnit testovací údaje');
+         |                ^
+      61 |     await page.click('button[type="submit"]');
+      62 |     await page.waitForURL('/dashboard');
+      63 |     
+        at C:\Users\askelatest\askelio\frontend\tests\auth.spec.js:60:16
 
     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Chrome\test-failed-1.png
+    ..\test-results\auth-Authentication-should-logout-successfully-chromium\test-failed-1.png
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
     attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Chrome\video.webm
+    ..\test-results\auth-Authentication-should-logout-successfully-chromium\video.webm
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
-    Error Context: ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Chrome\error-context.md
+    Error Context: ..\test-results\auth-Authentication-should-logout-successfully-chromium\error-context.md
 
     Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
 
-    Error: expect(received).toBe(expected) // Object.is equality
+    Test was interrupted.
 
-    Expected: "1 250 000"
-    Received: "1 250 000"
+    Error: page.click: Target page, context or browser has been closed
+    Call log:
+      - waiting for locator('text=Vyplnit testovací údaje')
 
-      54 |     // Check Czech number formatting (using toContainText instead of exact match)
-      55 |     await expect(page.locator('#income')).toContainText('1 250 000');
-    > 56 |     await expect(page.locator('#expenses')).toContainText('850 000');
-         |                        ^
-      57 |     await expect(page.locator('#profit')).toContainText('400 000');
-      58 |
-      59 |     console.log('✅ Number formatting test passed - Czech locale formatting works correctly');
-        at C:\Users\askelatest\askelio\frontend\tests\analytics-dashboard.spec.js:56:24
 
-    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Chrome-retry1\test-failed-1.png
-    ────────────────────────────────────────────────────────────────────────────────────────────────
+      58 |   test('should logout successfully', async ({ page }) => {
+      59 |     // Login first
+    > 60 |     await page.click('text=Vyplnit testovací údaje');
+         |                ^
+      61 |     await page.click('button[type="submit"]');
+      62 |     await page.waitForURL('/dashboard');
+      63 |     
+        at C:\Users\askelatest\askelio\frontend\tests\auth.spec.js:60:16
 
-    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Chrome-retry1\video.webm
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    Error Context: ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Chrome-retry1\error-context.md
-
-    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Chrome-retry1\trace.zip
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\test-results\auth-Authentication-should-logout-successfully-chromium-retry1\trace.zip
     Usage:
 
-        npx playwright show-trace ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Chrome-retry1\trace.zip
+        npx playwright show-trace ..\test-results\auth-Authentication-should-logout-successfully-chromium-retry1\trace.zip
 
     ────────────────────────────────────────────────────────────────────────────────────────────────
 ]]>
 </failure>
 <system-out>
 <![CDATA[
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Chrome\test-failed-1.png]]
+[[ATTACHMENT|auth-Authentication-should-logout-successfully-chromium\test-failed-1.png]]
 
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Chrome\video.webm]]
+[[ATTACHMENT|auth-Authentication-should-logout-successfully-chromium\video.webm]]
 
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Chrome\error-context.md]]
+[[ATTACHMENT|auth-Authentication-should-logout-successfully-chromium\error-context.md]]
 
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Chrome-retry1\test-failed-1.png]]
-
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Chrome-retry1\video.webm]]
-
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Chrome-retry1\error-context.md]]
-
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Chrome-retry1\trace.zip]]
+[[ATTACHMENT|auth-Authentication-should-logout-successfully-chromium-retry1\trace.zip]]
 ]]>
 </system-out>
+</testcase>
+<testcase name="Authentication › should redirect to login when accessing protected route" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
 </testcase>
 </testsuite>
-<testsuite name="analytics-dashboard.spec.js" timestamp="2025-07-26T23:36:56.841Z" hostname="Mobile Safari" tests="2" failures="1" skipped="0" time="10.829" errors="0">
-<testcase name="Analytics Dashboard › should display analytics with mock data" classname="analytics-dashboard.spec.js" time="3.866">
-<system-out>
-<![CDATA[✅ Analytics dashboard test passed - all metrics and charts are displaying correctly
-]]>
-</system-out>
+<testsuite name="auth.spec.js" timestamp="2025-07-29T21:48:13.240Z" hostname="firefox" tests="5" failures="0" skipped="5" time="0" errors="0">
+<testcase name="Authentication › should display login form" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
 </testcase>
-<testcase name="Analytics Dashboard › should format numbers correctly" classname="analytics-dashboard.spec.js" time="6.963">
-<failure message="analytics-dashboard.spec.js:50:3 should format numbers correctly" type="FAILURE">
-<![CDATA[  [Mobile Safari] › analytics-dashboard.spec.js:50:3 › Analytics Dashboard › should format numbers correctly 
-
-    Error: expect(received).toBe(expected) // Object.is equality
-
-    Expected: "1 250 000"
-    Received: "1 250 000"
-
-      54 |     // Check Czech number formatting (using toContainText instead of exact match)
-      55 |     await expect(page.locator('#income')).toContainText('1 250 000');
-    > 56 |     await expect(page.locator('#expenses')).toContainText('850 000');
-         |                        ^
-      57 |     await expect(page.locator('#profit')).toContainText('400 000');
-      58 |
-      59 |     console.log('✅ Number formatting test passed - Czech locale formatting works correctly');
-        at C:\Users\askelatest\askelio\frontend\tests\analytics-dashboard.spec.js:56:24
-
-    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Safari\test-failed-1.png
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Safari\video.webm
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    Error Context: ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Safari\error-context.md
-
-    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
-
-    Error: expect(received).toBe(expected) // Object.is equality
-
-    Expected: "1 250 000"
-    Received: "1 250 000"
-
-      54 |     // Check Czech number formatting (using toContainText instead of exact match)
-      55 |     await expect(page.locator('#income')).toContainText('1 250 000');
-    > 56 |     await expect(page.locator('#expenses')).toContainText('850 000');
-         |                        ^
-      57 |     await expect(page.locator('#profit')).toContainText('400 000');
-      58 |
-      59 |     console.log('✅ Number formatting test passed - Czech locale formatting works correctly');
-        at C:\Users\askelatest\askelio\frontend\tests\analytics-dashboard.spec.js:56:24
-
-    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Safari-retry1\test-failed-1.png
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Safari-retry1\video.webm
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    Error Context: ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Safari-retry1\error-context.md
-
-    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Safari-retry1\trace.zip
-    Usage:
-
-        npx playwright show-trace ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Safari-retry1\trace.zip
-
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-]]>
-</failure>
-<system-out>
-<![CDATA[
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Safari\test-failed-1.png]]
-
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Safari\video.webm]]
-
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Safari\error-context.md]]
-
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Safari-retry1\test-failed-1.png]]
-
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Safari-retry1\video.webm]]
-
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Safari-retry1\error-context.md]]
-
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Mobile-Safari-retry1\trace.zip]]
-]]>
-</system-out>
+<testcase name="Authentication › should login with test credentials" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication › should show error for invalid credentials" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication › should logout successfully" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication › should redirect to login when accessing protected route" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
 </testcase>
 </testsuite>
-<testsuite name="analytics-dashboard.spec.js" timestamp="2025-07-26T23:36:56.841Z" hostname="Tablet" tests="2" failures="1" skipped="0" time="8.938" errors="0">
-<testcase name="Analytics Dashboard › should display analytics with mock data" classname="analytics-dashboard.spec.js" time="3.359">
-<system-out>
-<![CDATA[✅ Analytics dashboard test passed - all metrics and charts are displaying correctly
-]]>
-</system-out>
+<testsuite name="auth.spec.js" timestamp="2025-07-29T21:48:13.240Z" hostname="webkit" tests="5" failures="0" skipped="5" time="0" errors="0">
+<testcase name="Authentication › should display login form" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
 </testcase>
-<testcase name="Analytics Dashboard › should format numbers correctly" classname="analytics-dashboard.spec.js" time="5.579">
-<failure message="analytics-dashboard.spec.js:50:3 should format numbers correctly" type="FAILURE">
-<![CDATA[  [Tablet] › analytics-dashboard.spec.js:50:3 › Analytics Dashboard › should format numbers correctly 
-
-    Error: expect(received).toBe(expected) // Object.is equality
-
-    Expected: "1 250 000"
-    Received: "1 250 000"
-
-      54 |     // Check Czech number formatting (using toContainText instead of exact match)
-      55 |     await expect(page.locator('#income')).toContainText('1 250 000');
-    > 56 |     await expect(page.locator('#expenses')).toContainText('850 000');
-         |                        ^
-      57 |     await expect(page.locator('#profit')).toContainText('400 000');
-      58 |
-      59 |     console.log('✅ Number formatting test passed - Czech locale formatting works correctly');
-        at C:\Users\askelatest\askelio\frontend\tests\analytics-dashboard.spec.js:56:24
-
-    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Tablet\test-failed-1.png
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Tablet\video.webm
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    Error Context: ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Tablet\error-context.md
-
-    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
-
-    Error: expect(received).toBe(expected) // Object.is equality
-
-    Expected: "1 250 000"
-    Received: "1 250 000"
-
-      54 |     // Check Czech number formatting (using toContainText instead of exact match)
-      55 |     await expect(page.locator('#income')).toContainText('1 250 000');
-    > 56 |     await expect(page.locator('#expenses')).toContainText('850 000');
-         |                        ^
-      57 |     await expect(page.locator('#profit')).toContainText('400 000');
-      58 |
-      59 |     console.log('✅ Number formatting test passed - Czech locale formatting works correctly');
-        at C:\Users\askelatest\askelio\frontend\tests\analytics-dashboard.spec.js:56:24
-
-    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Tablet-retry1\test-failed-1.png
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Tablet-retry1\video.webm
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    Error Context: ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Tablet-retry1\error-context.md
-
-    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Tablet-retry1\trace.zip
-    Usage:
-
-        npx playwright show-trace ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Tablet-retry1\trace.zip
-
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-]]>
-</failure>
-<system-out>
-<![CDATA[
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Tablet\test-failed-1.png]]
-
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Tablet\video.webm]]
-
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Tablet\error-context.md]]
-
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Tablet-retry1\test-failed-1.png]]
-
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Tablet-retry1\video.webm]]
-
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Tablet-retry1\error-context.md]]
-
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Tablet-retry1\trace.zip]]
-]]>
-</system-out>
+<testcase name="Authentication › should login with test credentials" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication › should show error for invalid credentials" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication › should logout successfully" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication › should redirect to login when accessing protected route" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
 </testcase>
 </testsuite>
-<testsuite name="analytics-dashboard.spec.js" timestamp="2025-07-26T23:36:56.841Z" hostname="Desktop Large" tests="2" failures="1" skipped="0" time="10.463" errors="0">
-<testcase name="Analytics Dashboard › should display analytics with mock data" classname="analytics-dashboard.spec.js" time="3.761">
-<system-out>
-<![CDATA[✅ Analytics dashboard test passed - all metrics and charts are displaying correctly
-]]>
-</system-out>
+<testsuite name="auth.spec.js" timestamp="2025-07-29T21:48:13.240Z" hostname="Mobile Chrome" tests="5" failures="0" skipped="5" time="0" errors="0">
+<testcase name="Authentication › should display login form" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
 </testcase>
-<testcase name="Analytics Dashboard › should format numbers correctly" classname="analytics-dashboard.spec.js" time="6.702">
-<failure message="analytics-dashboard.spec.js:50:3 should format numbers correctly" type="FAILURE">
-<![CDATA[  [Desktop Large] › analytics-dashboard.spec.js:50:3 › Analytics Dashboard › should format numbers correctly 
-
-    Error: expect(received).toBe(expected) // Object.is equality
-
-    Expected: "1 250 000"
-    Received: "1 250 000"
-
-      54 |     // Check Czech number formatting (using toContainText instead of exact match)
-      55 |     await expect(page.locator('#income')).toContainText('1 250 000');
-    > 56 |     await expect(page.locator('#expenses')).toContainText('850 000');
-         |                        ^
-      57 |     await expect(page.locator('#profit')).toContainText('400 000');
-      58 |
-      59 |     console.log('✅ Number formatting test passed - Czech locale formatting works correctly');
-        at C:\Users\askelatest\askelio\frontend\tests\analytics-dashboard.spec.js:56:24
-
-    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Desktop-Large\test-failed-1.png
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Desktop-Large\video.webm
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    Error Context: ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Desktop-Large\error-context.md
-
-    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
-
-    Error: expect(received).toBe(expected) // Object.is equality
-
-    Expected: "1 250 000"
-    Received: "1 250 000"
-
-      54 |     // Check Czech number formatting (using toContainText instead of exact match)
-      55 |     await expect(page.locator('#income')).toContainText('1 250 000');
-    > 56 |     await expect(page.locator('#expenses')).toContainText('850 000');
-         |                        ^
-      57 |     await expect(page.locator('#profit')).toContainText('400 000');
-      58 |
-      59 |     console.log('✅ Number formatting test passed - Czech locale formatting works correctly');
-        at C:\Users\askelatest\askelio\frontend\tests\analytics-dashboard.spec.js:56:24
-
-    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Desktop-Large-retry1\test-failed-1.png
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Desktop-Large-retry1\video.webm
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    Error Context: ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Desktop-Large-retry1\error-context.md
-
-    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Desktop-Large-retry1\trace.zip
-    Usage:
-
-        npx playwright show-trace ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Desktop-Large-retry1\trace.zip
-
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-]]>
-</failure>
-<system-out>
-<![CDATA[
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Desktop-Large\test-failed-1.png]]
-
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Desktop-Large\video.webm]]
-
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Desktop-Large\error-context.md]]
-
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Desktop-Large-retry1\test-failed-1.png]]
-
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Desktop-Large-retry1\video.webm]]
-
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Desktop-Large-retry1\error-context.md]]
-
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Desktop-Large-retry1\trace.zip]]
-]]>
-</system-out>
+<testcase name="Authentication › should login with test credentials" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication › should show error for invalid credentials" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication › should logout successfully" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication › should redirect to login when accessing protected route" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
 </testcase>
 </testsuite>
-<testsuite name="analytics-dashboard.spec.js" timestamp="2025-07-26T23:36:56.841Z" hostname="Microsoft Edge" tests="2" failures="1" skipped="0" time="6.255" errors="0">
-<testcase name="Analytics Dashboard › should display analytics with mock data" classname="analytics-dashboard.spec.js" time="3.453">
-<system-out>
-<![CDATA[✅ Analytics dashboard test passed - all metrics and charts are displaying correctly
-]]>
-</system-out>
+<testsuite name="auth.spec.js" timestamp="2025-07-29T21:48:13.240Z" hostname="Mobile Safari" tests="5" failures="0" skipped="5" time="0" errors="0">
+<testcase name="Authentication › should display login form" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
 </testcase>
-<testcase name="Analytics Dashboard › should format numbers correctly" classname="analytics-dashboard.spec.js" time="2.802">
-<failure message="analytics-dashboard.spec.js:50:3 should format numbers correctly" type="FAILURE">
-<![CDATA[  [Microsoft Edge] › analytics-dashboard.spec.js:50:3 › Analytics Dashboard › should format numbers correctly 
-
-    Error: expect(received).toBe(expected) // Object.is equality
-
-    Expected: "1 250 000"
-    Received: "1 250 000"
-
-      54 |     // Check Czech number formatting (using toContainText instead of exact match)
-      55 |     await expect(page.locator('#income')).toContainText('1 250 000');
-    > 56 |     await expect(page.locator('#expenses')).toContainText('850 000');
-         |                        ^
-      57 |     await expect(page.locator('#profit')).toContainText('400 000');
-      58 |
-      59 |     console.log('✅ Number formatting test passed - Czech locale formatting works correctly');
-        at C:\Users\askelatest\askelio\frontend\tests\analytics-dashboard.spec.js:56:24
-
-    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Microsoft-Edge\test-failed-1.png
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
-    ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Microsoft-Edge\video.webm
-    ────────────────────────────────────────────────────────────────────────────────────────────────
-
-    Error Context: ..\test-results\analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Microsoft-Edge\error-context.md
-]]>
-</failure>
-<system-out>
-<![CDATA[
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Microsoft-Edge\test-failed-1.png]]
-
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Microsoft-Edge\video.webm]]
-
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Microsoft-Edge\error-context.md]]
-
-[[ATTACHMENT|analytics-dashboard-Analyt-bae7f-ld-format-numbers-correctly-Microsoft-Edge-retry1\trace.zip]]
-]]>
-</system-out>
+<testcase name="Authentication › should login with test credentials" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication › should show error for invalid credentials" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication › should logout successfully" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication › should redirect to login when accessing protected route" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="auth.spec.js" timestamp="2025-07-29T21:48:13.240Z" hostname="Tablet" tests="5" failures="0" skipped="5" time="0" errors="0">
+<testcase name="Authentication › should display login form" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication › should login with test credentials" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication › should show error for invalid credentials" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication › should logout successfully" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication › should redirect to login when accessing protected route" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="auth.spec.js" timestamp="2025-07-29T21:48:13.240Z" hostname="Desktop Large" tests="5" failures="0" skipped="5" time="0" errors="0">
+<testcase name="Authentication › should display login form" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication › should login with test credentials" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication › should show error for invalid credentials" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication › should logout successfully" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication › should redirect to login when accessing protected route" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="auth.spec.js" timestamp="2025-07-29T21:48:13.240Z" hostname="Microsoft Edge" tests="5" failures="0" skipped="5" time="0" errors="0">
+<testcase name="Authentication › should display login form" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication › should login with test credentials" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication › should show error for invalid credentials" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication › should logout successfully" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Authentication › should redirect to login when accessing protected route" classname="auth.spec.js" time="0">
+<skipped>
+</skipped>
 </testcase>
 </testsuite>
 </testsuites>
