@@ -12,6 +12,46 @@ import random
 import json
 
 from middleware.auth_middleware import get_current_user
+
+# Helper function for AI analytics
+async def get_user_financial_data(user_id: str) -> dict:
+    """Get user's financial data for AI analytics"""
+    try:
+        from services.supabase_client import SupabaseService
+        supabase_service = SupabaseService()
+
+        # Get financial transactions for the user
+        transactions_result = await supabase_service.execute_query(
+            lambda: supabase_service.supabase.table('financial_transactions').select('*').eq('user_id', user_id).execute()
+        )
+
+        total_income = 0
+        total_expenses = 0
+
+        if transactions_result['success'] and transactions_result['data']:
+            for transaction in transactions_result['data']:
+                amount = float(transaction.get('amount', 0))
+                transaction_type = transaction.get('transaction_type', 'unknown')
+
+                if transaction_type == 'revenue':
+                    total_income += amount
+                elif transaction_type == 'expense':
+                    total_expenses += amount
+
+        net_profit = total_income - total_expenses
+
+        return {
+            'totalIncome': total_income,
+            'totalExpenses': total_expenses,
+            'netProfit': net_profit
+        }
+    except Exception as e:
+        logger.error(f"Error getting financial data for user {user_id}: {e}")
+        return {
+            'totalIncome': 0,
+            'totalExpenses': 0,
+            'netProfit': 0
+        }
 from services.document_service import document_service
 
 logger = logging.getLogger(__name__)
@@ -80,18 +120,20 @@ async def get_dashboard_stats(current_user: dict = Depends(get_current_user)):
         logger.info(f"📊 Router: Using company {company_id} for user {user_id}")
 
         # 💰 GET REAL FINANCIAL DATA FROM TRANSACTIONS
-        from services.supabase_service import SupabaseService
+        from services.supabase_client import SupabaseService
         supabase_service = SupabaseService()
 
         # Get financial transactions for the user
-        transactions_result = await supabase_service.supabase.table('financial_transactions').select('*').eq('user_id', user_id).execute()
+        transactions_result = await supabase_service.execute_query(
+            lambda: supabase_service.supabase.table('financial_transactions').select('*').eq('user_id', user_id).execute()
+        )
 
         total_income = 0
         total_expenses = 0
         processed_documents = 0
 
-        if transactions_result.data:
-            for transaction in transactions_result.data:
+        if transactions_result['success'] and transactions_result['data']:
+            for transaction in transactions_result['data']:
                 amount = float(transaction.get('amount', 0))
                 transaction_type = transaction.get('transaction_type', 'unknown')
 
@@ -106,9 +148,11 @@ async def get_dashboard_stats(current_user: dict = Depends(get_current_user)):
 
         # Get pending approvals count
         pending_approvals = 0
-        documents_result = await supabase_service.supabase.table('documents').select('requires_manual_review').eq('user_id', user_id).eq('requires_manual_review', True).execute()
-        if documents_result.data:
-            pending_approvals = len(documents_result.data)
+        documents_result = await supabase_service.execute_query(
+            lambda: supabase_service.supabase.table('documents').select('requires_manual_review').eq('user_id', user_id).eq('requires_manual_review', True).execute()
+        )
+        if documents_result['success'] and documents_result['data']:
+            pending_approvals = len(documents_result['data'])
 
         logger.info(f"💰 Financial summary - Income: {total_income}, Expenses: {total_expenses}, Profit: {net_profit}")
 

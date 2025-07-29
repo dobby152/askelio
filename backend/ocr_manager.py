@@ -55,7 +55,18 @@ class OCRManager:
             from google.cloud import vision
             from google.oauth2 import service_account
 
-            # Try to get credentials path from environment
+            # Try API key first (simpler setup)
+            api_key = os.getenv('GOOGLE_VISION_API_KEY') or os.getenv('GOOGLE_API_KEY')
+            if api_key:
+                try:
+                    # Use API key authentication
+                    client = vision.ImageAnnotatorClient(client_options={"api_key": api_key})
+                    logger.info("Google Vision API initialized successfully with API key")
+                    return client
+                except Exception as e:
+                    logger.warning(f"Failed to initialize Google Vision API with API key: {e}")
+
+            # Fallback to service account credentials
             credentials_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
 
             # If not in env, try default path
@@ -66,7 +77,7 @@ class OCRManager:
                 # Use service account credentials
                 credentials = service_account.Credentials.from_service_account_file(credentials_path)
                 client = vision.ImageAnnotatorClient(credentials=credentials)
-                logger.info("Google Vision API initialized successfully")
+                logger.info("Google Vision API initialized successfully with service account")
                 return client
             else:
                 logger.warning(f"Google Vision API credentials not found at: {credentials_path}")
@@ -165,52 +176,113 @@ class OCRManager:
         """Process with Google Vision API"""
         import time
         from google.cloud import vision
-        
+
         client = self.providers['google_vision']
 
-        # Check if file is PDF and convert to image first
+        # Check if it's a PDF file
         if image_path.lower().endswith('.pdf'):
+            logger.info("PDF file detected - attempting conversion to image")
+
+            # Try to convert PDF to image using available methods
             try:
-                import fitz  # PyMuPDF
+                # Method 1: Try pdf2image if available
+                try:
+                    import pdf2image
+                    import io
 
-                # Convert PDF to image
-                pdf_document = fitz.open(image_path)
-                page = pdf_document[0]  # Get first page
-                pix = page.get_pixmap(matrix=fitz.Matrix(2, 2))  # 2x zoom for better quality
-                img_data = pix.tobytes("png")
-                pdf_document.close()
+                    logger.info("Converting PDF to image using pdf2image")
 
-                # Use the converted image data
-                content = img_data
+                    # Set poppler path for Windows
+                    poppler_path = r"C:\Users\askelatest\AppData\Local\Microsoft\WinGet\Packages\oschwartz10612.Poppler_Microsoft.Winget.Source_8wekyb3d8bbwe\poppler-24.08.0\Library\bin"
 
-            except ImportError:
-                # Fallback: try to read PDF as binary (will likely fail)
-                logger.warning("PyMuPDF not available, trying to process PDF directly (may fail)")
-                with open(image_path, 'rb') as image_file:
-                    content = image_file.read()
-            except Exception as e:
-                raise Exception(f"Failed to convert PDF to image: {str(e)}")
+                    pages = pdf2image.convert_from_path(
+                        image_path,
+                        first_page=1,
+                        last_page=1,
+                        dpi=200,
+                        poppler_path=poppler_path if os.path.exists(poppler_path) else None
+                    )
+
+                    if pages:
+                        # Convert PIL image to bytes
+                        img_byte_arr = io.BytesIO()
+                        pages[0].save(img_byte_arr, format='PNG')
+                        content = img_byte_arr.getvalue()
+                        logger.info(f"PDF converted to image successfully ({len(content)} bytes)")
+                    else:
+                        raise Exception("No pages found in PDF")
+
+                except Exception as pdf2image_error:
+                    logger.warning(f"pdf2image conversion failed: {pdf2image_error}")
+
+                    # Method 2: Try PyMuPDF if available
+                    try:
+                        import fitz
+
+                        logger.info("Converting PDF to image using PyMuPDF")
+                        doc = fitz.open(image_path)
+                        page = doc[0]  # Get first page
+
+                        # Convert to image with good resolution
+                        mat = fitz.Matrix(2.0, 2.0)  # 2x zoom for better quality
+                        pix = page.get_pixmap(matrix=mat)
+                        content = pix.tobytes("png")
+
+                        doc.close()
+                        logger.info(f"PDF converted to image successfully ({len(content)} bytes)")
+
+                    except Exception as pymupdf_error:
+                        logger.warning(f"PyMuPDF conversion failed: {pymupdf_error}")
+
+                        # Method 3: Return error - PDF conversion not available
+                        raise Exception(
+                            "PDF conversion failed. Please install poppler-utils for pdf2image or "
+                            "convert the PDF to an image file (PNG, JPG) manually. "
+                            f"pdf2image error: {pdf2image_error}, PyMuPDF error: {pymupdf_error}"
+                        )
+
+            except Exception as conversion_error:
+                return OCRResult(
+                    provider='google_vision',
+                    text="",
+                    confidence=0.0,
+                    processing_time=time.time() - start_time,
+                    success=False,
+                    error_message=str(conversion_error)
+                )
         else:
-            # Regular image file
+            # For image files, read content directly
             with open(image_path, 'rb') as image_file:
                 content = image_file.read()
 
-        image = vision.Image(content=content)
-        response = client.document_text_detection(image=image)
-        
-        if response.error.message:
-            raise Exception(response.error.message)
-        
-        text = response.full_text_annotation.text if response.full_text_annotation else ""
-        confidence = 0.95  # Google Vision typically has high confidence
-        
-        return OCRResult(
-            provider='google_vision',
-            text=text,
-            confidence=confidence,
-            processing_time=time.time() - start_time,
-            success=True
-        )
+        # Process with Google Vision API
+        try:
+            image = vision.Image(content=content)
+            response = client.document_text_detection(image=image)
+
+            if response.error.message:
+                raise Exception(response.error.message)
+
+            text = response.full_text_annotation.text if response.full_text_annotation else ""
+            confidence = 0.95  # Google Vision typically has high confidence
+
+            return OCRResult(
+                provider='google_vision',
+                text=text,
+                confidence=confidence,
+                processing_time=time.time() - start_time,
+                success=True
+            )
+
+        except Exception as vision_error:
+            return OCRResult(
+                provider='google_vision',
+                text="",
+                confidence=0.0,
+                processing_time=time.time() - start_time,
+                success=False,
+                error_message=str(vision_error)
+            )
     
 
 

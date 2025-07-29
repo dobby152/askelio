@@ -276,7 +276,40 @@ class UnifiedDocumentProcessor:
             # Fallback to Tesseract if enabled
             if options.enable_fallbacks:
                 logger.warning("⚠️ Google Vision failed, trying Tesseract fallback...")
-                # TODO: Implement Tesseract fallback
+                try:
+                    import pytesseract
+                    from PIL import Image
+                    import pdf2image
+
+                    # Convert PDF to image if needed
+                    if file_path.lower().endswith('.pdf'):
+                        pages = pdf2image.convert_from_path(file_path, first_page=1, last_page=1, dpi=200)
+                        if pages:
+                            # Use Tesseract on the image
+                            text = pytesseract.image_to_string(pages[0], lang='ces+eng')
+                            logger.info("✅ Tesseract fallback successful")
+                            return {
+                                "success": True,
+                                "text": text,
+                                "confidence": 0.7,  # Lower confidence for Tesseract
+                                "provider": "tesseract",
+                                "fallbacks_used": ["tesseract"]
+                            }
+                    else:
+                        # Regular image file
+                        image = Image.open(file_path)
+                        text = pytesseract.image_to_string(image, lang='ces+eng')
+                        logger.info("✅ Tesseract fallback successful")
+                        return {
+                            "success": True,
+                            "text": text,
+                            "confidence": 0.7,
+                            "provider": "tesseract",
+                            "fallbacks_used": ["tesseract"]
+                        }
+                except Exception as e:
+                    logger.error(f"❌ Tesseract fallback failed: {e}")
+
                 return {"success": False, "error": "All OCR methods failed"}
             
             return {"success": False, "error": result.get("error", "OCR failed")}

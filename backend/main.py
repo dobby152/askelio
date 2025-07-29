@@ -35,6 +35,7 @@ from services.document_service import document_service
 from unified_document_processor import UnifiedDocumentProcessor, ProcessingOptions, ProcessingMode
 from routers.auth import router as auth_router
 from routers.dashboard import router as dashboard_router
+from routers.ai_analytics import router as ai_analytics_router
 from routes.company_routes import router as company_router
 from routes.approval_routes import router as approval_router
 from routes.analytics_routes import router as analytics_router
@@ -60,6 +61,7 @@ app = FastAPI(
 # CORS middleware - SECURE CONFIGURATION
 allowed_origins = [
     "http://localhost:3000",  # Development frontend
+    "http://localhost:3001",  # Development frontend (alternative port)
     "https://yourdomain.com",  # Production domain - CHANGE THIS!
 ]
 
@@ -77,12 +79,14 @@ app.add_middleware(
 )
 
 # Security middleware
-app.add_middleware(CSRFProtectionMiddleware, secret_key=os.getenv('CSRF_SECRET_KEY', 'default-csrf-secret'))
+# Disable CSRF for development
+# app.add_middleware(CSRFProtectionMiddleware, secret_key=os.getenv('CSRF_SECRET_KEY', 'default-csrf-secret'))
 app.add_middleware(SupabaseAuthMiddleware)
 
 # Include routers
 app.include_router(auth_router)
 app.include_router(dashboard_router)
+app.include_router(ai_analytics_router)
 app.include_router(company_router)
 app.include_router(approval_router)
 app.include_router(analytics_router)
@@ -533,16 +537,30 @@ async def get_documents(current_user: dict = Depends(get_current_user)):
         {
             "id": doc.get('id'),
             "filename": doc.get('filename'),
+            "file_name": doc.get('filename'),  # Add alias for frontend compatibility
             "status": doc.get('status'),
             "confidence": doc.get('confidence_score'),
+            "accuracy": doc.get('confidence_score'),  # Add alias for frontend compatibility
             "processing_time": doc.get('processing_time'),
             "cost_czk": doc.get('processing_cost', 0.0),
             "provider_used": doc.get('ocr_provider'),
             "created_at": doc.get('created_at'),
+            "processed_at": doc.get('processed_at'),
             "file_path": doc.get('file_path'),
             "size": doc.get('file_size'),
+            "file_size": doc.get('file_size'),  # Add alias for frontend compatibility
             "pages": doc.get('pages'),
-            "type": doc.get('file_type')
+            "type": doc.get('file_type'),
+            "file_type": doc.get('file_type'),  # Add alias for frontend compatibility
+            # Add structured data and invoice direction information
+            "structured_data": doc.get('structured_data', {}),
+            "extracted_data": doc.get('structured_data', {}),  # Add alias for frontend compatibility
+            "invoice_direction": doc.get('invoice_direction'),
+            "direction_confidence": doc.get('direction_confidence'),
+            "direction_method": doc.get('direction_method'),
+            "financial_category": doc.get('financial_category'),
+            "requires_manual_review": doc.get('requires_manual_review', False),
+            "error_message": doc.get('error_message')
         }
         for doc in documents
     ]

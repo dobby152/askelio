@@ -24,6 +24,7 @@ redis==5.0.1
 pillow==10.1.0
 pytesseract==0.3.10
 pdf2image==1.16.3
+PyMuPDF==1.23.26
 numpy==1.24.3
 
 # OCR Providers - 5 Sources for Maximum Accuracy

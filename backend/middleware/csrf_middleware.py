@@ -7,6 +7,7 @@ Protects against Cross-Site Request Forgery attacks
 import logging
 import secrets
 import hashlib
+import os
 from typing import Callable
 from fastapi import Request, Response, HTTPException, status
 from fastapi.responses import JSONResponse
@@ -16,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 class CSRFProtectionMiddleware(BaseHTTPMiddleware):
     """Middleware for CSRF protection"""
-    
+
     def __init__(self, app, secret_key: str = None):
         super().__init__(app)
         self.secret_key = secret_key or secrets.token_urlsafe(32)
@@ -28,8 +29,22 @@ class CSRFProtectionMiddleware(BaseHTTPMiddleware):
             '/auth/login',
             '/auth/register',
             '/auth/refresh',
-            '/auth/reset-password'
+            '/auth/reset-password',
+            '/api/v1/documents/process',
+            '/api/v1/documents/process-batch',
+            '/dashboard/',
+            '/test'
         ]
+        # Allowed origins for development (frontend -> backend)
+        self.allowed_origins = [
+            'http://localhost:3000',  # Development frontend
+            'https://yourdomain.com',  # Production domain
+        ]
+
+        # Get additional origins from environment
+        env_origins = os.getenv('CSRF_ALLOWED_ORIGINS', '').split(',')
+        if env_origins and env_origins[0]:  # Check if not empty
+            self.allowed_origins.extend([origin.strip() for origin in env_origins])
         
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         """Process request and verify CSRF token for unsafe methods"""
@@ -39,23 +54,24 @@ class CSRFProtectionMiddleware(BaseHTTPMiddleware):
             return await call_next(request)
             
         # Skip CSRF protection for excluded paths
+        logger.info(f"CSRF: Checking path {request.url.path} against exclude_paths: {self.exclude_paths}")
         if any(request.url.path.startswith(path) for path in self.exclude_paths):
+            logger.info(f"CSRF: Skipping CSRF for excluded path: {request.url.path}")
             return await call_next(request)
             
         # Check Origin header for additional protection
         origin = request.headers.get('origin')
         host = request.headers.get('host')
-        
+
         if origin:
-            # Extract hostname from origin
-            origin_host = origin.replace('https://', '').replace('http://', '')
-            if origin_host != host:
-                logger.warning(f"CSRF: Origin mismatch - Origin: {origin}, Host: {host}")
+            # Check if origin is in allowed list (for development and production)
+            if origin not in self.allowed_origins:
+                logger.warning(f"CSRF: Origin not allowed - Origin: {origin}, Host: {host}")
                 return JSONResponse(
                     status_code=status.HTTP_403_FORBIDDEN,
                     content={
                         "error": "csrf_protection",
-                        "message": "Origin header does not match host",
+                        "message": "Origin not allowed",
                         "details": "Possible CSRF attack detected"
                     }
                 )

@@ -333,7 +333,7 @@ askelio/
 │   ├── models/supabase_models.py     # Supabase modely
 │   ├── services/
 │   │   ├── invoice_direction_service.py  # Rozpoznávání směru faktur
-│   │   ├── supabase_service.py          # Supabase integrace
+│   │   ├── supabase_client.py           # Supabase integrace
 │   │   └── document_service.py          # Správa dokumentů
 │   ├── routers/                      # API endpointy
 │   ├── unified_document_processor.py # Centrální procesor

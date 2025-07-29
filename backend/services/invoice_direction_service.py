@@ -18,7 +18,7 @@ from models.supabase_models import (
     InvoiceDirectionAnalysisCreate,
     FinancialTransactionCreate
 )
-from services.supabase_service import SupabaseService
+from services.supabase_client import SupabaseService
 
 logger = logging.getLogger(__name__)
 
@@ -88,7 +88,7 @@ class InvoiceDirectionService:
         """Get user's company profile from existing companies system"""
         try:
             # Use the corrected function to get company data
-            result = await self.supabase_service.supabase.rpc('get_user_primary_company', {'user_uuid': str(user_id)}).execute()
+            result = self.supabase_service.supabase.rpc('get_user_primary_company', {'user_uuid': str(user_id)}).execute()
 
             if result.data and len(result.data) > 0:
                 company_data = result.data[0]
