@@ -184,18 +184,26 @@ class ApprovalService:
         """Get pending approvals for user"""
         try:
             query = self.supabase.table('document_approvals').select('''
-                *, 
-                documents (id, filename, file_size, upload_date, extracted_data),
-                companies (name)
-            ''').eq('current_approver_id', user_id).eq('status', 'pending')
-            
+                *,
+                documents (id, filename, original_filename, file_size_bytes, created_at, document_type, company_id)
+            ''').eq('approver_id', user_id).eq('status', 'pending')
+
+            # Filter by company_id through documents table if provided
             if company_id:
-                query = query.eq('company_id', company_id)
-            
+                # First get document IDs for the company
+                docs_query = self.supabase.table('documents').select('id').eq('company_id', company_id)
+                docs_result = docs_query.execute()
+                if docs_result.data:
+                    doc_ids = [doc['id'] for doc in docs_result.data]
+                    query = query.in_('document_id', doc_ids)
+                else:
+                    # No documents for this company, return empty result
+                    return {"success": True, "data": []}
+
             result = query.order('created_at', desc=False).execute()
-            
+
             return {"success": True, "data": result.data}
-            
+
         except Exception as e:
             logger.error(f"Error getting pending approvals: {str(e)}")
             return {"success": False, "error": str(e)}

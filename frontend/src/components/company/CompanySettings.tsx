@@ -80,18 +80,14 @@ export default function CompanySettings({ companyId }: CompanySettingsProps) {
 
   const loadCompanyData = async () => {
     try {
-      const response = await fetch(`/api/companies/${companyId}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      })
-      
-      if (response.ok) {
-        const result = await response.json()
+      const { apiClient } = await import('@/lib/api-client')
+      const result = await apiClient.getCompanyDetails(companyId)
+
+      if (result.success) {
         setCompany(result.data)
         setFormData(result.data)
       } else {
-        toast.error('Nepodařilo se načíst data firmy')
+        toast.error(result.message || 'Nepodařilo se načíst data firmy')
       }
     } catch (error) {
       console.error('Error loading company:', error)
@@ -103,39 +99,31 @@ export default function CompanySettings({ companyId }: CompanySettingsProps) {
 
   const loadAvailablePlans = async () => {
     try {
-      const response = await fetch('/api/companies/plans/available', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      })
-      
-      if (response.ok) {
-        const result = await response.json()
+      const { apiClient } = await import('@/lib/api-client')
+      const result = await apiClient.getAvailablePlans()
+
+      if (result.success) {
         setPlans(result.data)
+      } else {
+        toast.error(result.message || 'Nepodařilo se načíst dostupné plány')
       }
     } catch (error) {
       console.error('Error loading plans:', error)
+      toast.error('Chyba při načítání plánů')
     }
   }
 
   const handleSave = async () => {
     setSaving(true)
     try {
-      const response = await fetch(`/api/companies/${companyId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(formData)
-      })
-      
-      if (response.ok) {
-        const result = await response.json()
+      const { apiClient } = await import('@/lib/api-client')
+      const result = await apiClient.updateCompany(companyId, formData)
+
+      if (result.success) {
         setCompany(result.data)
         toast.success('Nastavení firmy bylo uloženo')
       } else {
-        toast.error('Nepodařilo se uložit nastavení')
+        toast.error(result.message || 'Nepodařilo se uložit nastavení')
       }
     } catch (error) {
       console.error('Error saving company:', error)
@@ -148,20 +136,14 @@ export default function CompanySettings({ companyId }: CompanySettingsProps) {
   const handleUpgradePlan = async (planName: string) => {
     setUpgrading(true)
     try {
-      const response = await fetch(`/api/companies/${companyId}/upgrade-plan`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ plan_name: planName })
-      })
-      
-      if (response.ok) {
+      const { apiClient } = await import('@/lib/api-client')
+      const result = await apiClient.upgradeCompanyPlan(companyId, planName)
+
+      if (result.success) {
         toast.success('Plán byl úspěšně upgradován')
         loadCompanyData()
       } else {
-        toast.error('Nepodařilo se upgradovat plán')
+        toast.error(result.message || 'Nepodařilo se upgradovat plán')
       }
     } catch (error) {
       console.error('Error upgrading plan:', error)

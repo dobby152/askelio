@@ -648,6 +648,57 @@ class UnifiedDocumentProcessor:
 
                             if update_result.get('success'):
                                 logger.info(f"✅ Document {document_id} updated successfully")
+
+                                # 🧠 INVOICE DIRECTION ANALYSIS
+                                # Analyze invoice direction if this is an invoice
+                                if validated_data.get('document_type') in ['invoice', 'faktura']:
+                                    try:
+                                        from services.invoice_direction_service import InvoiceDirectionService
+                                        from uuid import UUID
+
+                                        direction_service = InvoiceDirectionService()
+                                        direction, confidence, method = loop.run_until_complete(
+                                            direction_service.analyze_invoice_direction(
+                                                UUID(str(options.user_id)),
+                                                UUID(document_id),
+                                                validated_data
+                                            )
+                                        )
+
+                                        # Update document with direction information
+                                        direction_update = {
+                                            'invoice_direction': direction.value,
+                                            'direction_confidence': float(confidence),
+                                            'direction_method': 'automatic',
+                                            'financial_category': 'revenue' if direction.value == 'outgoing' else 'expense' if direction.value == 'incoming' else 'unknown',
+                                            'requires_manual_review': confidence < 0.8
+                                        }
+
+                                        direction_result = loop.run_until_complete(
+                                            doc_service.update_document(document_id, str(options.user_id), direction_update)
+                                        )
+
+                                        if direction_result.get('success'):
+                                            logger.info(f"🎯 Invoice direction detected: {direction.value} (confidence: {confidence})")
+
+                                            # Create financial transaction
+                                            transaction_id = loop.run_until_complete(
+                                                direction_service.create_financial_transaction(
+                                                    UUID(str(options.user_id)),
+                                                    UUID(document_id),
+                                                    validated_data,
+                                                    direction
+                                                )
+                                            )
+
+                                            if transaction_id:
+                                                logger.info(f"💰 Financial transaction created: {transaction_id}")
+                                        else:
+                                            logger.warning("⚠️ Failed to update document with direction information")
+
+                                    except Exception as direction_error:
+                                        logger.error(f"❌ Invoice direction analysis failed: {direction_error}")
+                                        # Don't fail the entire process if direction analysis fails
                                 return document_id, None
                             else:
                                 error_msg = f"Failed to update document: {update_result.get('error', 'Unknown error')}"

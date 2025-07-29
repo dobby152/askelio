@@ -11,6 +11,7 @@ export interface DashboardStats {
   totalExpenses: number
   netProfit: number
   remainingCredits: number
+  pendingApprovals: number
   trends: {
     income: number
     expenses: number

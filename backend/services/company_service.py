@@ -8,13 +8,13 @@ from typing import Dict, List, Optional, Any
 from datetime import datetime, timedelta
 import uuid
 
-from .supabase_client import get_supabase_client
+from .supabase_client import get_supabase
 
 logger = logging.getLogger(__name__)
 
 class CompanyService:
     def __init__(self):
-        self.supabase = get_supabase_client()
+        self.supabase = get_supabase()
     
     # ===== COMPANY MANAGEMENT =====
     
@@ -102,11 +102,11 @@ class CompanyService:
             
             # Get company with plan details
             result = self.supabase.table('companies').select('''
-                *, 
+                *,
                 company_plans (*),
                 company_users (
                     id, is_active, joined_at,
-                    users (id, email, full_name),
+                    users!company_users_user_id_fkey (id, email, full_name),
                     user_roles (name, display_name)
                 )
             ''').eq('id', company_id).single().execute()

@@ -27,6 +27,7 @@ import {
 // Přidej import pro ExportDialog
 import { ExportDialog } from "@/components/export-dialog"
 import { AresInfoBadge } from "@/components/ares-info-badge"
+import { InvoiceDirectionBadge, FinancialCategoryBadge, DirectionConfidenceIndicator } from "@/components/invoice-direction-badge"
 import { apiClient } from "@/lib/api"
 import { formatAmount } from "@/lib/format-utils"
 import { cn } from "@/lib/utils"
@@ -54,6 +55,12 @@ interface Document {
     success: boolean
     error?: string
   }
+  // Invoice direction fields
+  invoice_direction?: 'incoming' | 'outgoing' | 'unknown'
+  direction_confidence?: number
+  direction_method?: string
+  financial_category?: 'revenue' | 'expense' | 'unknown'
+  requires_manual_review?: boolean
   errorMessage?: string
 }
 
@@ -401,6 +408,8 @@ export function DocumentsTable({
               <TableRow>
                 <TableHead>Dokument</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Směr faktury</TableHead>
+                <TableHead>Finanční kategorie</TableHead>
                 <TableHead>Přesnost</TableHead>
                 <TableHead>Extrahovaná data</TableHead>
                 <TableHead>Zpracováno</TableHead>
@@ -430,6 +439,38 @@ export function DocumentsTable({
                     </div>
                   </TableCell>
                   <TableCell>{getStatusBadge(document.status, document.errorMessage)}</TableCell>
+                  <TableCell>
+                    {document.invoice_direction ? (
+                      <div className="flex items-center gap-2">
+                        <InvoiceDirectionBadge
+                          direction={document.invoice_direction}
+                          confidence={document.direction_confidence}
+                          requiresManualReview={document.requires_manual_review}
+                        />
+                        {document.direction_confidence !== undefined && (
+                          <DirectionConfidenceIndicator
+                            confidence={document.direction_confidence}
+                            method={document.direction_method}
+                          />
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-gray-400">-</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {document.financial_category && document.extractedData?.amount ? (
+                      <FinancialCategoryBadge
+                        category={document.financial_category}
+                        amount={document.extractedData.amount}
+                        currency={document.extractedData.currency}
+                      />
+                    ) : document.financial_category ? (
+                      <FinancialCategoryBadge category={document.financial_category} />
+                    ) : (
+                      <span className="text-gray-400">-</span>
+                    )}
+                  </TableCell>
                   <TableCell>
                     {document.status === "completed" ? (
                       <span className="font-medium text-green-600 dark:text-green-400">{document.accuracy}%</span>

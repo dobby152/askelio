@@ -133,19 +133,18 @@ export function LandingPage() {
         <div className="container mx-auto px-4 sm:px-6 relative">
           <div className="max-w-5xl mx-auto text-center">
             <Badge className="mb-6 sm:mb-8 bg-blue-50 text-blue-700 border-blue-200 px-4 py-2 text-sm sm:text-base">
-              🚀 Automatizované zpracování faktur a účtenek s AI
+              🏢 Firemní systém pro automatizaci dokumentů s AI
             </Badge>
 
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 sm:mb-8 lg:mb-10 leading-tight tracking-tight">
-              Ušetřete až{" "}
-              <span className="text-blue-600">15 hodin týdně</span>{" "}
-              na účetnictví
+              Firemní systém pro{" "}
+              <span className="text-blue-600">automatizaci dokumentů</span>{" "}
+              s AI
             </h1>
 
             <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 mb-8 sm:mb-10 lg:mb-12 max-w-4xl mx-auto leading-relaxed font-light px-4 sm:px-0">
-              Askelio automaticky zpracuje vaše faktury a účtenky s{" "}
-              <strong className="font-semibold text-gray-900">99% přesností</strong>. Snižte chyby o 95% a integrujte se
-              s českými ERP systémy během 5 minut.
+              Kompletní řešení pro týmy - správa zaměstnanců, schvalovací workflow, pokročilé analýzy a{" "}
+              <strong className="font-semibold text-gray-900">automatické zpracování dokumentů</strong> s 99% přesností.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center mb-12 sm:mb-16 px-4 sm:px-0">
@@ -153,6 +152,7 @@ export function LandingPage() {
                 size="lg"
                 className="bg-blue-600 hover:bg-blue-700 text-white text-lg sm:text-xl px-8 sm:px-12 py-4 sm:py-6 h-12 sm:h-auto min-w-[44px] order-1"
                 showArrow
+                onClick={() => window.location.href = '/company/register'}
               >
                 Začít zdarma - bez karty
               </LoadingButton>
@@ -286,6 +286,42 @@ export function LandingPage() {
                 <p className="text-gray-600">GDPR compliance, AES-256 šifrování, EU datacentra</p>
               </CardContent>
             </Card>
+
+            <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
+                  <Users className="w-6 h-6 text-indigo-600" />
+                </div>
+                <CardTitle className="text-xl font-semibold text-gray-900">Týmová Spolupráce</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">Správa zaměstnanců, role a oprávnění pro celý tým</p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center mb-4">
+                  <CheckCircle className="w-6 h-6 text-yellow-600" />
+                </div>
+                <CardTitle className="text-xl font-semibold text-gray-900">Schvalovací Workflow</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">Automatické schvalování dokumentů podle firemních pravidel</p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center mb-4">
+                  <BarChart3 className="w-6 h-6 text-pink-600" />
+                </div>
+                <CardTitle className="text-xl font-semibold text-gray-900">Pokročilé Analýzy</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">Detailní reporty, trendy a insights pro lepší rozhodování</p>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
@@ -402,33 +438,201 @@ export function LandingPage() {
         <div className="container mx-auto px-4 sm:px-6">
           <div className="max-w-4xl mx-auto text-center mb-12 sm:mb-16 lg:mb-20">
             <Badge className="mb-4 sm:mb-6 bg-purple-50 text-purple-700 border-purple-200">
-              💰 Ceník
+              💰 Ceník pro firmy
             </Badge>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6">
-              Transparentní ceny podle kreditů
+              Plány pro každou velikost firmy
             </h2>
             <p className="text-lg sm:text-xl text-gray-600 leading-relaxed">
-              Platíte jen za to, co skutečně použijete. Žádné skryté poplatky, žádné měsíční závazky.
+              Vyberte si plán podle počtu zaměstnanců a objemu dokumentů. Všechny plány zahrnují pokročilé AI zpracování.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 sm:gap-8 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-4 gap-6 sm:gap-8 max-w-7xl mx-auto">
+            {/* Free Plan */}
             <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow">
               <CardHeader className="text-center">
-                <CardTitle className="text-xl font-semibold text-gray-900 mb-2">START</CardTitle>
+                <CardTitle className="text-xl font-semibold text-gray-900 mb-2">ZDARMA</CardTitle>
                 <div className="mb-4">
-                  <span className="text-3xl font-bold text-gray-900">150 Kč</span>
-                  <span className="text-gray-600 ml-2">/ 100 kreditů</span>
+                  <span className="text-3xl font-bold text-gray-900">0 Kč</span>
+                  <span className="text-gray-600 ml-2">/ měsíc</span>
                 </div>
-                <p className="text-sm text-gray-600">Ideální pro malé firmy</p>
+                <p className="text-sm text-gray-600">Pro testování a malé firmy</p>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-3 mb-6">
                   <li className="flex items-center">
                     <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-                    <span className="text-gray-600">100 kreditů</span>
+                    <span className="text-gray-600">2 zaměstnanci</span>
                   </li>
                   <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-600">50 dokumentů/měsíc</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-600">1 GB úložiště</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-600">Základní podpora</span>
+                  </li>
+                </ul>
+                <LoadingButton
+                  className="w-full bg-gray-600 hover:bg-gray-700 text-white"
+                  onClick={() => window.location.href = '/company/register'}
+                >
+                  Začít zdarma
+                </LoadingButton>
+              </CardContent>
+            </Card>
+
+            {/* Basic Plan */}
+            <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow">
+              <CardHeader className="text-center">
+                <CardTitle className="text-xl font-semibold text-gray-900 mb-2">ZÁKLADNÍ</CardTitle>
+                <div className="mb-4">
+                  <span className="text-3xl font-bold text-gray-900">990 Kč</span>
+                  <span className="text-gray-600 ml-2">/ měsíc</span>
+                </div>
+                <p className="text-sm text-gray-600">Pro malé firmy s pokročilými funkcemi</p>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3 mb-6">
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-600">5 zaměstnanců</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-600">200 dokumentů/měsíc</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-600">5 GB úložiště</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-600">Schvalovací workflow</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-600">E-mailová podpora</span>
+                  </li>
+                </ul>
+                <LoadingButton
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                  onClick={() => window.location.href = '/company/register'}
+                >
+                  Vybrat plán
+                </LoadingButton>
+              </CardContent>
+            </Card>
+
+            {/* Premium Plan */}
+            <Card className="bg-white border-2 border-purple-500 hover:shadow-lg transition-shadow relative">
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                <Badge className="bg-purple-500 text-white px-3 py-1">NEJPOPULÁRNĚJŠÍ</Badge>
+              </div>
+              <CardHeader className="text-center">
+                <CardTitle className="text-xl font-semibold text-gray-900 mb-2">PREMIUM</CardTitle>
+                <div className="mb-4">
+                  <span className="text-3xl font-bold text-gray-900">2 990 Kč</span>
+                  <span className="text-gray-600 ml-2">/ měsíc</span>
+                </div>
+                <p className="text-sm text-gray-600">Pro střední firmy s pokročilými analýzami</p>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3 mb-6">
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-600">20 zaměstnanců</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-600">1 000 dokumentů/měsíc</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-600">20 GB úložiště</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-600">Pokročilé analýzy</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-600">API přístup</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-600">Prioritní podpora</span>
+                  </li>
+                </ul>
+                <LoadingButton
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                  onClick={() => window.location.href = '/company/register'}
+                >
+                  Vybrat plán
+                </LoadingButton>
+              </CardContent>
+            </Card>
+
+            {/* Enterprise Plan */}
+            <Card className="bg-white border-gray-200 hover:shadow-lg transition-shadow">
+              <CardHeader className="text-center">
+                <CardTitle className="text-xl font-semibold text-gray-900 mb-2">ENTERPRISE</CardTitle>
+                <div className="mb-4">
+                  <span className="text-3xl font-bold text-gray-900">9 990 Kč</span>
+                  <span className="text-gray-600 ml-2">/ měsíc</span>
+                </div>
+                <p className="text-sm text-gray-600">Pro velké firmy s neomezenými možnostmi</p>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3 mb-6">
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-600">Neomezení zaměstnanci</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-600">Neomezené dokumenty</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-600">Neomezené úložiště</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-600">Vlastní integrace</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-600">Dedikovaný support</span>
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-600">SLA 99.9%</span>
+                  </li>
+                </ul>
+                <LoadingButton className="w-full bg-gray-900 hover:bg-gray-800 text-white">
+                  Kontaktovat prodej
+                </LoadingButton>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Additional pricing info */}
+          <div className="mt-12 text-center">
+            <p className="text-gray-600 mb-4">
+              Všechny plány zahrnují 14denní zkušební období zdarma
+            </p>
+            <p className="text-sm text-gray-500">
+              Roční platba = 2 měsíce zdarma • Bez závazků • Zrušení kdykoli
+            </p>
+          </div>
+        </div>
+      </section>
                     <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
                     <span className="text-gray-600">Základní OCR</span>
                   </li>
@@ -691,6 +895,7 @@ export function LandingPage() {
               <LoadingButton
                 size="lg"
                 className="bg-white text-blue-600 hover:bg-gray-50 text-lg px-8 py-4 h-12 sm:h-auto"
+                onClick={() => window.location.href = '/company/register'}
               >
                 Začít zdarma - bez karty
               </LoadingButton>

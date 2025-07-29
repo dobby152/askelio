@@ -1,6 +1,14 @@
 # Askelio - Inteligentní zpracování faktur s AI
 
-🚀 **Pokročilý systém pro automatizované zpracování českých faktur pomocí OCR a umělé inteligence.**
+🚀 **Pokročilý systém pro automatizované zpracování českých faktur pomocí OCR a umělé inteligence s automatickým rozpoznáváním směru faktur.**
+
+## ✨ Klíčové funkce
+
+- 🤖 **Automatické rozpoznávání směru faktur** - Systém automaticky rozpozná, zda je faktura příchozí (výdaj) nebo odchozí (příjem)
+- 📊 **Inteligentní finanční přehledy** - Automatická kategorizace příjmů a výdajů na základě směru faktury
+- 🔍 **OCR s AI zpracováním** - Extrakce dat z faktur pomocí Google Vision API a LLM modelů
+- 🏢 **Správa firem** - Kompletní systém pro správu firemních údajů a uživatelů
+- 📈 **Dashboard s analytics** - Přehledy příjmů, výdajů a zisku v reálném čase
 
 ## 🏗️ Architektura systému
 
@@ -38,9 +46,15 @@ graph TB
     end
 
     subgraph "Data Layer"
-        DB[(SQLite Database)]
+        DB[(Supabase Database)]
         CACHE[(LLM Cache)]
         FILES[File Storage]
+    end
+
+    subgraph "Invoice Direction System"
+        DIRECTION[Direction Analysis]
+        COMPANY[Company Matching]
+        FINANCIAL[Financial Categorization]
     end
 
     UI --> API
@@ -77,14 +91,23 @@ graph TB
 ```
 
 ## ✅ Klíčové funkcionality
+
+### 🧠 Automatické rozpoznávání směru faktur
+- ✅ **Inteligentní analýza** - Automatické rozpoznání příchozích vs odchozích faktur
+- ✅ **Firemní matching** - Porovnání IČO, DIČ a názvů firem s databází
+- ✅ **Finanční kategorizace** - Automatické zařazení do příjmů/výdajů
+- ✅ **Vysoká spolehlivost** - 95%+ přesnost rozpoznání směru
+
+### 🤖 AI zpracování dokumentů
 - ✅ **Inteligentní AI extrakce** - Claude 3.5 Sonnet s 98%+ přesností
 - ✅ **Komplexní data mining** - Všechna pole z českých faktur (IČO, DIČ, položky, DPH)
 - ✅ **Adaptivní zpracování** - Automatická detekce složitosti dokumentu
 - ✅ **Robustní validace** - IČO/DIČ kontrola, matematická konzistence
-- ✅ **Moderní frontend** - React/Next.js s profesionálním designem
-- ✅ **Real-time processing** - Okamžité zpracování a zobrazení výsledků
-- ✅ **Intelligent fallback** - Vícenásobné AI modely pro maximální spolehlivost
-- ✅ **Cost-optimized** - Inteligentní výběr modelů podle složitosti
+
+### 💼 Firemní systém
+- ✅ **Multi-company support** - Správa více firem na jednom účtu
+- ✅ **Uživatelské role** - Flexibilní systém oprávnění
+- ✅ **Real-time dashboard** - Okamžité finanční přehledy
 - ✅ **Czech-first** - Specializace na české faktury a legislativu
 
 ## 🛠 Technologie
@@ -99,10 +122,11 @@ graph TB
 
 ### Backend
 - **FastAPI** - Moderní Python web framework
-- **SQLite** - Lehká databáze pro development
+- **Supabase** - PostgreSQL databáze s real-time funkcemi
 - **Pydantic** - Data validation a serialization
 - **Unified Document Processor** - Centralizované zpracování dokumentů
 - **Multi-tier LLM Engine** - Inteligentní výběr AI modelů
+- **Invoice Direction Service** - Automatické rozpoznávání směru faktur
 
 ### Frontend
 - **Next.js 14** - React framework s App Router
@@ -263,36 +287,67 @@ curl -X POST -F "file=@your-invoice.pdf" http://localhost:8001/documents/upload
 curl http://localhost:8001/documents
 ```
 
+## 🎯 Systém rozpoznávání směru faktur
+
+### Jak funguje automatické rozpoznávání
+
+1. **Analýza firemních údajů** - Systém porovnává IČO, DIČ a název firmy z faktury s firemními údaji uživatele
+2. **Určení směru faktury**:
+   - Pokud jste **dodavatel** → **odchozí faktura** (příjem) 📤
+   - Pokud jste **odběratel** → **příchozí faktura** (výdaj) 📥
+3. **Automatická kategorizace** - Faktury se zařadí do správné kategorie pro finanční přehledy
+
+### Algoritmus porovnání
+- **IČO shoda** (váha 50%) - Nejvyšší priorita
+- **DIČ shoda** (váha 30%) - Vysoká priorita
+- **Název firmy** (váha 20%) - Fuzzy matching s normalizací
+
+### Spolehlivost
+- **Vysoká spolehlivost** (≥80%) - Automatické rozhodnutí
+- **Střední spolehlivost** (50-79%) - Rozhodnutí s upozorněním
+- **Nízká spolehlivost** (<50%) - Vyžaduje manuální kontrolu
+
 ## 🔌 API Endpointy
 
-### Základní endpointy
-- `GET /health` - Health check
+### Dokumenty
 - `POST /documents/upload` - Nahrání dokumentu
-- `GET /documents` - Seznam dokumentů
+- `GET /documents` - Seznam dokumentů s směrem faktury
 - `GET /documents/{id}` - Detail dokumentu
-- `GET /statistics` - Statistiky
+
+### Firmy
+- `GET /api/companies` - Seznam firem uživatele
+- `PUT /api/companies/{id}` - Aktualizace firemních údajů
+
+### Dashboard
+- `GET /dashboard/stats` - Finanční statistiky s rozlišením příjmů/výdajů
 
 ### API dokumentace
-Kompletní API dokumentace je dostupná na: http://localhost:8001/docs
+Kompletní API dokumentace: http://localhost:8001/docs
 
 ## 📁 Struktura projektu
 
 ```
 askelio/
-├── backend/                    # FastAPI backend
-│   ├── main.py                # Hlavní server
-│   ├── models_sqlite.py       # Database models
-│   ├── invoice_processor.py   # Invoice processing
-│   ├── ocr_manager.py         # OCR management
-│   ├── openrouter_llm_engine.py # LLM engine
-│   └── requirements.txt       # Python závislosti
-├── frontend/                   # Next.js frontend
-│   ├── src/app/               # App Router stránky
-│   ├── src/components/        # React komponenty
-│   ├── src/lib/               # Utility funkce
-│   ├── package.json           # Node.js závislosti
-│   └── tailwind.config.ts     # Tailwind konfigurace
-└── README.md                  # Dokumentace
+├── backend/                           # FastAPI backend
+│   ├── main.py                       # Hlavní server
+│   ├── models/supabase_models.py     # Supabase modely
+│   ├── services/
+│   │   ├── invoice_direction_service.py  # Rozpoznávání směru faktur
+│   │   ├── supabase_service.py          # Supabase integrace
+│   │   └── document_service.py          # Správa dokumentů
+│   ├── routers/                      # API endpointy
+│   ├── unified_document_processor.py # Centrální procesor
+│   └── requirements.txt              # Python závislosti
+├── frontend/                          # Next.js frontend
+│   ├── src/app/                      # App Router stránky
+│   ├── src/components/               # React komponenty
+│   │   ├── invoice-direction-badge.tsx  # Komponenty pro směr faktur
+│   │   ├── company-profile-setup.tsx    # Správa firemních údajů
+│   │   └── comprehensive-dashboard.tsx  # Finanční dashboard
+│   ├── src/lib/                      # Utility funkce
+│   └── package.json                  # Node.js závislosti
+├── database/migrations/              # Databázové migrace
+└── docs/                            # Dokumentace
 ```
 
 ## 📞 Kontakt

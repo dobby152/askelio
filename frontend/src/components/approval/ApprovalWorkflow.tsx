@@ -55,23 +55,23 @@ export default function ApprovalWorkflow({ companyId }: ApprovalWorkflowProps) {
   const [actionType, setActionType] = useState<'approve' | 'reject'>('approve')
 
   useEffect(() => {
-    loadApprovals()
-    loadPendingApprovals()
+    if (companyId) {
+      loadApprovals()
+      loadPendingApprovals()
+    }
   }, [companyId])
 
   const loadApprovals = async () => {
+    if (!companyId) return
+
     try {
-      const response = await fetch(`/api/approvals/?company_id=${companyId}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      })
-      
-      if (response.ok) {
-        const result = await response.json()
-        setApprovals(result.data)
+      const { apiClient } = await import('@/lib/api-client')
+      const result = await apiClient.get(`/api/approvals/?company_id=${companyId}`)
+
+      if (result.success) {
+        setApprovals(result.data || [])
       } else {
-        toast.error('Nepodařilo se načíst schválení')
+        toast.error(result.message || 'Nepodařilo se načíst schválení')
       }
     } catch (error) {
       console.error('Error loading approvals:', error)
@@ -82,16 +82,14 @@ export default function ApprovalWorkflow({ companyId }: ApprovalWorkflowProps) {
   }
 
   const loadPendingApprovals = async () => {
+    if (!companyId) return
+
     try {
-      const response = await fetch('/api/approvals/pending', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      })
-      
-      if (response.ok) {
-        const result = await response.json()
-        setPendingApprovals(result.data)
+      const { apiClient } = await import('@/lib/api-client')
+      const result = await apiClient.get(`/api/approvals/pending?company_id=${companyId}`)
+
+      if (result.success) {
+        setPendingApprovals(result.data || [])
       }
     } catch (error) {
       console.error('Error loading pending approvals:', error)
@@ -103,19 +101,13 @@ export default function ApprovalWorkflow({ companyId }: ApprovalWorkflowProps) {
 
     setProcessing(selectedApproval.id)
     try {
+      const { apiClient } = await import('@/lib/api-client')
       const endpoint = actionType === 'approve' ? 'approve' : 'reject'
-      const response = await fetch(`/api/approvals/${selectedApproval.id}/${endpoint}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          comment: comment || undefined
-        })
+      const result = await apiClient.post(`/api/approvals/${selectedApproval.id}/${endpoint}`, {
+        comment: comment || undefined
       })
-      
-      if (response.ok) {
+
+      if (result.success) {
         toast.success(actionType === 'approve' ? 'Dokument byl schválen' : 'Dokument byl zamítnut')
         setShowApprovalDialog(false)
         setComment('')
@@ -123,8 +115,7 @@ export default function ApprovalWorkflow({ companyId }: ApprovalWorkflowProps) {
         loadApprovals()
         loadPendingApprovals()
       } else {
-        const error = await response.json()
-        toast.error(error.detail || 'Nepodařilo se zpracovat akci')
+        toast.error(result.message || 'Nepodařilo se zpracovat akci')
       }
     } catch (error) {
       console.error('Error processing approval:', error)

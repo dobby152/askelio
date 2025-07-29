@@ -45,6 +45,7 @@ import {
   // Status icons
   CheckCircle,
   AlertTriangle,
+  AlertCircle,
   Loader2,
   Clock,
   Target,
@@ -77,6 +78,8 @@ import { Progress } from "@/components/ui/progress"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { toast } from "sonner"
 
 import {
   DropdownMenu,
@@ -107,6 +110,9 @@ import { useAuth } from "@/components/AuthProvider"
 import { InteractivePDFPreview } from "@/components/interactive-pdf-preview"
 import { ExtractedDataEditor } from "@/components/extracted-data-editor"
 import { AresValidation } from "@/components/ares-validation"
+import CompanySettings from "@/components/company/CompanySettings"
+import UserManagement from "@/components/company/UserManagement"
+import ApprovalWorkflow from "@/components/approval/ApprovalWorkflow"
 import type { DashboardStats, RecentActivity, AIInsight } from "@/lib/dashboard-api"
 import { formatAmount, extractAmountFields, extractItemFields } from "@/lib/format-utils"
 
@@ -306,6 +312,7 @@ function DashboardHome({ onSectionChange }: { onSectionChange?: (section: string
           totalExpenses: 0,
           netProfit: 0,
           remainingCredits: 0,
+          pendingApprovals: 0,
           trends: { income: 0, expenses: 0, profit: 0, credits: 0 }
         })
         setRecentActivities([])
@@ -451,7 +458,13 @@ function DashboardHome({ onSectionChange }: { onSectionChange?: (section: string
                     </div>
                     <div className="text-left">
                       <div className="font-medium">Schválit faktury</div>
-                      <div className="text-xs text-muted-foreground">3 faktury čekají na schválení</div>
+                      <div className="text-xs text-muted-foreground">
+                        {dashboardStats?.pendingApprovals || 0} {
+                          (dashboardStats?.pendingApprovals || 0) === 1 ? 'faktura čeká' :
+                          (dashboardStats?.pendingApprovals || 0) < 5 ? 'faktury čekají' :
+                          'faktur čeká'
+                        } na schválení
+                      </div>
                     </div>
                   </div>
                   <ChevronRight className="w-4 h-4 ml-auto" />
@@ -664,9 +677,30 @@ function StatisticsPage() {
   const [overviewMetrics, setOverviewMetrics] = useState<any>({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [companyId, setCompanyId] = useState<string | null>(null)
 
-  // Company ID should come from auth context - for now use a test ID
-  const companyId = "test-company-id"
+  // Load user's company ID
+  useEffect(() => {
+    const loadUserCompany = async () => {
+      try {
+        const { apiClient } = await import('@/lib/api-client')
+        const result = await apiClient.getUserCompanies()
+
+        if (result.success && result.data && result.data.length > 0) {
+          // Use the first company for now - in a multi-company app, user would select
+          const firstCompany = result.data[0]
+          setCompanyId(firstCompany.companies.id)
+        } else {
+          setError('Nenalezena žádná firma pro uživatele')
+        }
+      } catch (error) {
+        console.error('Error loading user companies:', error)
+        setError('Chyba při načítání firem uživatele')
+      }
+    }
+
+    loadUserCompany()
+  }, [])
 
   const getDateRange = (period: string) => {
     const endDate = new Date()
@@ -693,6 +727,8 @@ function StatisticsPage() {
   }
 
   const loadAnalyticsData = async () => {
+    if (!companyId) return
+
     try {
       setLoading(true)
       setError(null)
@@ -724,10 +760,14 @@ function StatisticsPage() {
   }
 
   useEffect(() => {
-    loadAnalyticsData()
-  }, [timePeriod])
+    if (companyId) {
+      loadAnalyticsData()
+    }
+  }, [timePeriod, companyId])
 
   const handleExport = async () => {
+    if (!companyId) return
+
     try {
       const { startDate, endDate } = getDateRange(timePeriod)
       await dashboardAPI.exportAnalytics(companyId, 'csv', startDate, endDate)
@@ -766,15 +806,15 @@ function StatisticsPage() {
     )
   }
 
-  if (error) {
+  if (error || !companyId) {
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold">Statistiky</h2>
-            <p className="text-muted-foreground text-red-600">{error}</p>
+            <p className="text-muted-foreground text-red-600">{error || 'Nepodařilo se načíst data firmy'}</p>
           </div>
-          <Button onClick={loadAnalyticsData} variant="outline">
+          <Button onClick={loadAnalyticsData} variant="outline" disabled={!companyId}>
             <RefreshCw className="w-4 h-4 mr-2" />
             Zkusit znovu
           </Button>
@@ -2092,321 +2132,156 @@ function ScanningPage() {
 }
 
 function CompanySettingsPage() {
-  return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold">Nastavení firmy</h2>
-        <p className="text-muted-foreground">Spravujte údaje o vaší firmě</p>
+  const [companyId, setCompanyId] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const loadUserCompany = async () => {
+      try {
+        const { apiClient } = await import('@/lib/api-client')
+        const result = await apiClient.getUserCompanies()
+
+        if (result.success && result.data && result.data.length > 0) {
+          // Use the first company for now - in a multi-company app, user would select
+          const firstCompany = result.data[0]
+          setCompanyId(firstCompany.companies.id)
+        } else {
+          toast.error('Nenalezena žádná firma pro uživatele')
+        }
+      } catch (error) {
+        console.error('Error loading user companies:', error)
+        toast.error('Chyba při načítání firem uživatele')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadUserCompany()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin" />
+        <span className="ml-2">Načítání...</span>
       </div>
+    )
+  }
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Building2 className="w-5 h-5" />
-              Základní údaje
-            </CardTitle>
-            <Button variant="outline">
-              <Edit className="w-4 h-4 mr-2" />
-              Upravit
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="flex gap-6">
-            <div className="w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center">
-              <div className="text-center">
-                <Building2 className="w-8 h-8 mx-auto text-gray-400" />
-                <Button variant="link" size="sm" className="text-xs">
-                  Nahrát logo
-                </Button>
-              </div>
-            </div>
-            <div className="flex-1 space-y-2">
-              <h3 className="text-lg font-semibold">Askela s.r.o.</h3>
-              <div className="space-y-1 text-sm text-muted-foreground">
-                <div>IČO: 12345678</div>
-                <div>DIČ: CZ12345678</div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-600" />
-                  Plátce DPH: Ano
-                </div>
-              </div>
-            </div>
-          </div>
+  if (!companyId) {
+    return (
+      <Alert>
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          Nepodařilo se načíst data firmy. Možná nemáte přístup k žádné firmě.
+        </AlertDescription>
+      </Alert>
+    )
+  }
 
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div>
-                <h4 className="font-medium mb-2 flex items-center gap-2">
-                  <Globe className="w-4 h-4" />
-                  Adresa
-                </h4>
-                <div className="text-sm text-muted-foreground space-y-1">
-                  <div>Václavské náměstí 1</div>
-                  <div>110 00 Praha 1</div>
-                  <div>Česká republika</div>
-                </div>
-              </div>
-
-              <div>
-                <h4 className="font-medium mb-2 flex items-center gap-2">
-                  <Phone className="w-4 h-4" />
-                  Kontakt
-                </h4>
-                <div className="text-sm text-muted-foreground space-y-1">
-                  <div className="flex items-center gap-2">
-                    <Mail className="w-4 h-4" />
-                    info@askela.cz
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Phone className="w-4 h-4" />
-                    +420 123 456 789
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Globe className="w-4 h-4" />
-                    www.askela.cz
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h4 className="font-medium mb-2 flex items-center gap-2">
-                <CreditCard className="w-4 h-4" />
-                Bankovní údaje
-              </h4>
-              <div className="text-sm text-muted-foreground space-y-1">
-                <div>Účet: 123456789/0100</div>
-                <div>IBAN: CZ65 0100 0000 0012 3456 7890</div>
-                <div>SWIFT: KOMBCZPP</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex gap-3">
-            <Button>
-              <CheckCircle className="w-4 h-4 mr-2" />
-              Uložit změny
-            </Button>
-            <Button variant="outline">
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Obnovit z ARES
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  )
+  return <CompanySettings companyId={companyId} />
 }
 
 function TeamPage() {
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">Správa týmu</h2>
-          <p className="text-muted-foreground">Spravujte členy týmu a jejich oprávnění</p>
-        </div>
-        <Button>
-          <Plus className="w-4 h-4 mr-2" />
-          Přidat člena
-        </Button>
+  const [companyId, setCompanyId] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const loadUserCompany = async () => {
+      try {
+        const { apiClient } = await import('@/lib/api-client')
+        const result = await apiClient.getUserCompanies()
+
+        if (result.success && result.data && result.data.length > 0) {
+          // Use the first company for now - in a multi-company app, user would select
+          const firstCompany = result.data[0]
+          setCompanyId(firstCompany.companies.id)
+        } else {
+          toast.error('Nenalezena žádná firma pro uživatele')
+        }
+      } catch (error) {
+        console.error('Error loading user companies:', error)
+        toast.error('Chyba při načítání firem uživatele')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadUserCompany()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin" />
+        <span className="ml-2">Načítání...</span>
       </div>
+    )
+  }
 
-      <div className="flex gap-4">
-        <Input placeholder="Hledat členy..." className="max-w-sm" />
-        <Button variant="outline">
-          <Filter className="w-4 h-4 mr-2" />
-          Filtry
-        </Button>
-      </div>
+  if (!companyId) {
+    return (
+      <Alert>
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          Nepodařilo se načíst data firmy. Možná nemáte přístup k žádné firmě.
+        </AlertDescription>
+      </Alert>
+    )
+  }
 
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <Avatar>
-                <AvatarImage src="/placeholder-user.jpg" />
-                <AvatarFallback>JN</AvatarFallback>
-              </Avatar>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h4 className="font-medium">Jan Novák</h4>
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span className="text-xs text-green-600">Online</span>
-                </div>
-                <div className="text-sm text-muted-foreground">jan.novak@askela.cz</div>
-                <div className="flex items-center gap-2 mt-1">
-                  <Badge className="bg-purple-100 text-purple-800">
-                    <Star className="w-3 h-3 mr-1" />
-                    Administrátor
-                  </Badge>
-                  <span className="text-xs text-muted-foreground">• Přidán 15.1.2024</span>
-                </div>
-              </div>
-            </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <MoreHorizontal className="w-4 h-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>
-                  <Edit className="w-4 h-4 mr-2" />
-                  Upravit
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Settings className="w-4 h-4 mr-2" />
-                  Oprávnění
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Mail className="w-4 h-4 mr-2" />
-                  Kontakt
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-
-          <div className="mt-4 space-y-2">
-            <div>
-              <h5 className="text-sm font-medium mb-2 flex items-center gap-2">
-                <Settings className="w-4 h-4" />
-                Oprávnění:
-              </h5>
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className="flex items-center gap-1">
-                  <CheckCircle className="w-3 h-3 text-green-600" />
-                  Schvalování faktur
-                </div>
-                <div className="flex items-center gap-1">
-                  <CheckCircle className="w-3 h-3 text-green-600" />
-                  Správa týmu
-                </div>
-                <div className="flex items-center gap-1">
-                  <CheckCircle className="w-3 h-3 text-green-600" />
-                  Export dat
-                </div>
-                <div className="flex items-center gap-1">
-                  <CheckCircle className="w-3 h-3 text-green-600" />
-                  Nastavení firmy
-                </div>
-              </div>
-            </div>
-
-            <div className="text-xs text-muted-foreground flex items-center gap-2">
-              <Activity className="w-3 h-3" />
-              Aktivita: 47 dokumentů • 94% přesnost
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="bg-muted/50 p-4 rounded-lg">
-        <h4 className="font-medium mb-2 flex items-center gap-2">
-          <BarChart3 className="w-4 h-4" />
-          Statistiky týmu:
-        </h4>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-          <div>
-            <div className="font-medium">Celkem členů</div>
-            <div className="text-muted-foreground">5</div>
-          </div>
-          <div>
-            <div className="font-medium">Aktivních</div>
-            <div className="text-muted-foreground">3</div>
-          </div>
-          <div>
-            <div className="font-medium">Průměrná přesnost</div>
-            <div className="text-muted-foreground">95.2%</div>
-          </div>
-          <div>
-            <div className="font-medium">Naskenováno tento měsíc</div>
-            <div className="text-muted-foreground">156 dokumentů</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+  return <UserManagement companyId={companyId} />
 }
 
 function ApprovalPage() {
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">Schvalování faktur</h2>
-          <p className="text-muted-foreground">Kontrolujte a schvalujte faktury před zpracováním</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            Vše
-          </Button>
-          <Button variant="outline" size="sm">
-            Moje
-          </Button>
-          <Button variant="outline">
-            <Settings className="w-4 h-4 mr-2" />
-            Nastavení
-          </Button>
-        </div>
-      </div>
+  const [companyId, setCompanyId] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
 
-      <div className="flex items-center gap-2 mb-4">
-        <Bell className="w-4 h-4" />
-        <span className="font-medium">Čekají na schválení (0)</span>
-      </div>
+  useEffect(() => {
+    const loadUserCompany = async () => {
+      try {
+        const { apiClient } = await import('@/lib/api-client')
+        const result = await apiClient.getUserCompanies()
 
-      <div className="text-center py-12">
-        <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-        <h3 className="text-lg font-medium text-gray-900 mb-2">Žádné dokumenty ke schválení</h3>
-        <p className="text-gray-500 mb-4">
-          Momentálně nemáte žádné dokumenty, které by čekaly na schválení.
-        </p>
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md mx-auto">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm text-blue-800">
-                <strong>Systém je připraven.</strong><br />
-                Dokumenty se zde zobrazí po nahrání a zpracování.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+        if (result.success && result.data && result.data.length > 0) {
+          // Use the first company for now - in a multi-company app, user would select
+          const firstCompany = result.data[0]
+          setCompanyId(firstCompany.companies.id)
+        } else {
+          toast.error('Nenalezena žádná firma pro uživatele')
+        }
+      } catch (error) {
+        console.error('Error loading user companies:', error)
+        toast.error('Chyba při načítání firem uživatele')
+      } finally {
+        setLoading(false)
+      }
+    }
 
-      <div className="bg-muted/50 p-4 rounded-lg">
-        <h4 className="font-medium mb-2 flex items-center gap-2">
-          <BarChart3 className="w-4 h-4" />
-          Přehled schvalování:
-        </h4>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-          <div>
-            <div className="font-medium">Čekají</div>
-            <div className="text-muted-foreground">3</div>
-          </div>
-          <div>
-            <div className="font-medium">Schváleno dnes</div>
-            <div className="text-muted-foreground">12</div>
-          </div>
-          <div>
-            <div className="font-medium">Zamítnuto</div>
-            <div className="text-muted-foreground">1</div>
-          </div>
-          <div>
-            <div className="font-medium">Průměrný čas schválení</div>
-            <div className="text-muted-foreground">2.3 hodiny</div>
-          </div>
-        </div>
+    loadUserCompany()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin" />
+        <span className="ml-2">Načítání...</span>
       </div>
-    </div>
-  )
+    )
+  }
+
+  if (!companyId) {
+    return (
+      <Alert>
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          Nepodařilo se načíst data firmy. Možná nemáte přístup k žádné firmě.
+        </AlertDescription>
+      </Alert>
+    )
+  }
+
+  return <ApprovalWorkflow companyId={companyId} />
 }
 
 interface ComprehensiveDashboardProps {

@@ -9,7 +9,20 @@ from typing import Optional, List, Dict, Any, Literal
 from datetime import datetime
 from decimal import Decimal
 from uuid import UUID
+from enum import Enum
 import json
+
+# ===== ENUMS =====
+
+class InvoiceDirection(str, Enum):
+    INCOMING = "incoming"  # Přijatá faktura (výdaj)
+    OUTGOING = "outgoing"  # Odeslaná faktura (příjem)
+    UNKNOWN = "unknown"    # Nerozpoznaný směr
+
+class TransactionType(str, Enum):
+    REVENUE = "revenue"    # Tržby/příjmy
+    EXPENSE = "expense"    # Náklady/výdaje
+    UNKNOWN = "unknown"    # Nerozpoznaný typ
 
 # ===== USER MODELS =====
 
@@ -182,6 +195,14 @@ class Document(DocumentBase):
     error_code: Optional[str] = None
     retry_count: int = 0
     metadata: Dict[str, Any] = Field(default_factory=dict)
+
+    # Invoice direction fields
+    invoice_direction: InvoiceDirection = InvoiceDirection.UNKNOWN
+    direction_confidence: Optional[Decimal] = Field(None, ge=0, le=1)
+    direction_method: Optional[str] = None  # 'automatic', 'manual', 'ai_assisted'
+    financial_category: Optional[str] = None  # 'revenue', 'expense', 'unknown'
+    requires_manual_review: bool = False
+
     created_at: datetime
     updated_at: datetime
     processed_at: Optional[datetime] = None
@@ -347,3 +368,71 @@ class MemorySearchResult(BaseModel):
     total_count: int
     search_query: Optional[str] = None
     filters_applied: Dict[str, Any] = Field(default_factory=dict)
+
+
+
+# ===== INVOICE DIRECTION MODELS =====
+
+class InvoiceDirectionAnalysisBase(BaseModel):
+    detected_direction: InvoiceDirection
+    confidence_score: Decimal = Field(..., ge=0, le=1)
+    analysis_method: str = Field(..., max_length=50)
+    vendor_match_score: Decimal = Field(default=Decimal('0.0'), ge=0, le=1)
+    customer_match_score: Decimal = Field(default=Decimal('0.0'), ge=0, le=1)
+    matched_company_field: Optional[str] = Field(None, max_length=50)
+    analysis_notes: Dict[str, Any] = Field(default_factory=dict)
+    processing_time: Optional[Decimal] = None
+
+class InvoiceDirectionAnalysisCreate(InvoiceDirectionAnalysisBase):
+    document_id: UUID
+
+class InvoiceDirectionAnalysis(InvoiceDirectionAnalysisBase):
+    id: UUID
+    document_id: UUID
+    user_id: UUID
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+        json_encoders = {
+            Decimal: lambda v: float(v),
+            UUID: lambda v: str(v)
+        }
+
+# ===== FINANCIAL TRANSACTION MODELS =====
+
+class FinancialTransactionBase(BaseModel):
+    transaction_type: TransactionType
+    amount: Decimal = Field(..., decimal_places=2)
+    currency: str = Field(default='CZK', max_length=3)
+    invoice_number: Optional[str] = Field(None, max_length=100)
+    invoice_date: Optional[datetime] = None
+    due_date: Optional[datetime] = None
+    vendor_name: Optional[str] = Field(None, max_length=255)
+    vendor_ico: Optional[str] = Field(None, max_length=20)
+    customer_name: Optional[str] = Field(None, max_length=255)
+    customer_ico: Optional[str] = Field(None, max_length=20)
+    category: Optional[str] = Field(None, max_length=100)
+    subcategory: Optional[str] = Field(None, max_length=100)
+    vat_rate: Optional[Decimal] = Field(None, decimal_places=2)
+    vat_amount: Optional[Decimal] = Field(None, decimal_places=2)
+    net_amount: Optional[Decimal] = Field(None, decimal_places=2)
+    status: Literal['pending', 'confirmed', 'disputed', 'cancelled'] = 'pending'
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+
+class FinancialTransactionCreate(FinancialTransactionBase):
+    document_id: UUID
+
+class FinancialTransaction(FinancialTransactionBase):
+    id: UUID
+    document_id: UUID
+    user_id: UUID
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+        json_encoders = {
+            Decimal: lambda v: float(v),
+            UUID: lambda v: str(v)
+        }

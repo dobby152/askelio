@@ -367,6 +367,79 @@ class ApiClient {
   async healthCheck(): Promise<ApiResponse> {
     return this.request('/health')
   }
+
+  // ===== COMPANY MANAGEMENT =====
+
+  async createCompany(companyData: {
+    name: string
+    legal_name?: string
+    registration_number?: string
+    tax_number?: string
+    email?: string
+    phone?: string
+    website?: string
+    address_line1?: string
+    address_line2?: string
+    city?: string
+    postal_code?: string
+    country?: string
+    billing_email?: string
+  }): Promise<ApiResponse> {
+    return this.request('/api/companies', {
+      method: 'POST',
+      body: JSON.stringify(companyData)
+    })
+  }
+
+  async getUserCompanies(): Promise<ApiResponse> {
+    return this.request('/api/companies')
+  }
+
+  async getCompanyDetails(companyId: string): Promise<ApiResponse> {
+    return this.request(`/api/companies/${companyId}`)
+  }
+
+  async updateCompany(companyId: string, updates: any): Promise<ApiResponse> {
+    return this.request(`/api/companies/${companyId}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates)
+    })
+  }
+
+  async getAvailablePlans(): Promise<ApiResponse> {
+    return this.request('/api/companies/plans/available')
+  }
+
+  async upgradeCompanyPlan(companyId: string, planName: string): Promise<ApiResponse> {
+    return this.request(`/api/companies/${companyId}/upgrade-plan`, {
+      method: 'POST',
+      body: JSON.stringify({ plan_name: planName })
+    })
+  }
+
+  async checkCompanyLimits(companyId: string, limitType: 'users' | 'documents' | 'storage'): Promise<ApiResponse> {
+    return this.request(`/api/companies/${companyId}/limits/${limitType}`)
+  }
+
+  async inviteUser(companyId: string, email: string, roleName: string): Promise<ApiResponse> {
+    return this.request(`/api/companies/${companyId}/users/invite`, {
+      method: 'POST',
+      body: JSON.stringify({ email, role_name: roleName })
+    })
+  }
+
+  async removeUser(companyId: string, userId: string): Promise<ApiResponse> {
+    return this.request(`/api/companies/${companyId}/users/${userId}`, {
+      method: 'DELETE'
+    })
+  }
+
+  async updateUserRole(companyId: string, userId: string, roleName: string): Promise<ApiResponse> {
+    return this.request(`/api/companies/${companyId}/users/${userId}/role`, {
+      method: 'PUT',
+      body: JSON.stringify({ role_name: roleName })
+    })
+  }
 }
 
 // Export singleton instance

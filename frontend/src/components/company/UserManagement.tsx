@@ -64,17 +64,13 @@ export default function UserManagement({ companyId }: UserManagementProps) {
 
   const loadUsers = async () => {
     try {
-      const response = await fetch(`/api/companies/${companyId}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      })
-      
-      if (response.ok) {
-        const result = await response.json()
+      const { apiClient } = await import('@/lib/api-client')
+      const result = await apiClient.getCompanyDetails(companyId)
+
+      if (result.success) {
         setUsers(result.data.company_users || [])
       } else {
-        toast.error('Nepodařilo se načíst uživatele')
+        toast.error(result.message || 'Nepodařilo se načíst uživatele')
       }
     } catch (error) {
       console.error('Error loading users:', error)
@@ -175,27 +171,17 @@ export default function UserManagement({ companyId }: UserManagementProps) {
 
     setInviting(true)
     try {
-      const response = await fetch(`/api/companies/${companyId}/users/invite`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          email: inviteEmail,
-          role_name: inviteRole
-        })
-      })
-      
-      if (response.ok) {
+      const { apiClient } = await import('@/lib/api-client')
+      const result = await apiClient.inviteUser(companyId, inviteEmail, inviteRole)
+
+      if (result.success) {
         toast.success('Uživatel byl pozván')
         setShowInviteDialog(false)
         setInviteEmail('')
         setInviteRole('')
         loadUsers()
       } else {
-        const error = await response.json()
-        toast.error(error.detail || 'Nepodařilo se pozvat uživatele')
+        toast.error(result.message || 'Nepodařilo se pozvat uživatele')
       }
     } catch (error) {
       console.error('Error inviting user:', error)
@@ -207,23 +193,14 @@ export default function UserManagement({ companyId }: UserManagementProps) {
 
   const handleUpdateUserRole = async (userId: string, newRole: string) => {
     try {
-      const response = await fetch(`/api/companies/${companyId}/users/${userId}/role`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          role_name: newRole
-        })
-      })
-      
-      if (response.ok) {
+      const { apiClient } = await import('@/lib/api-client')
+      const result = await apiClient.updateUserRole(companyId, userId, newRole)
+
+      if (result.success) {
         toast.success('Role uživatele byla změněna')
         loadUsers()
       } else {
-        const error = await response.json()
-        toast.error(error.detail || 'Nepodařilo se změnit roli')
+        toast.error(result.message || 'Nepodařilo se změnit roli')
       }
     } catch (error) {
       console.error('Error updating user role:', error)
@@ -233,19 +210,14 @@ export default function UserManagement({ companyId }: UserManagementProps) {
 
   const handleRemoveUser = async (userId: string) => {
     try {
-      const response = await fetch(`/api/companies/${companyId}/users/${userId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      })
-      
-      if (response.ok) {
+      const { apiClient } = await import('@/lib/api-client')
+      const result = await apiClient.removeUser(companyId, userId)
+
+      if (result.success) {
         toast.success('Uživatel byl odebrán')
         loadUsers()
       } else {
-        const error = await response.json()
-        toast.error(error.detail || 'Nepodařilo se odebrat uživatele')
+        toast.error(result.message || 'Nepodařilo se odebrat uživatele')
       }
     } catch (error) {
       console.error('Error removing user:', error)
