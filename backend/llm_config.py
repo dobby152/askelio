@@ -111,6 +111,51 @@ class OptimalLLMConfig:
         "language_support": 0.10,
         "reasoning": 0.10
     }
+
+    # Enhanced model selection based on document complexity and real-time performance
+    SMART_MODEL_SELECTION = {
+        "simple": {
+            "preferred_models": ["ultra_cheap", "optimal"],
+            "max_cost_usd": 0.005,
+            "min_confidence": 0.85,
+            "max_processing_time": 3.0,
+            "use_cache_aggressively": True,
+            "fallback_threshold": 0.80
+        },
+        "medium": {
+            "preferred_models": ["optimal", "reasoning"],
+            "max_cost_usd": 0.015,
+            "min_confidence": 0.90,
+            "max_processing_time": 8.0,
+            "use_cache_aggressively": True,
+            "fallback_threshold": 0.85
+        },
+        "complex": {
+            "preferred_models": ["reasoning", "premium"],
+            "max_cost_usd": 0.050,
+            "min_confidence": 0.95,
+            "max_processing_time": 15.0,
+            "use_cache_aggressively": False,
+            "fallback_threshold": 0.90
+        },
+        "critical": {
+            "preferred_models": ["premium", "reasoning"],
+            "max_cost_usd": 0.100,
+            "min_confidence": 0.98,
+            "max_processing_time": 30.0,
+            "use_cache_aggressively": False,
+            "fallback_threshold": 0.95,
+            "require_validation": True
+        }
+    }
+
+    # Performance metrics for dynamic model selection
+    PERFORMANCE_WEIGHTS = {
+        "response_time_weight": 0.3,
+        "accuracy_weight": 0.4,
+        "cost_weight": 0.2,
+        "availability_weight": 0.1
+    }
     
     # Document type specific preferences
     DOCUMENT_PREFERENCES = {

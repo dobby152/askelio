@@ -53,7 +53,7 @@ const nextConfig = {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001',
   },
   
-  // Webpack configuration for security
+  // Webpack configuration for security and performance
   webpack: (config, { isServer }) => {
     if (!isServer) {
       // Don't include sensitive server-side modules in client bundle
@@ -64,7 +64,62 @@ const nextConfig = {
         tls: false,
       }
     }
+
+    // Bundle splitting optimizations
+    config.optimization = {
+      ...config.optimization,
+      splitChunks: {
+        chunks: 'all',
+        cacheGroups: {
+          // Vendor chunk for third-party libraries
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            chunks: 'all',
+            priority: 10,
+          },
+          // Common chunk for shared components
+          common: {
+            name: 'common',
+            minChunks: 2,
+            chunks: 'all',
+            priority: 5,
+            reuseExistingChunk: true,
+          },
+          // UI library chunk (if using specific UI libraries)
+          ui: {
+            test: /[\\/]node_modules[\\/](@radix-ui|@headlessui|framer-motion)[\\/]/,
+            name: 'ui-libs',
+            chunks: 'all',
+            priority: 15,
+          },
+          // Chart/visualization libraries
+          charts: {
+            test: /[\\/]node_modules[\\/](recharts|chart\.js|d3)[\\/]/,
+            name: 'chart-libs',
+            chunks: 'all',
+            priority: 15,
+          },
+        },
+      },
+    }
+
     return config
+  },
+
+  // Performance optimizations
+  experimental: {
+    optimizeCss: true,
+    optimizePackageImports: ['@radix-ui/react-icons', 'lucide-react'],
+  },
+
+  // Compression and caching
+  compress: true,
+
+  // Image optimization
+  images: {
+    formats: ['image/webp', 'image/avif'],
+    minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
   }
 }
 

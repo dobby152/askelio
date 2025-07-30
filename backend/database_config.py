@@ -73,16 +73,29 @@ class DatabaseConfig:
         parsed_url = urlparse(self.database_url)
         
         if parsed_url.scheme.startswith('postgresql'):
-            # PostgreSQL configuration
+            # Enhanced PostgreSQL configuration for high performance
+            pool_size = int(os.getenv('DB_POOL_SIZE', '20'))  # Increased from 10
+            max_overflow = int(os.getenv('DB_MAX_OVERFLOW', '40'))  # Increased from 20
+            pool_timeout = int(os.getenv('DB_POOL_TIMEOUT', '30'))
+            pool_recycle = int(os.getenv('DB_POOL_RECYCLE', '1800'))  # 30 minutes instead of 1 hour
+
             engine = create_engine(
                 self.database_url,
-                pool_size=10,
-                max_overflow=20,
+                pool_size=pool_size,
+                max_overflow=max_overflow,
+                pool_timeout=pool_timeout,
                 pool_pre_ping=True,
-                pool_recycle=3600,
-                echo=os.getenv('SQL_DEBUG', 'false').lower() == 'true'
+                pool_recycle=pool_recycle,
+                echo=os.getenv('SQL_DEBUG', 'false').lower() == 'true',
+                # Additional performance optimizations
+                connect_args={
+                    "options": "-c default_transaction_isolation=read_committed",
+                    "application_name": "askelio_backend",
+                    "connect_timeout": 10,
+                    "command_timeout": 60,
+                }
             )
-            logger.info("Created PostgreSQL engine")
+            logger.info(f"Created PostgreSQL engine (pool_size={pool_size}, max_overflow={max_overflow})")
             
         elif parsed_url.scheme.startswith('sqlite'):
             # SQLite configuration
