@@ -358,3 +358,17 @@ askelio/
 ## 📄 Licence
 
 MIT License
+
+## 🚀 Deployment Server Status
+
+**Automatický deployment systém je nyní AKTIVNÍ!**
+
+- ✅ **Webhook Server**: Běží na `http://34.121.205.66:3000/webhook`
+- - ✅ **GitHub Integration**: Automatické nasazení při push events
+  - - ✅ **Live Website**: `http://34.121.205.66/`
+    - - ✅ **Health Check**: `http://34.121.205.66:3000/health`
+     
+      - ### Testování webhook systému
+      - Tato změna byla provedena pro otestování automatického deployment systému. Pokud vidíte tuto sekci, webhook funguje správně!
+     
+      - **Datum testu**: 30. července 2025, 14:05 CET
