@@ -438,7 +438,7 @@ export default function Home() {
                   ))}
                 </div>
                 <p className="text-gray-700 mb-6 sm:mb-8 text-base sm:text-lg leading-relaxed">
-                  "                  &quot;Askelio nám ušetřilo 12 hodin týdně na zpracování faktur. Chyby se snížily na minimum a integrace s
+                                    &quot;Askelio nám ušetřilo 12 hodin týdně na zpracování faktur. Chyby se snížily na minimum a integrace s
                   Pohodou byla hračka.&quot;"
                 </p>
                 <div className="flex items-center">
@@ -461,7 +461,7 @@ export default function Home() {
                   ))}
                 </div>
                 <p className="text-gray-700 mb-6 sm:mb-8 text-base sm:text-lg leading-relaxed">
-                  "                  &quot;Jako účetní kancelář zpracováváme stovky faktur měsíčně. Askelio nám zvýšilo produktivitu o 300% a
+                                    &quot;Jako účetní kancelář zpracováváme stovky faktur měsíčně. Askelio nám zvýšilo produktivitu o 300% a
                   klienti jsou nadšení.&quot;"
                 </p>
                 <div className="flex items-center">
@@ -484,7 +484,7 @@ export default function Home() {
                   ))}
                 </div>
                 <p className="text-gray-700 mb-6 sm:mb-8 text-base sm:text-lg leading-relaxed">
-                  "                  &quot;Konečně řešení, které skutečně funguje! Nastavení trvalo 5 minut a od té doby zpracováváme faktury
+                                    &quot;Konečně řešení, které skutečně funguje! Nastavení trvalo 5 minut a od té doby zpracováváme faktury
                   automaticky.&quot;"
                 </p>
                 <div className="flex items-center">
