@@ -175,13 +175,13 @@ const WIDGET_TEMPLATES = [
 ]
 
 export function AIAssistantEnhanced({ section }: AIAssistantProps) {
-  const [messages, setMessages] = useState([])
+  const [messages, setMessages] = useState([] as any[])
   const [inputValue, setInputValue] = useState("")
-  const [userProfile, setUserProfile] = useState(null)
-  const [financialData, setFinancialData] = useState(null)
+  const [userProfile, setUserProfile] = useState(null as any)
+  const [financialData, setFinancialData] = useState(null as any)
   const [timeRange, setTimeRange] = useState('3months')
-  const [savedQueries, setSavedQueries] = useState([])
-  const [customWidgets, setCustomWidgets] = useState([])
+  const [savedQueries, setSavedQueries] = useState([] as any[])
+  const [customWidgets, setCustomWidgets] = useState([] as any[])
   const [isLoading, setIsLoading] = useState(false)
   const [periodA, setPeriodA] = useState('this-month')
   const [periodB, setPeriodB] = useState('last-month')
@@ -274,7 +274,7 @@ export function AIAssistantEnhanced({ section }: AIAssistantProps) {
       )
 
       const predictionResults = await Promise.all(predictionPromises)
-      const predictionsMap = {}
+      const predictionsMap = {} as any
       predictionTypes.forEach((type, index) => {
         predictionsMap[type] = predictionResults[index]
       })
@@ -322,7 +322,7 @@ export function AIAssistantEnhanced({ section }: AIAssistantProps) {
       <div className="lg:col-span-1 space-y-4">
         {getPersonalizedInsights(userProfile, financialData)
           .filter(insight => insight.priority === 'high')
-          .map((insight, index) => (
+          .map((insight: any, index: number) => (
           <Card key={index} className="border-l-4 border-l-blue-500">
             <CardContent className="p-4">
               <div className="flex items-start gap-3">
@@ -797,7 +797,7 @@ export function AIAssistantEnhanced({ section }: AIAssistantProps) {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-1">
-                      {predictions.revenue.factors.map((factor, index) => (
+                      {predictions.revenue.factors.map((factor: any, index: number) => (
                         <div key={index} className="text-sm text-gray-600">• {factor}</div>
                       ))}
                     </div>
@@ -857,7 +857,7 @@ export function AIAssistantEnhanced({ section }: AIAssistantProps) {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-1">
-                      {predictions.expenses.factors.map((factor, index) => (
+                      {predictions.expenses.factors.map((factor: any, index: number) => (
                         <div key={index} className="text-sm text-gray-600">• {factor}</div>
                       ))}
                     </div>
@@ -917,7 +917,7 @@ export function AIAssistantEnhanced({ section }: AIAssistantProps) {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-1">
-                      {predictions.cashflow.factors.map((factor, index) => (
+                      {predictions.cashflow.factors.map((factor: any, index: number) => (
                         <div key={index} className="text-sm text-gray-600">• {factor}</div>
                       ))}
                     </div>
@@ -974,7 +974,7 @@ export function AIAssistantEnhanced({ section }: AIAssistantProps) {
         <CardContent>
           <div className="space-y-4">
             {/* Real AI Insights from API */}
-            {advancedInsights?.insights?.map((insight, index) => (
+            {advancedInsights?.insights?.map((insight: any, index: number) => (
               <Card key={index} className="border-l-4 border-l-purple-500">
                 <CardContent className="p-4">
                   <div className="flex items-start gap-3">
@@ -1006,7 +1006,7 @@ export function AIAssistantEnhanced({ section }: AIAssistantProps) {
               </Card>
             )) ||
             // Fallback to personalized insights if API data not available
-            getPersonalizedInsights(userProfile, financialData).map((insight, index) => (
+            getPersonalizedInsights(userProfile, financialData).map((insight: any, index: number) => (
               <Card key={index} className="border-l-4 border-l-purple-500">
                 <CardContent className="p-4">
                   <div className="flex items-start gap-3">
@@ -1096,7 +1096,7 @@ export function AIAssistantEnhanced({ section }: AIAssistantProps) {
               <h4 className="font-medium mb-3">Rizikové faktory</h4>
               <div className="space-y-2">
                 {riskAnalysis?.risk_factors ? (
-                  riskAnalysis.risk_factors.slice(0, 3).map((factor, index) => (
+                  riskAnalysis.risk_factors.slice(0, 3).map((factor: any, index: number) => (
                     <div key={index} className={`flex justify-between items-center p-2 rounded ${
                       factor.level === 'high' ? 'bg-red-50' :
                       factor.level === 'medium' ? 'bg-yellow-50' : 'bg-green-50'

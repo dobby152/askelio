@@ -153,7 +153,7 @@ const pageTitles = {
 
 // Chart data will be loaded dynamically from API
 
-function AppSidebar({ activeSection, onSectionChange }) {
+function AppSidebar({ activeSection, onSectionChange }: { activeSection: any, onSectionChange: any }) {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
@@ -370,7 +370,7 @@ function DashboardHome({ onSectionChange }: { onSectionChange?: (section: string
                     </p>
                     <div className="flex items-center gap-1 text-xs text-green-600 mt-1">
                       <ArrowUpRight className="w-3 h-3" />
-                      {loading ? "..." : `${dashboardStats?.trends?.income > 0 ? '+' : ''}${dashboardStats?.trends?.income || 0}% vs minulý měsíc`}
+                      {loading ? "..." : `${(dashboardStats?.trends?.income || 0) > 0 ? '+' : ''}${dashboardStats?.trends?.income || 0}% vs minulý měsíc`}
                     </div>
                   </div>
                   <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">

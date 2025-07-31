@@ -17,11 +17,14 @@ interface User {
 
 interface AuthContextType {
   user: User | null
+  supabaseUser: any
+  session: any
   loading: boolean
   signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
   signUp: (email: string, password: string, fullName?: string) => Promise<{ success: boolean; error?: string }>
   signOut: () => Promise<void>
   resetPassword: (email: string) => Promise<{ success: boolean; error?: string }>
+  updateProfile: (data: any) => Promise<{ success: boolean; error?: string }>
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -52,7 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Check if user is authenticated on mount
     const checkAuth = async () => {
       try {
-        if (apiClient.isAuthenticated()) {
+        if (await apiClient.isAuthenticated()) {
           const response = await apiClient.getUserProfile()
           if (response.success && response.data) {
             setUser(response.data)
@@ -176,11 +179,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   return (
     <AuthContext.Provider value={{
       user,
+      supabaseUser: null,
+      session: null,
       loading,
       signIn,
       signUp,
       signOut,
-      resetPassword
+      resetPassword,
+      updateProfile: async () => ({ success: false })
     }}>
       {children}
     </AuthContext.Provider>

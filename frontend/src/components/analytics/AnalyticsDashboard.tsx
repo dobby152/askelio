@@ -15,8 +15,8 @@ import {
   Tooltip, Legend, ResponsiveContainer, AreaChart, Area 
 } from 'recharts'
 import { 
-  TrendingUp, TrendingDown, FileText, Users, HardDrive, Clock, 
-  CheckCircle, XCircle, Download, Calendar, BarChart3, Loader2, AlertCircle 
+  TrendingUp, TrendingDown, FileText, Users, HardDrive, Clock,
+  CheckCircle, XCircle, Download, Calendar as CalendarIcon, BarChart3, Loader2, AlertCircle
 } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { toast } from 'sonner'
