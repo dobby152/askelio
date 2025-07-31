@@ -633,9 +633,6 @@ export function LandingPage() {
           </div>
         </div>
       </section>
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-                    <span className="text-gray-600">Základní OCR</span>
-                  </li>
                   <li className="flex items-center">
                     <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
                     <span className="text-gray-600">E-mailová podpora</span>

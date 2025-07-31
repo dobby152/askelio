@@ -613,8 +613,6 @@ export function DocumentsTable({
                 </div>
               </div>
             )}
-                    Spusťte Flask server: <code className="bg-yellow-100 dark:bg-yellow-800 px-1 rounded">cd backend && python flask_backend.py</code>
-                  </p>
                 </div>
               </div>
             </div>
