@@ -1209,7 +1209,7 @@ function DocumentsPage() {
           <div className="text-center py-8">
             <FileText className="w-12 h-12 mx-auto mb-4 text-gray-300" />
             <p className="text-gray-500">Zatím nemáte žádné dokumenty</p>
-            <p className="text-sm text-gray-400 mt-2">Nahrajte svůj první dokument pomocí tlačítka "Nahrát dokument"</p>
+            <p className="text-sm text-gray-400 mt-2">Nahrajte svůj první dokument pomocí tlačítka &quot;Nahrát dokument&quot;</p>
           </div>
         ) : (
           documents.map((document, i) => {

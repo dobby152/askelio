@@ -140,7 +140,7 @@ export default function AIDemoPage() {
           ) : (
             <div className="text-center py-8 text-muted-foreground">
               <Brain className="w-12 h-12 mx-auto mb-2 opacity-50" />
-              <p>Klikněte na "Načíst Insights" pro zobrazení AI doporučení</p>
+              <p>Klikněte na &quot;Načíst Insights&quot; pro zobrazení AI doporučení</p>
             </div>
           )}
         </CardContent>

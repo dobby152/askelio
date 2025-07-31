@@ -153,7 +153,7 @@ export default function TermsPage() {
               <h2 className="text-2xl font-semibold text-gray-900 mb-6">Omezení odpovědnosti</h2>
               <div className="space-y-4">
                 <p className="text-gray-600">
-                  Naše služby poskytujeme "tak jak jsou" bez jakýchkoli záruk. 
+                  Naše služby poskytujeme &quot;tak jak jsou&quot; bez jakýchkoli záruk.
                   Neneseme odpovědnost za škody vzniklé používáním našich služeb.
                 </p>
                 <p className="text-gray-600">

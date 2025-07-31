@@ -489,7 +489,7 @@ export function ExtractedDataDetails({
                       {extractedData.filter(d => d.confidence >= 0.9).length}
                     </div>
                     <div className="text-sm text-gray-600">Vysoká přesnost</div>
-                    <div className="text-xs text-gray-500">≥90%</div>
+                    <div className="text-xs text-gray-500">&ge;90%</div>
                   </div>
                   <div className="text-center p-4 border rounded-lg">
                     <div className="text-2xl font-bold text-yellow-600">
@@ -588,7 +588,7 @@ export function ExtractedDataDetails({
                 <div className="bg-yellow-50 p-4 rounded-lg">
                   <h4 className="font-medium text-yellow-900 mb-3">⚠️ Debug Info</h4>
                   <div className="text-sm text-yellow-800">
-                    <p>Pokud vidíte "regex fallback" místo LLM výsledků:</p>
+                    <p>Pokud vidíte &quot;regex fallback&quot; místo LLM výsledků:</p>
                     <ul className="list-disc list-inside mt-2 space-y-1">
                       <li>Zkontrolujte OPENROUTER_API_KEY v .env</li>
                       <li>Ověřte kredit na OpenRouter účtu</li>
