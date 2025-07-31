@@ -205,7 +205,7 @@ export function DocumentWorkspace({ className }: DocumentWorkspaceProps) {
       console.log('✅ Transformed extracted data:', extractedData)
 
       // Process processing details - create them even if not in response
-      let processingDetails: ProcessingDetails | undefined
+      const processingDetails: ProcessingDetails | undefined
       processingDetails = {
         total_processing_time: documentData.processing_details?.total_processing_time || documentData.processing_time || 0,
         ocr_results: documentData.processing_details?.ocr_results || [],

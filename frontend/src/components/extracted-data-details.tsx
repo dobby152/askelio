@@ -394,7 +394,7 @@ export function ExtractedDataDetails({
                       </div>
                     )}
                   </div>
-                ))}
+                }))}
               </div>
             </ScrollArea>
           </TabsContent>
