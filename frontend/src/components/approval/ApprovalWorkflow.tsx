@@ -464,7 +464,7 @@ export default function ApprovalWorkflow({ companyId }: ApprovalWorkflowProps) {
             <DialogDescription>
               {selectedApproval && (
                 <>
-                  {actionType === 'approve' ? 'Schvalujete' : 'Zamítáte'} dokument "{selectedApproval.document_name}".
+                  {actionType === 'approve' ? 'Schvalujete' : 'Zamítáte'} dokument &quot;{selectedApproval.document_name}&quot;.
                   {actionType === 'reject' && ' Prosím uveďte důvod zamítnutí.'}
                 </>
               )}
