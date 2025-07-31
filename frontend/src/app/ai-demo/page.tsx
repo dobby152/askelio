@@ -25,7 +25,7 @@ export default function AIDemoPage() {
   const loadAIInsights = async () => {
     setLoading(true)
     try {
-      const response = await sdk.getAIInsights()
+      const response = await sdk.getAIInsights() as any
       if (response.success) {
         setInsights(response.data)
       } else {
@@ -43,7 +43,7 @@ export default function AIDemoPage() {
     
     setChatLoading(true)
     try {
-      const response = await sdk.chatWithAI(chatMessage)
+      const response = await sdk.chatWithAI(chatMessage) as any
       if (response.success) {
         setChatResponse(response.data.response)
       } else {

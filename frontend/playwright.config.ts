@@ -24,10 +24,10 @@ export default defineConfig({
   /* Expect timeout */
   expect: {
     timeout: 10000,
-    /* Screenshot comparison threshold */
-    threshold: 0.3,
-    /* Screenshot comparison mode */
-    mode: 'strict'
+    /* Screenshot comparison settings */
+    toHaveScreenshot: {
+      threshold: 0.3
+    }
   },
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {

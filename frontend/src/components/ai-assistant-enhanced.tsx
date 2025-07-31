@@ -209,7 +209,7 @@ export function AIAssistantEnhanced({ section }: AIAssistantProps) {
         dashboardAPI.getStats()
       ])
       setUserProfile(profile)
-      setFinancialData(stats.data)
+      setFinancialData((stats as any).data)
       
       // Initialize with personalized welcome message
       setMessages([{

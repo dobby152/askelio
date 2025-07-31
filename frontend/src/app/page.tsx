@@ -63,7 +63,7 @@ import {
   Save,
   Plus,
   Menu,
-  Home,
+  Home as HomeIcon,
   User,
   UserCheck,
   Users2,
@@ -147,12 +147,12 @@ export default function Home() {
                 variant="outline"
                 className="border-gray-300 text-gray-700 hover:bg-gray-50 bg-transparent h-11 min-w-[44px]"
                 aria-label="Přihlásit se do účtu"
-                asChild
+                
               >
                 <a href="/auth/login">Přihlásit se</a>
               </Button>
-              <LoadingButton className="bg-blue-600 hover:bg-blue-700 text-white h-11 min-w-[44px]" size="default" asChild>
-                <a href="/auth/register">Vyzkoušet zdarma</a>
+              <LoadingButton className="bg-blue-600 hover:bg-blue-700 text-white h-11 min-w-[44px]" size="default">
+                Vyzkoušet zdarma
               </LoadingButton>
             </nav>
 
@@ -198,9 +198,8 @@ export default function Home() {
                 size="lg"
                 className="bg-blue-600 hover:bg-blue-700 text-white text-lg sm:text-xl px-8 sm:px-12 py-4 sm:py-6 h-12 sm:h-auto min-w-[44px] order-1"
                 showArrow
-                asChild
               >
-                <a href="/auth/register">🚀 Začít šetřit čas ještě dnes</a>
+                🚀 Začít šetřit čas ještě dnes
               </LoadingButton>
               <LoadingButton
                 variant="outline"
@@ -686,7 +685,7 @@ export default function Home() {
                 size="lg"
                 className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 sm:px-10 py-3 sm:py-4 h-11 sm:h-12 min-w-[44px]"
                 showArrow
-                asChild
+                
               >
                 <a href="/auth/register">Vyzkoušet zdarma</a>
               </LoadingButton>
@@ -790,7 +789,7 @@ export default function Home() {
                     size="lg"
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white text-lg sm:text-xl py-4 sm:py-6 h-12 sm:h-auto min-w-[44px]"
                     showArrow
-                    asChild
+                    
                   >
                     <a href="/auth/register">Vyzkoušet zdarma - bez karty</a>
                   </LoadingButton>
@@ -968,7 +967,7 @@ export default function Home() {
                 Automatizované zpracování faktur a účtenek pomocí AI technologií pro české firmy.
               </p>
               <div className="flex space-x-4">
-                <LoadingButton size="lg" className="bg-blue-600 hover:bg-blue-700 text-white h-11 sm:h-12 min-w-[44px]" asChild>
+                <LoadingButton size="lg" className="bg-blue-600 hover:bg-blue-700 text-white h-11 sm:h-12 min-w-[44px]" >
                   <a href="/auth/register">Vyzkoušet zdarma</a>
                 </LoadingButton>
               </div>
