@@ -205,11 +205,11 @@ class DashboardAPI {
       }
     } catch (error) {
       console.error('💥 Dashboard API: Exception in getStats:', error)
-      console.error('💥 Dashboard API: Error type:', error.constructor.name)
-      console.error('💥 Dashboard API: Error message:', error.message)
+      console.error('💥 Dashboard API: Error type:', (error as any).constructor.name)
+      console.error('💥 Dashboard API: Error message:', (error as any).message)
 
       // If it's a network error, provide specific guidance
-      if (error.message?.includes('fetch') || error.message?.includes('network')) {
+      if ((error as any).message?.includes('fetch') || (error as any).message?.includes('network')) {
         console.error('🌐 Dashboard API: Network error - check if backend is running on port 8001')
       }
 
@@ -359,7 +359,7 @@ class DashboardAPI {
    * Upload document
    */
   async uploadDocument(file: File, options = {}) {
-    return await apiClient.processDocument(file, options)
+    return await (apiClient as any).processDocument(file, options)
   }
 
   /**
@@ -380,7 +380,7 @@ class DashboardAPI {
 
       if (result.success && result.data) {
         console.log('✅ Dashboard API: Successfully parsed analytics data')
-        return result
+        return result as any
       } else {
         throw new Error(result.message || result.error || 'Failed to fetch analytics')
       }
