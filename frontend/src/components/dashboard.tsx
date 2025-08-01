@@ -48,7 +48,7 @@ export function Dashboard() {
         <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} onExportClick={() => setExportDialogOpen(true)} />
 
         <div className="flex-1 flex flex-col overflow-hidden">
-          <Header setSidebarOpen={setSidebarOpen} />
+          <Header onMenuClick={() => setSidebarOpen(true)} />
 
           <main className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-6">
             <div className="max-w-7xl mx-auto space-y-6">

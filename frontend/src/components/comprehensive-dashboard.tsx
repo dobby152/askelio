@@ -54,7 +54,7 @@ import {
   Files,
 
   // Chart icons
-  BarChart,
+  BarChart as BarChartIcon,
   LineChartIcon,
   Activity,
 
@@ -479,7 +479,7 @@ function DashboardHome({ onSectionChange }: { onSectionChange?: (section: string
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                      <BarChart className="w-5 h-5 text-purple-600" />
+                      <BarChartIcon className="w-5 h-5 text-purple-600" />
                     </div>
                     <div className="text-left">
                       <div className="font-medium">Zobrazit statistiky</div>
@@ -1078,9 +1078,9 @@ function DocumentsPage() {
         if (Array.isArray(response)) {
           setDocuments(response)
           console.log('📄 Documents loaded successfully:', response.length, 'documents')
-        } else if (response && response.success && response.data) {
-          setDocuments(response.data)
-          console.log('📄 Documents loaded successfully:', response.data.length, 'documents')
+        } else if (response && (response as any).success && (response as any).data) {
+          setDocuments((response as any).data)
+          console.log('📄 Documents loaded successfully:', (response as any).data.length, 'documents')
         } else {
           console.error('📄 Failed to load documents:', response)
           setDocuments([])
@@ -1434,7 +1434,7 @@ function ScanningPage() {
       })
 
       if (!response.success) {
-        throw new Error(response.error?.message || 'Zpracování selhalo')
+        throw new Error((response as any).error?.message || 'Zpracování selhalo')
       }
 
       updateProcessingStep('ocr', 'completed', 100, 'Text rozpoznán')
@@ -1465,7 +1465,7 @@ function ScanningPage() {
 
     } catch (error) {
       console.error('Processing error:', error)
-      updateProcessingStep('ocr', 'error', 0, `Chyba: ${error.message}`)
+      updateProcessingStep('ocr', 'error', 0, `Chyba: ${(error as any).message}`)
       setDocument(prev => prev ? { ...prev, status: 'error' } : null)
     } finally {
       setIsProcessing(false)
@@ -1508,7 +1508,7 @@ function ScanningPage() {
                 status: response.success ? 'completed' : 'error',
                 progress: 100,
                 result: response.success ? response.data : undefined,
-                error: response.success ? undefined : response.error?.message
+                error: response.success ? undefined : (response as any).error?.message
               } : f
             ))
           } catch (error) {
@@ -1627,7 +1627,7 @@ function ScanningPage() {
               field: `${fieldName}.${expandedField.label}`,
               value: expandedField.value,
               confidence: 0.9,
-              position: { x: 0, y: 0, width: 0, height: 0, page: 1 }
+              position: { x: 0, y: 0, width: 0, height: 0 } as any
             });
           });
           return; // Skip adding the original field
@@ -1680,10 +1680,10 @@ function ScanningPage() {
           // Handle nested objects (like amount objects)
           let displayValue = value;
           if (typeof value === 'object' && value !== null) {
-            if (value.value !== undefined) {
-              displayValue = value.value;
-            } else if (value.amount !== undefined) {
-              displayValue = value.amount;
+            if ((value as any).value !== undefined) {
+              displayValue = (value as any).value;
+            } else if ((value as any).amount !== undefined) {
+              displayValue = (value as any).amount;
             } else {
               displayValue = JSON.stringify(value);
             }
@@ -1695,7 +1695,7 @@ function ScanningPage() {
             value: String(displayValue),
             confidence: 0.9,
             validated: false,
-            aresEnriched: data._ares_enrichment?.notes?.some(note => note.includes('Vendor')) || false
+            aresEnriched: data._ares_enrichment?.notes?.some((note: any) => note.includes('Vendor')) || false
           })
         }
       })
@@ -1708,10 +1708,10 @@ function ScanningPage() {
           // Handle nested objects (like amount objects)
           let displayValue = value;
           if (typeof value === 'object' && value !== null) {
-            if (value.value !== undefined) {
-              displayValue = value.value;
-            } else if (value.amount !== undefined) {
-              displayValue = value.amount;
+            if ((value as any).value !== undefined) {
+              displayValue = (value as any).value;
+            } else if ((value as any).amount !== undefined) {
+              displayValue = (value as any).amount;
             } else {
               displayValue = JSON.stringify(value);
             }
@@ -1723,7 +1723,7 @@ function ScanningPage() {
             value: String(displayValue),
             confidence: 0.9,
             validated: false,
-            aresEnriched: data._ares_enrichment?.notes?.some(note => note.includes('Customer')) || false
+            aresEnriched: data._ares_enrichment?.notes?.some((note: any) => note.includes('Customer')) || false
           })
         }
       })
@@ -2519,7 +2519,7 @@ export function ComprehensiveDashboard({ initialSection = "dashboard" }: Compreh
         <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="flex h-14 items-center gap-4 px-4">
             <div className="flex-1">
-              <h1 className="text-lg font-semibold">{pageTitles[activeSection] || "Dashboard"}</h1>
+              <h1 className="text-lg font-semibold">{(pageTitles as any)[activeSection] || "Dashboard"}</h1>
             </div>
             <div className="flex items-center gap-2">
               <Button variant="ghost" size="icon">

@@ -53,8 +53,8 @@ export function CreditBalance() {
       // Mock data for now - replace with actual API call
       const mockData: CreditBalanceData = {
         current_balance: user?.credit_balance || 10.0,
-        total_purchased: user?.total_credits_purchased || 0.0,
-        total_used: user?.total_credits_used || 0.0,
+        total_purchased: (user as any)?.total_credits_purchased || 0.0,
+        total_used: (user as any)?.total_credits_used || 0.0,
         recent_transactions: [
           {
             id: '1',
