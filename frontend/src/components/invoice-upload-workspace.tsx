@@ -335,9 +335,9 @@ export function InvoiceUploadWorkspace() {
     // For other types, return as string
     if (typeof field.value === 'object') {
       // If it's an object, try to extract meaningful value
-      if (field.value.value !== undefined) return String(field.value.value)
-      if (field.value.amount !== undefined) return formatAmount(field.value.amount)
-      if (field.value.total !== undefined) return formatAmount(field.value.total)
+      if ((field.value as any).value !== undefined) return String((field.value as any).value)
+      if ((field.value as any).amount !== undefined) return formatAmount((field.value as any).amount)
+      if ((field.value as any).total !== undefined) return formatAmount((field.value as any).total)
       // If no recognizable structure, return JSON string
       return JSON.stringify(field.value)
     }

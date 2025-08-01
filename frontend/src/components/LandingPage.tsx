@@ -26,13 +26,14 @@ import {
   TrendingUp,
   Award,
   Zap,
+  BarChart3,
 } from "lucide-react"
 
 export function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null)
 
   return (
-    <div className="min-h-screen bg-white">
+    <>
       <style jsx global>{`
         html {
           scroll-behavior: smooth;
@@ -44,6 +45,7 @@ export function LandingPage() {
           }
         }
       `}</style>
+      <div className="min-h-screen bg-white">
 
       {/* Header */}
       <header className="border-b border-gray-200 bg-white sticky top-0 z-50 backdrop-blur-sm bg-white/95">
@@ -633,20 +635,6 @@ export function LandingPage() {
           </div>
         </div>
       </section>
-                  <li className="flex items-center">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-                    <span className="text-gray-600">E-mailová podpora</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-                    <span className="text-gray-600">CSV export</span>
-                  </li>
-                </ul>
-                <LoadingButton className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-                  Začít hned
-                </LoadingButton>
-              </CardContent>
-            </Card>
 
             <Card className="bg-white border-blue-200 ring-2 ring-blue-600 relative hover:shadow-lg transition-shadow">
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
@@ -971,7 +959,8 @@ export function LandingPage() {
           </div>
         </div>
       </footer>
-    </div>
+      </div>
+    </>
   )
 }
 
