@@ -56,11 +56,25 @@ export function StatsCards() {
     timeSaved: 0,
     accuracy: 0,
     remainingCredits: 0,
+    financialData: {
+      totalRevenue: 0,
+      totalExpenses: 0,
+      monthlyRevenue: 0,
+      monthlyExpenses: 0,
+      topVendors: [],
+      revenueByMonth: [],
+      vatSummary: {
+        totalVat: 0,
+        vatByRate: []
+      }
+    },
     trends: {
       documents: 0,
       timeSaved: 0,
       accuracy: 0,
-      credits: 0
+      credits: 0,
+      revenue: 0,
+      expenses: 0
     }
   })
   const [loading, setLoading] = useState(true)
@@ -92,11 +106,25 @@ export function StatsCards() {
           timeSaved: processedDocs * 0.5, // Estimate 30 minutes saved per document
           accuracy: avgAccuracy,
           remainingCredits: credits,
+          financialData: {
+            totalRevenue: 0,
+            totalExpenses: 0,
+            monthlyRevenue: 0,
+            monthlyExpenses: 0,
+            topVendors: [],
+            revenueByMonth: [],
+            vatSummary: {
+              totalVat: 0,
+              vatByRate: []
+            }
+          },
           trends: {
             documents: 12.5,
             timeSaved: 8.1,
             accuracy: 0.3,
-            credits: -15.2
+            credits: -15.2,
+            revenue: 0,
+            expenses: 0
           }
         })
       } catch (error) {
@@ -107,11 +135,25 @@ export function StatsCards() {
           timeSaved: 0,
           accuracy: 0,
           remainingCredits: 0,
+          financialData: {
+            totalRevenue: 0,
+            totalExpenses: 0,
+            monthlyRevenue: 0,
+            monthlyExpenses: 0,
+            topVendors: [],
+            revenueByMonth: [],
+            vatSummary: {
+              totalVat: 0,
+              vatByRate: []
+            }
+          },
           trends: {
             documents: 0,
             timeSaved: 0,
             accuracy: 0,
-            credits: 0
+            credits: 0,
+            revenue: 0,
+            expenses: 0
           }
         })
       } finally {
