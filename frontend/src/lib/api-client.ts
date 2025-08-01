@@ -25,7 +25,7 @@ export function getSharedSDK(): AskelioSDK {
       // Asynchronně načíst session, ale neblokovat vytvoření SDK
       secureSessionManager.getSession().then(session => {
         if (session) {
-          sharedSDK.setAuthTokens(session)
+          sharedSDK?.setAuthTokens(session)
           console.log('🔐 Shared SDK: Tokeny načteny z secureSessionManager při inicializaci')
         } else {
           // Fallback na staré klíče v localStorage
@@ -40,7 +40,7 @@ export function getSharedSDK(): AskelioSDK {
               expires_at: parseInt(expiresAt),
               token_type: 'bearer'
             }
-            sharedSDK.setAuthTokens(session)
+            sharedSDK?.setAuthTokens(session)
             console.log('🔐 Shared SDK: Tokeny načteny z localStorage (legacy) při inicializaci')
 
             // Migrovat do nového formátu
@@ -109,7 +109,7 @@ class ApiClient {
     this.sdk = getSharedSDK()
 
     // Set up token refresh callback
-    this.sdk.setTokenRefreshCallback((session, error) => {
+    this.sdk.setTokenRefreshCallback((session: any, error: any) => {
       if (session) {
         secureLogger.authEvent('Token refreshed automatically', { expires_at: session.expires_at })
         // Update local access token
@@ -149,7 +149,7 @@ class ApiClient {
 
     // Add authorization header if token exists
     if (this.accessToken) {
-      headers['Authorization'] = `Bearer ${this.accessToken}`
+      (headers as any)['Authorization'] = `Bearer ${this.accessToken}`
     }
 
     try {

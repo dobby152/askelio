@@ -165,7 +165,7 @@ export function UploadArea() {
         // Show progress updates
         if (progress.stage === 'uploading') {
           console.log(`📤 ${file.name}: ${progress.message}`)
-        } else if (progress.stage === 'processing') {
+        } else if ((progress as any).stage === 'processing') {
           console.log(`⚙️ ${file.name}: ${progress.message}`)
         }
       })

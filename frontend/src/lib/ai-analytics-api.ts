@@ -114,9 +114,9 @@ class AIAnalyticsAPI {
       if (result.success && result.data) {
         console.log('✅ AI Analytics: Successfully got widget data')
         return {
-          widget_type: result.widget_type,
-          data: result.data,
-          generated_at: result.generated_at
+          widget_type: (result as any).widget_type,
+          data: (result as any).data,
+          generated_at: (result as any).generated_at
         }
       } else {
         throw new Error(result.message || 'Failed to get widget data')
