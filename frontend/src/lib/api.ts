@@ -137,15 +137,14 @@ class ApiClient {
 
   async getCreditBalance(): Promise<number> {
     try {
-      const response = await fetch(`${API_BASE_URL}/credits`)
+      const response = await this.sdk.get('/credits')
 
-      if (!response.ok) {
+      if (response.success && response.data) {
+        return response.data.balance || response.data.credits || 2450
+      } else {
         // Return default credits if endpoint doesn't exist
         return 2450
       }
-
-      const data = await response.json()
-      return data.balance || data.credits || 2450
     } catch (error) {
       console.error('Error fetching credit balance:', error)
       return 2450
@@ -156,16 +155,12 @@ class ApiClient {
     console.log('🚀 API Client: Exporting document from backend:', id, 'format:', format)
 
     try {
-      const response = await fetch(`${API_BASE_URL}/documents/${id}/export?format=${format}`)
+      const response = await this.sdk.get(`/documents/${id}/export?format=${format}`)
 
-      if (!response.ok) {
-        throw new Error(`Export failed: ${response.statusText}`)
-      }
-
-      if (format === 'json') {
-        return await response.json()
+      if (response.success && response.data) {
+        return response.data
       } else {
-        return await response.text()
+        throw new Error(`Export failed: ${response.message || 'Unknown error'}`)
       }
     } catch (error) {
       console.error('💥 API Client: Export error:', error)
@@ -177,7 +172,7 @@ class ApiClient {
     console.log('🚀 API Client: Exporting all documents from backend, format:', format)
 
     try {
-      const response = await fetch(`${API_BASE_URL}/documents/export/all?format=${format}`)
+      const response = await this.sdk.get(`/documents/export/all?format=${format}`)
 
       if (!response.ok) {
         throw new Error(`Export all failed: ${response.statusText}`)
@@ -196,7 +191,7 @@ class ApiClient {
 
   // Additional API methods for production
   async createCheckoutSession(amount: number): Promise<{ url: string }> {
-    const response = await fetch(`${API_BASE_URL}/credits/checkout`, {
+    const response = await this.sdk.get(`/credits/checkout`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ amount })
@@ -213,7 +208,7 @@ class ApiClient {
     const formData = new FormData()
     formData.append('file', file)
 
-    const response = await fetch(`${API_BASE_URL}/test-multilayer-ocr`, {
+    const response = await this.sdk.get(`/test-multilayer-ocr`, {
       method: 'POST',
       body: formData
     })
@@ -226,7 +221,7 @@ class ApiClient {
   }
 
   async getOCRStatus(): Promise<any> {
-    const response = await fetch(`${API_BASE_URL}/ocr/status`)
+    const response = await this.sdk.get(`/ocr/status`)
 
     if (!response.ok) {
       throw new Error(`Failed to get OCR status: ${response.statusText}`)
@@ -236,7 +231,7 @@ class ApiClient {
   }
 
   async getOCRProviders(): Promise<any> {
-    const response = await fetch(`${API_BASE_URL}/ocr/providers`)
+    const response = await this.sdk.get(`/ocr/providers`)
 
     if (!response.ok) {
       throw new Error(`Failed to get OCR providers: ${response.statusText}`)
