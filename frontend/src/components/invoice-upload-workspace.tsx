@@ -121,7 +121,7 @@ export function InvoiceUploadWorkspace() {
         // Update progress based on stage
         if (progress.stage === 'ocr') {
           updateProcessingStep('ocr', 'processing', progress.percentage, progress.message)
-        } else if (progress.stage === 'extraction') {
+        } else if ((progress as any).stage === 'extraction') {
           updateProcessingStep('extraction', 'processing', progress.percentage, progress.message)
         }
       })
@@ -134,15 +134,15 @@ export function InvoiceUploadWorkspace() {
       updateProcessingStep('extraction', 'processing', 60, 'Extrakce dat...')
 
       // Convert response data to ExtractedField format
-      const extractedFields = convertResponseToFields(response.data.structured_data)
+      const extractedFields = convertResponseToFields((response as any).data?.structured_data)
       
       setDocument(prev => prev ? {
         ...prev,
         extractedData: extractedFields,
         aresData: {
-          vendor: response.data.structured_data.vendor,
-          customer: response.data.structured_data.customer,
-          _ares_enrichment: response.data.structured_data._ares_enrichment
+          vendor: (response as any).data?.structured_data.vendor,
+          customer: (response as any).data?.structured_data.customer,
+          _ares_enrichment: (response as any).data?.structured_data._ares_enrichment
         }
       } : null)
 
@@ -158,7 +158,7 @@ export function InvoiceUploadWorkspace() {
 
     } catch (error) {
       console.error('Processing error:', error)
-      updateProcessingStep('ocr', 'error', 0, `Chyba: ${error.message}`)
+      updateProcessingStep('ocr', 'error', 0, `Chyba: ${(error as any).message}`)
       setDocument(prev => prev ? { ...prev, status: 'error' } : null)
     } finally {
       setIsProcessing(false)

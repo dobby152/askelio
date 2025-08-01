@@ -155,7 +155,7 @@ export function DocumentsTable({
         }).filter(doc => doc.id !== 'unknown') // Filter out invalid documents
 
         console.log('📋 DocumentsTable: Final documents array:', transformedDocs)
-        setDocuments(transformedDocs)
+        setDocuments(transformedDocs as any)
 
         // Show user-friendly message if no documents
         if (transformedDocs.length === 0) {
@@ -613,9 +613,6 @@ export function DocumentsTable({
                 </div>
               </div>
             )}
-                </div>
-              </div>
-            </div>
           </div>
         )}
       </CardContent>

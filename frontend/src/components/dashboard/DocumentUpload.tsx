@@ -75,7 +75,7 @@ export function DocumentUpload({
         id: generateId(),
         status: error ? 'error' : 'pending',
         progress: 0,
-        error
+        error: error || undefined
       })
     })
 

@@ -76,11 +76,11 @@ export function RecentDocuments({ userId, onDocumentUpdate }: RecentDocumentsPro
       }))
 
       console.log('📋 RecentDocuments: Transformed documents:', transformedDocs)
-      setDocuments(transformedDocs)
+      setDocuments(transformedDocs as any)
 
       // Notify parent component about updates
       if (onDocumentUpdate && transformedDocs.length > 0) {
-        onDocumentUpdate(transformedDocs[0])
+        onDocumentUpdate(transformedDocs[0] as any)
       }
     } catch (error) {
       console.error('💥 RecentDocuments: Error fetching documents:', error)

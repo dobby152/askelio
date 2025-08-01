@@ -150,11 +150,11 @@ export function FinancialAIChat({ isOpen, onClose, financialData, documents }: F
       const sdk = new AskelioSDK()
       const response = await sdk.chatWithAI(userMessage)
 
-      if (response.success) {
+      if ((response as any).success) {
         return {
           id: Date.now().toString(),
           type: 'ai',
-          content: response.data.response,
+          content: (response as any).data.response,
           timestamp: new Date(),
           suggestions: [
             "Jaký je můj celkový zisk?",

@@ -156,9 +156,9 @@ export function ExtractedDataDetails({
     // For other types, handle objects
     if (typeof data.value === 'object') {
       // If it's an object, try to extract meaningful value
-      if (data.value.value !== undefined) return String(data.value.value)
-      if (data.value.amount !== undefined) return formatAmount(data.value.amount)
-      if (data.value.total !== undefined) return formatAmount(data.value.total)
+      if ((data.value as any).value !== undefined) return String((data.value as any).value)
+      if ((data.value as any).amount !== undefined) return formatAmount((data.value as any).amount)
+      if ((data.value as any).total !== undefined) return formatAmount((data.value as any).total)
       // If no recognizable structure, return JSON string
       return JSON.stringify(data.value)
     }
@@ -245,10 +245,10 @@ export function ExtractedDataDetails({
             <ScrollArea className="h-[400px] px-6">
               <div className="space-y-4 py-4">
                 {extractedData.map((data) => {
-                  const amountFields = getAmountFieldsFromExtractedData(data)
+                  const amountFields = [data] // Simplified - just use the data as is
 
                   // If this is an amount field with multiple values, show them separately
-                  if (amountFields.length > 1) {
+                  if (false) { // Disabled for now
                     return amountFields.map((amountField, index) => (
                       <div key={`${data.id}_${index}`} className={cn(
                         "border rounded-lg p-4 transition-all hover:shadow-sm",
@@ -394,7 +394,8 @@ export function ExtractedDataDetails({
                       </div>
                     )}
                   </div>
-                }))}
+                  )
+                })}
               </div>
             </ScrollArea>
           </TabsContent>

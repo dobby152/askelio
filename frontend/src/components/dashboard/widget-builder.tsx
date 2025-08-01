@@ -159,7 +159,7 @@ export function WidgetBuilder({ widgets, onWidgetsChange, onSaveDashboard }: Wid
       type: template.type,
       title: template.title,
       position: { x: 0, y: 0, w: 6, h: 4 },
-      config: { ...template.defaultConfig },
+      config: { ...template.defaultConfig } as WidgetConfig,
       aiEnabled: template.defaultConfig.aiAnalysis || false
     }
 

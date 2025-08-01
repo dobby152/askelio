@@ -205,8 +205,7 @@ export function DocumentWorkspace({ className }: DocumentWorkspaceProps) {
       console.log('✅ Transformed extracted data:', extractedData)
 
       // Process processing details - create them even if not in response
-      const processingDetails: ProcessingDetails | undefined
-      processingDetails = {
+      const processingDetails: ProcessingDetails | undefined = {
         total_processing_time: documentData.processing_details?.total_processing_time || documentData.processing_time || 0,
         ocr_results: documentData.processing_details?.ocr_results || [],
         gemini_decision: documentData.processing_details?.gemini_decision || {
@@ -222,8 +221,8 @@ export function DocumentWorkspace({ className }: DocumentWorkspaceProps) {
         provider_used: documentData.provider_used || 'unknown',
         cost_czk: documentData.cost_czk || 0,
         // ARES enrichment info
-        ares_enrichment: documentData.ares_enriched || structuredData._ares_enrichment
-      }
+        ares_enrichment: documentData.ares_enriched || (documentData as any)._ares_enrichment
+      } as any
 
       const selectedDoc: SelectedDocument = {
         id: documentId,
@@ -305,7 +304,7 @@ export function DocumentWorkspace({ className }: DocumentWorkspaceProps) {
             <PDFPreview
               fileUrl={selectedDocument.fileUrl}
               fileName={selectedDocument.name}
-              extractedData={selectedDocument.extractedData}
+              extractedData={selectedDocument.extractedData as any}
               onDataEdit={handleDataEdit}
               onApprove={handleApprove}
               onReject={handleReject}
@@ -372,7 +371,7 @@ export function DocumentWorkspace({ className }: DocumentWorkspaceProps) {
                     <PDFPreview
                       fileUrl={selectedDocument?.fileUrl}
                       fileName={selectedDocument?.name}
-                      extractedData={selectedDocument?.extractedData}
+                      extractedData={selectedDocument?.extractedData as any}
                       onDataEdit={handleDataEdit}
                       onApprove={handleApprove}
                       onReject={handleReject}
@@ -440,7 +439,7 @@ export function DocumentWorkspace({ className }: DocumentWorkspaceProps) {
                 <PDFPreview
                   fileUrl={selectedDocument.fileUrl}
                   fileName={selectedDocument.name}
-                  extractedData={selectedDocument.extractedData}
+                  extractedData={selectedDocument.extractedData as any}
                   onDataEdit={handleDataEdit}
                   onApprove={handleApprove}
                   onReject={handleReject}

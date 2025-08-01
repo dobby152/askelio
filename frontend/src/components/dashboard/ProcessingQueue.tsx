@@ -59,9 +59,9 @@ export function ProcessingQueue({ userId, onQueueUpdate }: ProcessingQueueProps)
         }))
 
       console.log('📋 ProcessingQueue: Processing documents:', processingDocs)
-      setQueue(processingDocs)
+      setQueue(processingDocs as any)
       if (onQueueUpdate) {
-        onQueueUpdate(processingDocs)
+        onQueueUpdate(processingDocs as any)
       }
     } catch (error) {
       console.error('💥 ProcessingQueue: Error fetching queue:', error)

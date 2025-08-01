@@ -47,8 +47,8 @@ export function UserProfile() {
       setFormData({
         full_name: user.full_name || '',
         email: user.email || '',
-        preferred_language: user.preferred_language || 'cs',
-        preferred_currency: user.preferred_currency || 'CZK'
+        preferred_language: (user as any).preferred_language || 'cs',
+        preferred_currency: (user as any).preferred_currency || 'CZK'
       })
       fetchUserStats()
     }
@@ -60,9 +60,9 @@ export function UserProfile() {
       const mockStats: UserStats = {
         total_documents: 15,
         documents_this_month: 3,
-        total_credits_used: user?.total_credits_used || 0,
+        total_credits_used: (user as any)?.total_credits_used || 0,
         credits_used_this_month: 0.45,
-        member_since: user?.created_at || new Date().toISOString()
+        member_since: (user as any)?.created_at || new Date().toISOString()
       }
       setStats(mockStats)
     } catch (error) {
@@ -98,8 +98,8 @@ export function UserProfile() {
       setFormData({
         full_name: user.full_name || '',
         email: user.email || '',
-        preferred_language: user.preferred_language || 'cs',
-        preferred_currency: user.preferred_currency || 'CZK'
+        preferred_language: (user as any).preferred_language || 'cs',
+        preferred_currency: (user as any).preferred_currency || 'CZK'
       })
     }
     setIsEditing(false)
@@ -185,7 +185,7 @@ export function UserProfile() {
           <div className="flex items-center gap-4">
             <div className="relative">
               <Avatar className="h-20 w-20">
-                <AvatarImage src={user.avatar_url || ''} />
+                <AvatarImage src={(user as any).avatar_url || ''} />
                 <AvatarFallback className="text-lg">
                   {getInitials(user.full_name || user.email)}
                 </AvatarFallback>
@@ -213,7 +213,7 @@ export function UserProfile() {
               </p>
               <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
                 <Calendar className="h-4 w-4" />
-                Člen od {formatDate(user.created_at)}
+                Člen od {formatDate((user as any).created_at)}
               </p>
             </div>
           </div>
