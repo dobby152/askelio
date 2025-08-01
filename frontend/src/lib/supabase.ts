@@ -106,7 +106,7 @@ export interface Document {
   expires_at?: string
 }
 
-export interface CreditTransaction {
+export interface CreditTransactionSimple {
   id: string
   user_id: string
   document_id?: string
