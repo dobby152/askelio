@@ -69,7 +69,7 @@ class DuplicateAPI {
         params.append('currency', invoiceData.currency)
       }
 
-      const response = await apiClient.post('/api/v1/documents/check-duplicates', {}, {
+      const response = await (apiClient as any).post('/api/v1/documents/check-duplicates', {}, {
         params: Object.fromEntries(params)
       })
 

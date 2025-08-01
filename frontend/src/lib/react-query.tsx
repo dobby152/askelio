@@ -66,9 +66,9 @@ export function ReactQueryProvider({ children }: ReactQueryProviderProps) {
       {children}
       {/* Show React Query DevTools in development */}
       {process.env.NODE_ENV === 'development' && (
-        <ReactQueryDevtools 
+        <ReactQueryDevtools
           initialIsOpen={false}
-          position="bottom-right"
+          position={"bottom-right" as any}
         />
       )}
     </QueryClientProvider>

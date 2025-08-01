@@ -49,7 +49,7 @@ class SecureSessionManager {
         // Safari private mode
         (window.navigator.storage && !(await window.navigator.storage.estimate()).quota) ||
         // Chrome incognito detection
-        (window.webkitRequestFileSystem && !window.webkitRequestFileSystem)
+        ((window as any).webkitRequestFileSystem && !(window as any).webkitRequestFileSystem)
       )
       
       this.isPrivateMode = isPrivate
@@ -177,7 +177,7 @@ class SecureSessionManager {
   }
 
   // Check if we're in private mode (public method)
-  async isPrivateMode(): Promise<boolean> {
+  async checkPrivateMode(): Promise<boolean> {
     return await this.detectPrivateMode()
   }
 }
