@@ -94,6 +94,7 @@ import { apiClient } from "@/lib/api"
 import {
   LineChart,
   Line,
+  BarChart,
   Bar,
   PieChart,
   Pie,
@@ -390,7 +391,7 @@ function DashboardHome({ onSectionChange }: { onSectionChange?: (section: string
                     </p>
                     <div className="flex items-center gap-1 text-xs text-red-600 mt-1">
                       <ArrowDownRight className="w-3 h-3" />
-                      {loading ? "..." : `${dashboardStats?.trends?.expenses > 0 ? '+' : ''}${dashboardStats?.trends?.expenses || 0}% vs minulý měsíc`}
+                      {loading ? "..." : `${(dashboardStats?.trends?.expenses || 0) > 0 ? '+' : ''}${dashboardStats?.trends?.expenses || 0}% vs minulý měsíc`}
                     </div>
                   </div>
                   <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
@@ -410,7 +411,7 @@ function DashboardHome({ onSectionChange }: { onSectionChange?: (section: string
                     </p>
                     <div className="flex items-center gap-1 text-xs text-green-600 mt-1">
                       <Target className="w-3 h-3" />
-                      {loading ? "..." : `${dashboardStats?.trends?.profit > 0 ? '+' : ''}${dashboardStats?.trends?.profit || 0}% z cíle`}
+                      {loading ? "..." : `${(dashboardStats?.trends?.profit || 0) > 0 ? '+' : ''}${dashboardStats?.trends?.profit || 0}% z cíle`}
                     </div>
                   </div>
                   <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
