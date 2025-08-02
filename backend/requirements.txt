@@ -38,12 +38,12 @@ msrest>=0.7.1,<1.0.0
 
 # 3. Tesseract (open-source, local) - already included via pytesseract
 
-# 4. EasyOCR (ML-based, local)
-easyocr>=1.7.0,<2.0.0
+# 4. EasyOCR (ML-based, local) - Temporarily disabled for deployment compatibility
+# easyocr>=1.7.0,<2.0.0
 
-# 5. PaddleOCR (ML-based, local, good for multiple languages)
-paddlepaddle>=2.5.2,<3.0.0
-paddleocr>=2.7.3,<3.0.0
+# 5. PaddleOCR (ML-based, local, good for multiple languages) - Temporarily disabled for deployment compatibility
+# paddlepaddle>=2.5.2,<3.0.0
+# paddleocr>=2.7.3,<3.0.0
 
 # Google Gemini AI for decision making (legacy support)
 google-generativeai>=0.3.2,<1.0.0

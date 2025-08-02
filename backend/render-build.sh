@@ -9,13 +9,19 @@ echo "🔧 Starting Askelio Backend build..."
 echo "📦 Updating pip..."
 pip install --upgrade pip
 
-# Install system dependencies if needed
+# Install system dependencies for OCR
 echo "🔧 Installing system dependencies..."
-# Note: Render.com handles most system dependencies automatically
+# Tesseract OCR will be installed by Render.com automatically
 
 # Install Python dependencies
 echo "📚 Installing Python dependencies..."
 pip install -r requirements.txt
+
+# Verify critical imports
+echo "🔍 Verifying critical imports..."
+python -c "import fastapi; print('✅ FastAPI imported successfully')"
+python -c "import sqlalchemy; print('✅ SQLAlchemy imported successfully')"
+python -c "import psycopg2; print('✅ PostgreSQL driver imported successfully')"
 
 # Run any database migrations if needed
 echo "🗄️  Checking database migrations..."

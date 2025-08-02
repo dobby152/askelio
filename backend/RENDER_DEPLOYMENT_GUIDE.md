@@ -40,13 +40,19 @@ All environment variables are now ready to be copied to Render.com.
 - **File**: `backend/runtime.txt`
 - **Version**: Python 3.11.9 (compatible with all dependencies)
 
-### Build Command
-Use this build command in Render.com:
+### Build Command Options
+
+**Option 1: Minimal deployment (recommended for initial setup)**
+```bash
+pip install --upgrade pip && pip install -r requirements-minimal.txt
+```
+
+**Option 2: Full deployment (after minimal works)**
 ```bash
 ./render-build.sh
 ```
 
-Or if you prefer manual command:
+**Option 3: Manual command**
 ```bash
 pip install --upgrade pip && pip install -r requirements.txt
 ```
@@ -75,8 +81,17 @@ After setting up the environment variables:
 ## Troubleshooting
 
 ### Build Issues
-- **Pillow errors**: Fixed by using Python 3.11.9 and updated requirements.txt
-- **Version conflicts**: All dependencies now use flexible version ranges
+
+**PaddlePaddle/EasyOCR errors (current issue)**
+- These ML libraries have Python 3.13 compatibility issues
+- **Solution**: Use `requirements-minimal.txt` for initial deployment
+- **Alternative**: Wait for library updates or use Python 3.11
+
+**Pillow errors**
+- Fixed by using Python 3.11.9 and updated requirements.txt
+
+**Version conflicts**
+- All dependencies now use flexible version ranges
 
 ### Runtime Issues
 - If database connection fails, double-check the DATABASE_URL format
@@ -84,5 +99,12 @@ After setting up the environment variables:
 - Check Render.com logs for specific error messages
 
 ### Common Fixes
-- Make sure `render-build.sh` is executable: `chmod +x render-build.sh`
-- If build fails, try the manual build command instead
+1. **For immediate deployment**: Use `requirements-minimal.txt`
+2. **Make build script executable**: `chmod +x render-build.sh`
+3. **If build fails**: Try manual build command
+4. **Python version**: Render.com ignores `runtime.txt`, uses Python 3.13 by default
+
+### Deployment Strategy
+1. **Phase 1**: Deploy with `requirements-minimal.txt` to get basic API running
+2. **Phase 2**: Add OCR libraries one by one after confirming basic deployment works
+3. **Phase 3**: Full feature deployment once all compatibility issues are resolved
