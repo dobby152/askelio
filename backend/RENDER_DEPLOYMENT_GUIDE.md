@@ -42,19 +42,19 @@ All environment variables are now ready to be copied to Render.com.
 
 ### Build Command Options
 
-**Option 1: Minimal deployment (recommended for initial setup)**
-```bash
-pip install --upgrade pip && pip install -r requirements-minimal.txt
-```
-
-**Option 2: Full deployment (after minimal works)**
+**Option 1: Full deployment with build script (recommended)**
 ```bash
 ./render-build.sh
 ```
 
-**Option 3: Manual command**
+**Option 2: Manual command with timeout**
 ```bash
-pip install --upgrade pip && pip install -r requirements.txt
+pip install --upgrade pip && pip install --timeout=1000 -r requirements.txt
+```
+
+**Option 3: Minimal deployment (fallback if full fails)**
+```bash
+pip install --upgrade pip && pip install -r requirements-minimal.txt
 ```
 
 ### Start Command
@@ -82,10 +82,10 @@ After setting up the environment variables:
 
 ### Build Issues
 
-**PaddlePaddle/EasyOCR errors (current issue)**
-- These ML libraries have Python 3.13 compatibility issues
-- **Solution**: Use `requirements-minimal.txt` for initial deployment
-- **Alternative**: Wait for library updates or use Python 3.11
+**PaddlePaddle/EasyOCR compatibility (RESOLVED)**
+- Updated PaddlePaddle to version 3.0.0+ which supports Python 3.13
+- All OCR libraries are now enabled and should work
+- Added OpenCV and additional image processing libraries
 
 **Pillow errors**
 - Fixed by using Python 3.11.9 and updated requirements.txt

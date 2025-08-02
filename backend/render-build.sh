@@ -11,17 +11,24 @@ pip install --upgrade pip
 
 # Install system dependencies for OCR
 echo "🔧 Installing system dependencies..."
-# Tesseract OCR will be installed by Render.com automatically
+# Tesseract OCR and other dependencies will be installed by Render.com automatically
 
-# Install Python dependencies
+# Install Python dependencies with increased timeout
 echo "📚 Installing Python dependencies..."
-pip install -r requirements.txt
+pip install --timeout=1000 -r requirements.txt
 
 # Verify critical imports
 echo "🔍 Verifying critical imports..."
 python -c "import fastapi; print('✅ FastAPI imported successfully')"
 python -c "import sqlalchemy; print('✅ SQLAlchemy imported successfully')"
 python -c "import psycopg2; print('✅ PostgreSQL driver imported successfully')"
+
+# Verify OCR libraries
+echo "🔍 Verifying OCR libraries..."
+python -c "import PIL; print('✅ Pillow imported successfully')" || echo "⚠️ Pillow import failed"
+python -c "import cv2; print('✅ OpenCV imported successfully')" || echo "⚠️ OpenCV import failed"
+python -c "import easyocr; print('✅ EasyOCR imported successfully')" || echo "⚠️ EasyOCR import failed"
+python -c "import paddleocr; print('✅ PaddleOCR imported successfully')" || echo "⚠️ PaddleOCR import failed"
 
 # Run any database migrations if needed
 echo "🗄️  Checking database migrations..."
