@@ -1,0 +1,114 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+env/
+venv/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Environment variables (will be set in Cloud Run)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Database files (using Supabase in production)
+*.db
+*.sqlite
+*.sqlite3
+
+# Uploads and temp files (will use cloud storage)
+uploads/
+temp/
+tmp/
+
+# Testing
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+htmlcov/
+
+# Documentation
+*.md
+docs/
+
+# Git
+.git/
+.gitignore
+
+# Development files
+test_*.py
+*_test.py
+test_*.png
+test_*.pdf
+test_*.jpg
+
+# Development scripts
+start-servers.js
+run-*.js
+check_*.py
+create_test_*.py
+migrate_*.py
+simple_server.py
+test_server.py
+test_endpoints.py
+
+# Frontend (not needed in backend container)
+../frontend/
+../node_modules/
+../package*.json
+
+# Cloud credentials (will be handled by Cloud Run service account)
+google-credentials.json
+*.json
+
+# Specific test files
+empty_test.txt
+test_vision_web.html
+AI_TEST_RESULTS.md

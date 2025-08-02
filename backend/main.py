@@ -62,13 +62,23 @@ app = FastAPI(
 allowed_origins = [
     "http://localhost:3000",  # Development frontend
     "http://localhost:3001",  # Development frontend (alternative port)
-    "https://yourdomain.com",  # Production domain - CHANGE THIS!
 ]
 
-# Get additional origins from environment
+# Add production origins from environment variable
 env_origins = os.getenv('CORS_ORIGINS', '').split(',')
 if env_origins and env_origins[0]:  # Check if not empty
     allowed_origins.extend([origin.strip() for origin in env_origins])
+
+# Default production origins (can be overridden by CORS_ORIGINS env var)
+if os.getenv('ENVIRONMENT') == 'production':
+    production_origins = [
+        "https://askelio-pi.vercel.app",  # Main Vercel deployment
+        "https://askelio-pi-git-main.vercel.app",  # Git branch deployments
+        "https://askelio-pi-*.vercel.app",  # Preview deployments
+    ]
+    # Only add if not already specified in CORS_ORIGINS
+    if not env_origins or not env_origins[0]:
+        allowed_origins.extend(production_origins)
 
 app.add_middleware(
     CORSMiddleware,

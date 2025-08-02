@@ -1,79 +1,79 @@
 # FastAPI and web framework
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
-python-multipart==0.0.6
+fastapi>=0.104.1,<0.115.0
+uvicorn[standard]>=0.24.0,<0.32.0
+python-multipart>=0.0.6,<0.1.0
 
 # Database
-sqlalchemy==2.0.23
-psycopg2-binary==2.9.9
-alembic==1.12.1
+sqlalchemy>=2.0.23,<2.1.0
+psycopg2-binary>=2.9.9,<3.0.0
+alembic>=1.12.1,<2.0.0
 
 # Pydantic
-pydantic==2.5.0
-pydantic-settings==2.1.0
+pydantic>=2.5.0,<3.0.0
+pydantic-settings>=2.1.0,<3.0.0
 
 # Authentication
-python-jose[cryptography]==3.3.0
-passlib[bcrypt]==1.7.4
+python-jose[cryptography]>=3.3.0,<4.0.0
+passlib[bcrypt]>=1.7.4,<2.0.0
 
 # Background tasks
-celery==5.3.4
-redis==5.0.1
+celery>=5.3.4,<6.0.0
+redis>=5.0.1,<6.0.0
 
 # Core OCR and Image Processing
-pillow==10.1.0
-pytesseract==0.3.10
-pdf2image==1.16.3
-PyMuPDF==1.23.26
-numpy==1.24.3
+pillow>=10.2.0,<11.0.0
+pytesseract>=0.3.10,<0.4.0
+pdf2image>=1.16.3,<2.0.0
+PyMuPDF>=1.23.26,<2.0.0
+numpy>=1.24.3,<2.0.0
 
 # OCR Providers - 5 Sources for Maximum Accuracy
 # 1. Google Vision API (cloud-based, high accuracy)
-google-cloud-vision==3.4.5
-google-auth==2.23.4
+google-cloud-vision>=3.4.5,<4.0.0
+google-auth>=2.23.4,<3.0.0
 
 # 2. Azure Computer Vision (cloud-based alternative)
-azure-cognitiveservices-vision-computervision==0.9.0
-msrest==0.7.1
+azure-cognitiveservices-vision-computervision>=0.9.0,<1.0.0
+msrest>=0.7.1,<1.0.0
 
 # 3. Tesseract (open-source, local) - already included via pytesseract
 
 # 4. EasyOCR (ML-based, local)
-easyocr==1.7.0
+easyocr>=1.7.0,<2.0.0
 
 # 5. PaddleOCR (ML-based, local, good for multiple languages)
-paddlepaddle==2.5.2
-paddleocr==2.7.3
+paddlepaddle>=2.5.2,<3.0.0
+paddleocr>=2.7.3,<3.0.0
 
 # Google Gemini AI for decision making (legacy support)
-google-generativeai==0.3.2
+google-generativeai>=0.3.2,<1.0.0
 
 # OpenRouter API - Unified LLM Access (90% FREE processing)
-requests==2.31.0             # For OpenRouter API calls
+requests>=2.31.0,<3.0.0
 
 # Payment and External Services
-stripe==7.8.0
-supabase==2.0.2
+stripe>=7.8.0,<8.0.0
+supabase>=2.0.2,<3.0.0
 
 # Environment and configuration
-python-dotenv==1.0.0
+python-dotenv>=1.0.0,<2.0.0
 
 # HTTP client
-httpx>=0.24.0,<0.25.0
-aiohttp==3.9.1
+httpx>=0.24.0,<0.28.0
+aiohttp>=3.9.1,<4.0.0
 
 # Google Cloud Services
-google-cloud-storage==2.10.0
-google-cloud-secret-manager==2.16.4
-google-cloud-logging==3.8.0
+google-cloud-storage>=2.10.0,<3.0.0
+google-cloud-secret-manager>=2.16.4,<3.0.0
+google-cloud-logging>=3.8.0,<4.0.0
 
 # Utilities
-python-dateutil==2.8.2
+python-dateutil>=2.8.2,<3.0.0
 
 # Production monitoring and logging
-structlog==23.2.0
-prometheus-client==0.19.0
-sentry-sdk[fastapi]==2.19.2
+structlog>=23.2.0,<24.0.0
+prometheus-client>=0.19.0,<1.0.0
+sentry-sdk[fastapi]>=2.19.2,<3.0.0
 
 # Security
-cryptography>=41.0.0
+cryptography>=41.0.0,<44.0.0
