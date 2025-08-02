@@ -16,8 +16,8 @@ Nastavte tyto environment variables ve vašem Vercel projektu `askelio-pi`.
 Nastavte pro všechna prostředí:
 
 ```bash
-# Backend API URL
-NEXT_PUBLIC_API_URL=https://askelio-backend-742213261617.europe-west1.run.app
+# Backend API URL (Update with your Render.com URL)
+NEXT_PUBLIC_API_URL=https://your-render-service-name.onrender.com
 
 # Supabase Configuration
 NEXT_PUBLIC_SUPABASE_URL=https://nfmjqnojvjjapszgwcfd.supabase.co
@@ -36,7 +36,7 @@ NEXT_PUBLIC_ENABLE_MEMORY=true
 
 ### 1. NEXT_PUBLIC_API_URL
 - **Name**: `NEXT_PUBLIC_API_URL`
-- **Value**: `https://askelio-backend-742213261617.europe-west1.run.app`
+- **Value**: `https://your-render-service-name.onrender.com` (Replace with your actual Render.com URL)
 - **Environment**: ✅ Production, ✅ Preview, ✅ Development
 
 ### 2. NEXT_PUBLIC_SUPABASE_URL

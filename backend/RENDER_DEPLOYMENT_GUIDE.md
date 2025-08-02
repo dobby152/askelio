@@ -59,6 +59,11 @@ pip install --upgrade pip && pip install -r requirements-minimal.txt
 
 ### Start Command
 ```bash
+python main.py
+```
+
+**Alternative start command:**
+```bash
 uvicorn main:app --host 0.0.0.0 --port $PORT
 ```
 

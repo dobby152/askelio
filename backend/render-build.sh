@@ -32,6 +32,10 @@ python -c "import cv2; print('✅ OpenCV imported successfully')" || echo "⚠�
 python -c "import easyocr; print('✅ EasyOCR imported successfully')" || echo "⚠️ EasyOCR import failed"
 python -c "import paddleocr; print('✅ PaddleOCR imported successfully')" || echo "⚠️ PaddleOCR import failed"
 
+# Test port configuration
+echo "🔍 Testing port configuration..."
+python test_port.py || echo "⚠️ Port test failed, but continuing..."
+
 # Run any database migrations if needed
 echo "🗄️  Checking database migrations..."
 # python run_migrations.py  # Uncomment if you have migrations

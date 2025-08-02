@@ -851,9 +851,11 @@ async def get_company_from_ares(ico: str):
 
 
 if __name__ == "__main__":
+    # Use PORT environment variable for deployment platforms like Render.com
+    port = int(os.getenv("PORT", 8001))
     uvicorn.run(
         app,
         host="0.0.0.0",
-        port=8001,
+        port=port,
         reload=False
     )
