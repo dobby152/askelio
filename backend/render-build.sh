@@ -22,6 +22,8 @@ echo "🔍 Verifying critical imports..."
 python -c "import fastapi; print('✅ FastAPI imported successfully')"
 python -c "import sqlalchemy; print('✅ SQLAlchemy imported successfully')"
 python -c "import psycopg2; print('✅ PostgreSQL driver imported successfully')"
+python -c "import pydantic; print('✅ Pydantic imported successfully')"
+python -c "import email_validator; print('✅ Email validator imported successfully')"
 
 # Verify OCR libraries
 echo "🔍 Verifying OCR libraries..."
